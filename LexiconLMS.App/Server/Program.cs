@@ -43,8 +43,10 @@ namespace LexiconLMS.App
 
 			var app = builder.Build();
 
-			// Configure the HTTP request pipeline.
-			if (app.Environment.IsDevelopment())
+            //await app.SeedDataAsync();
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
 			{
 				app.UseMigrationsEndPoint();
 				app.UseWebAssemblyDebugging();
