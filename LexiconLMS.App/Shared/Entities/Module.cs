@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LexiconLMS.Shared.Entities
 {
-	internal class Module
+	public class Module
 	{
 		public int Id { get; set; }
 		public string Title { get; set; }

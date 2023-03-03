@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LexiconLMS.Shared.Entities
 {
-	internal class Course
+	public class Course
 	{
 		public int Id { get; set; }
 		public string Title { get; set; }
@@ -14,6 +14,6 @@ namespace LexiconLMS.Shared.Entities
 		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
 		public List<Module> Modules { get; set; }
-		public List<User> Users { get; set; }
+		public List<ApplicationUser> Users { get; set; }
 	}
 }

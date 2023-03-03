@@ -1,6 +1,7 @@
 using LexiconLMS.App.Server.Data;
-using LexiconLMS.App.Server.Models;
+using LexiconLMS.Shared.Entities;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,7 @@ namespace LexiconLMS.App
 					options.Password.RequireLowercase = false;
 				})
 
+				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			builder.Services.AddIdentityServer()

@@ -7,7 +7,7 @@ using LexiconLMS.Shared.Entities;
 
 namespace LexiconLMS.App.Shared.Entities
 {
-	internal class DocumentType
+	public class DocumentType
 	{
 		public int Id { get; set; }
 		public string Type { get; set; }
