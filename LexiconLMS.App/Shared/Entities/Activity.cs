@@ -15,6 +15,7 @@ namespace LexiconLMS.Shared.Entities
 		public DateTime EndTime { get; set; }
 
 		public int ModuleId { get; set; }
+		public int ActivityTypeId { get; set; }
 	}
 
 }
