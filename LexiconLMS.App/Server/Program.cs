@@ -1,4 +1,5 @@
 using LexiconLMS.App.Server.Data;
+using LexiconLMS.App.Server.Extensions;
 using LexiconLMS.Shared.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +10,7 @@ namespace LexiconLMS.App
 {
 	public class Program
 	{
-		public static void Main(string[] args)
+		public async static Task Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
@@ -43,10 +44,10 @@ namespace LexiconLMS.App
 
 			var app = builder.Build();
 
-            //await app.SeedDataAsync();
+			await app.SeedDataAsync();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+			// Configure the HTTP request pipeline.
+			if (app.Environment.IsDevelopment())
 			{
 				app.UseMigrationsEndPoint();
 				app.UseWebAssemblyDebugging();

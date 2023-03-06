@@ -22,7 +22,7 @@ namespace LexiconLMS.App.Server.Data
             if (string.IsNullOrEmpty(adminPW))
                 throw new Exception("Can't get password from config");
 
-            if (db.Users.Any()) return;  // Seeda ej om det redan finns data på databasen
+            //if (db.Users.Any()) return;  // Seeda ej om det redan finns data på databasen
 
             ArgumentNullException.ThrowIfNull(nameof(services));
             

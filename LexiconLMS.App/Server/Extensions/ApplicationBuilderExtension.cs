@@ -12,11 +12,11 @@ namespace LexiconLMS.App.Server.Extensions
                 var serviceProvider = scope.ServiceProvider;
                 var db = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
-                //db.Database.EnsureDeleted();
+                db.Database.EnsureDeleted();
                 //db.Database.Migrate();
 
                 var config = serviceProvider.GetRequiredService<IConfiguration>();
-                var adminPW = config["AdminPW"];  // user-secrets
+                var adminPW = "123456"; //config["AdminPW"];  // user-secrets
 
                 ArgumentNullException.ThrowIfNull(adminPW, nameof(adminPW));
 
