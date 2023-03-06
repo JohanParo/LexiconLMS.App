@@ -1,6 +1,6 @@
 using LexiconLMS.App.Server.Data;
 using LexiconLMS.App.Server.Extensions;
-using LexiconLMS.Shared.Entities;
+using LexiconLMS.App.Server;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;

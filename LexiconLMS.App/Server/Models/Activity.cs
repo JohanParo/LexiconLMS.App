@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LexiconLMS.Shared.Entities
+namespace LexiconLMS.App.Server
 {
 #nullable disable
 	public class Activity

@@ -5,9 +5,9 @@ using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LexiconLMS.App.Shared.Entities;
+using LexiconLMS.App.Server;
 
-namespace LexiconLMS.Shared.Entities
+namespace LexiconLMS.App.Server
 {
 	public class Document
 	{

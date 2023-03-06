@@ -1,6 +1,6 @@
 ﻿using Bogus;
 using Bogus.DataSets;
-using LexiconLMS.Shared.Entities;
+using LexiconLMS.App.Server;
 using Microsoft.AspNetCore.Identity;
 using System.Globalization;
 using System.Security.Claims;
@@ -108,7 +108,7 @@ namespace LexiconLMS.App.Server.Data
                     Title = faker.PickRandom(courseTitles),
                     StartTime = DateTime.Now,
                     EndTime = DateTime.Now.AddMonths(5),
-                    Descritpion = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(faker.Lorem.Text()),
+                    Description = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(faker.Lorem.Text()),
                     Modules = GenerateModules(8),
                 };
 

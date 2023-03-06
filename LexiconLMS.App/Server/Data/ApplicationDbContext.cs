@@ -1,9 +1,8 @@
 ﻿using Duende.IdentityServer.EntityFramework.Options;
-using LexiconLMS.Shared.Entities;
+using LexiconLMS.App.Server;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using LexiconLMS.App.Shared.Entities;
 
 namespace LexiconLMS.App.Server.Data
 {
@@ -14,11 +13,11 @@ namespace LexiconLMS.App.Server.Data
 			IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
 		{
 		}
-		public DbSet<LexiconLMS.Shared.Entities.Course> Course { get; set; } = default!;
-		public DbSet<LexiconLMS.Shared.Entities.Activity> Activity { get; set; } = default!;
-		public DbSet<LexiconLMS.Shared.Entities.ActivityType> ActivityType { get; set; } = default!;
-		public DbSet<LexiconLMS.Shared.Entities.Module> Module { get; set; } = default!;
-		public DbSet<LexiconLMS.Shared.Entities.Document> Document { get; set; } = default!;
-		public DbSet<LexiconLMS.App.Shared.Entities.DocumentType> DocumentType { get; set; } = default!;
+		public DbSet<LexiconLMS.App.Server.Course> Course { get; set; } = default!;
+		public DbSet<LexiconLMS.App.Server.Activity> Activity { get; set; } = default!;
+		public DbSet<LexiconLMS.App.Server.ActivityType> ActivityType { get; set; } = default!;
+		public DbSet<LexiconLMS.App.Server.Module> Module { get; set; } = default!;
+		public DbSet<LexiconLMS.App.Server.Document> Document { get; set; } = default!;
+		public DbSet<LexiconLMS.App.Server.DocumentType> DocumentType { get; set; } = default!;
 	}
 }

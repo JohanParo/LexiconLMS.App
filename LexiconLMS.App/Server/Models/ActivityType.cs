@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LexiconLMS.Shared.Entities;
 
-namespace LexiconLMS.App.Shared.Entities
+namespace LexiconLMS.App.Server
 {
 #nullable disable
-	public class DocumentType
+	public class ActivityType
 	{
 		public int Id { get; set; }
 		public string Type { get; set; } = string.Empty;
 
-		public ICollection<Document> Documents{ get; set; }
+		public ICollection<Activity> Activities { get; set; }
 	}
 }
