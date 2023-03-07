@@ -1,0 +1,43 @@
+﻿@using LexiconLMS.Shared.Entities;
+<div class="accordion mb-4" id="accordionModules">
+    <div class="accordion-item">
+@*<div class="container-fluid border rounded p-0 mb-4 m-0">*@
+        <h4 class="accordion-header" id="headingOne">
+            <button class="accordion-button h4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                @title
+            </button>
+            </h4>
+
+        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+    <div class="row px-4 pb-4">
+        @foreach (var item in itemlist)
+        {
+            <CardModule Module="item" cols="@cols"></CardModule>
+        }
+    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public string title { get; set; } = string.Empty;
+
+    [Parameter]
+    public int? cols { get; set; }
+
+
+    public List<Module> itemlist = new(){
+                new Module(){ Id=1, Title="Dignissim", Description="Convallis aenean et tortor at risus viverra adipiscing at in. Felis eget velit aliquet sagittis id consectetur purus ut. Ultrices vitae auctor eu augue ut. Vestibulum rhoncus est pellentesque elit ullamcorper dignissim cras tincidunt lobortis. Egestas maecenas pharetra convallis posuere morbi. Laoreet suspendisse interdum consectetur libero id faucibus nisl. Iaculis at erat pellentesque adipiscing commodo. Viverra nam libero justo laoreet sit amet cursus. Dui sapien eget mi proin sed libero enim sed. Risus nullam eget felis eget nunc lobortis mattis aliquam. Est ultricies integer quis auctor elit sed vulputate mi. Feugiat vivamus at augue eget. Malesuada fames ac turpis egestas sed. Et malesuada fames ac turpis egestas. Egestas maecenas pharetra convallis posuere. Purus in mollis nunc sed id semper. Eget nunc scelerisque viverra mauris in. Sit amet facilisis magna etiam tempor orci eu."},
+                new Module(){ Id=2,Title="Suspendisse", Description="Convallis aenean et tortor at risus viverra adipiscing at in. Felis eget velit aliquet sagittis id consectetur purus ut. Ultrices vitae auctor eu augue ut. Vestibulum rhoncus est pellentesque elit ullamcorper dignissim cras tincidunt lobortis. Egestas maecenas pharetra convallis posuere morbi. Laoreet suspendisse interdum consectetur libero id faucibus nisl. Iaculis at erat pellentesque adipiscing commodo. Viverra nam libero justo laoreet sit amet cursus. Dui sapien eget mi proin sed libero enim sed. Risus nullam eget felis eget nunc lobortis mattis aliquam. Est ultricies integer quis auctor elit sed vulputate mi. Feugiat vivamus at augue eget. Malesuada fames ac turpis egestas sed. Et malesuada fames ac turpis egestas. Egestas maecenas pharetra convallis posuere. Purus in mollis nunc sed id semper. Eget nunc scelerisque viverra mauris in. Sit amet facilisis magna etiam tempor orci eu."},
+                new Module(){ Id=3,Title="Mauris", Description="Convallis aenean et tortor at risus viverra adipiscing at in. Felis eget velit aliquet sagittis id consectetur purus ut. Ultrices vitae auctor eu augue ut. Vestibulum rhoncus est pellentesque elit ullamcorper dignissim cras tincidunt lobortis. Egestas maecenas pharetra convallis posuere morbi. Laoreet suspendisse interdum consectetur libero id faucibus nisl. Iaculis at erat pellentesque adipiscing commodo. Viverra nam libero justo laoreet sit amet cursus. Dui sapien eget mi proin sed libero enim sed. Risus nullam eget felis eget nunc lobortis mattis aliquam. Est ultricies integer quis auctor elit sed vulputate mi. Feugiat vivamus at augue eget. Malesuada fames ac turpis egestas sed. Et malesuada fames ac turpis egestas. Egestas maecenas pharetra convallis posuere. Purus in mollis nunc sed id semper. Eget nunc scelerisque viverra mauris in. Sit amet facilisis magna etiam tempor orci eu."},
+                new Module(){ Id=4,Title="Risus", Description="Convallis aenean et tortor at risus viverra adipiscing at in. Felis eget velit aliquet sagittis id consectetur purus ut. Ultrices vitae auctor eu augue ut. Vestibulum rhoncus est pellentesque elit ullamcorper dignissim cras tincidunt lobortis. Egestas maecenas pharetra convallis posuere morbi. Laoreet suspendisse interdum consectetur libero id faucibus nisl. Iaculis at erat pellentesque adipiscing commodo. Viverra nam libero justo laoreet sit amet cursus. Dui sapien eget mi proin sed libero enim sed. Risus nullam eget felis eget nunc lobortis mattis aliquam. Est ultricies integer quis auctor elit sed vulputate mi. Feugiat vivamus at augue eget. Malesuada fames ac turpis egestas sed. Et malesuada fames ac turpis egestas. Egestas maecenas pharetra convallis posuere. Purus in mollis nunc sed id semper. Eget nunc scelerisque viverra mauris in. Sit amet facilisis magna etiam tempor orci eu."},
+                new Module(){ Id=5,Title="Viverra", Description="Convallis aenean et tortor at risus viverra adipiscing at in. Felis eget velit aliquet sagittis id consectetur purus ut. Ultrices vitae auctor eu augue ut. Vestibulum rhoncus est pellentesque elit ullamcorper dignissim cras tincidunt lobortis. Egestas maecenas pharetra convallis posuere morbi. Laoreet suspendisse interdum consectetur libero id faucibus nisl. Iaculis at erat pellentesque adipiscing commodo. Viverra nam libero justo laoreet sit amet cursus. Dui sapien eget mi proin sed libero enim sed. Risus nullam eget felis eget nunc lobortis mattis aliquam. Est ultricies integer quis auctor elit sed vulputate mi. Feugiat vivamus at augue eget. Malesuada fames ac turpis egestas sed. Et malesuada fames ac turpis egestas. Egestas maecenas pharetra convallis posuere. Purus in mollis nunc sed id semper. Eget nunc scelerisque viverra mauris in. Sit amet facilisis magna etiam tempor orci eu."},
+                new Module(){ Id=6,Title="Ultrices", Description="Convallis aenean et tortor at risus viverra adipiscing at in. Felis eget velit aliquet sagittis id consectetur purus ut. Ultrices vitae auctor eu augue ut. Vestibulum rhoncus est pellentesque elit ullamcorper dignissim cras tincidunt lobortis. Egestas maecenas pharetra convallis posuere morbi. Laoreet suspendisse interdum consectetur libero id faucibus nisl. Iaculis at erat pellentesque adipiscing commodo. Viverra nam libero justo laoreet sit amet cursus. Dui sapien eget mi proin sed libero enim sed. Risus nullam eget felis eget nunc lobortis mattis aliquam. Est ultricies integer quis auctor elit sed vulputate mi. Feugiat vivamus at augue eget. Malesuada fames ac turpis egestas sed. Et malesuada fames ac turpis egestas. Egestas maecenas pharetra convallis posuere. Purus in mollis nunc sed id semper. Eget nunc scelerisque viverra mauris in. Sit amet facilisis magna etiam tempor orci eu."}
+    };
+
+
+}

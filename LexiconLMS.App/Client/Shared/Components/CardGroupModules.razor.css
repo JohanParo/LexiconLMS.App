@@ -1,0 +1,14 @@
+﻿.accordion-button.h4 {
+    font-size:inherit!important;
+}
+
+.accordion-button.h4:focus {
+    border-color: rgba(0,0,0,.125);
+    color: var(--bs-body-color);
+    box-shadow: 0 0 0 .25rem rgba(0,0,0,.25);
+}
+
+.accordion-button:not(.collapsed) {
+    color: var(--bs-body-color);
+    background-color: #fff;
+}

@@ -9,6 +9,7 @@ namespace LexiconLMS.Shared.Entities
 	public class Activity
 	{
 		public int Id { get; set; }
+		public string Title { get; set; }
 		public ActivityType ActivityType { get; set; }
 		public string Description { get; set; } = string.Empty;
 		public DateTime StartTime { get; set; }

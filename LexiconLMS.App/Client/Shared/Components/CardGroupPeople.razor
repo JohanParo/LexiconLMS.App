@@ -1,0 +1,30 @@
+﻿@using LexiconLMS.Shared.Entities;
+
+<div class="container-fluid border rounded p-0 mb-4 m-0">
+    <h4 class="border-bottom p-4">@title</h4>
+    <div class="row px-4 pb-4">
+        @foreach (var item in itemlist)
+        {
+            <CardContact user="item" cols="@cols"></CardContact>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public string title { get; set; } = string.Empty;
+
+    [Parameter]
+    public int? cols { get; set; }
+
+
+    public List<ApplicationUser> itemlist = new(){
+                new ApplicationUser(){ FirstName="Bill", Email="bill@ted.com"},
+                new ApplicationUser(){ FirstName="Steve", Email="Steve@just.com"},
+                new ApplicationUser(){ FirstName="Ram", Email="ram@bo.com"},
+                new ApplicationUser(){ FirstName="Abdul", Email="abdul@la.com"},
+                new ApplicationUser(){ FirstName="Stina", Email="stina@lisa.com"},
+                new ApplicationUser(){ FirstName="Lina", Email="lina@lina.com"}
+    };
+}

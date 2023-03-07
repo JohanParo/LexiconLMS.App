@@ -1,0 +1,25 @@
+﻿@using LexiconLMS.Shared.Entities;
+
+<div class="card shadow mb-4">
+    <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="@color"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+    @*<img src="..." class="card-img-top" alt="..." />*@
+    <div class="card-body">
+        <h5 class="card-title">@Activity.Title</h5>
+        <p>@ExtensionsUtils.TrimString(Activity.Description,400)</p>
+    </div>
+    @* <div class="card-body text-end"><a href=@($"mailto:{item.Email}") class="btn btn-primary"><i class="oi oi-envelope-closed px-1"></i></a></div>*@
+</div>
+
+
+@code {
+    Random random = new Random();
+    string color { get; set; } = "#868e96";
+
+    [Parameter]
+    public Activity Activity { get; set; } = new Activity();
+
+    protected override void OnParametersSet()
+    {
+        color = String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
+    }
+}
