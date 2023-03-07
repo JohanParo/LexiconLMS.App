@@ -5,13 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
-namespace LexiconLMS.Shared.Entities
+namespace LexiconLMS.App.Server
 {
+#nullable disable
 	public class ApplicationUser : IdentityUser
 	{
 		//public int Id { get; set; }
-		public string? FirstName { get; set; }
-		public string? LastName { get; set; }
+		public string FirstName { get; set; } = string.Empty;
+		public string LastName { get; set; } = string.Empty;
 		public int? CourseId { get; set; }
-	}
+		public string Avatar { get; set; }
+
+        //public  Course? Course { get; set; }
+    }
 }
