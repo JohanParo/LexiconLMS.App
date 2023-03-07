@@ -1,6 +1,6 @@
 ﻿using Bogus;
 using Bogus.DataSets;
-using LexiconLMS.App.Server;
+using LexiconLMS.App.Server.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
 using System.Globalization;

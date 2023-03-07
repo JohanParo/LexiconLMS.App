@@ -1,32 +1,23 @@
 ﻿@using LexiconLMS.App.Client.Services;
-@using LexiconLMS.Shared.Entities;
+
 @inject LMSClient lsmClient;
 
-<CardTemplate Items="pets" Context="pet">
-    <TableHeader>Test</TableHeader>
-    <RowTemplate Context="pet">
-        <td>@pet.PetId</td>
-        <td>@pet.Name</td>
-    </RowTemplate>
-</CardTemplate>
+<CardGroupTemplate Items="Courses" Context="course">
+    <GroupHeader>Test</GroupHeader>
+    <CardTemplate Context="course">
+        <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#ccc"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+        <div class="card-body">
+            <h5 class="card-title">@course.Title</h5>
+            <p>@course.Description</p>
+        </div>
+    </CardTemplate>
+</CardGroupTemplate>
 
 @code {
-    private IEnumerable<Course> Courses { get; set; } = new List<Course>();
-    private List<Pet> pets = new()
-    {
-        new Pet { PetId = 2, Name = "Mr. Bigglesworth" },
-        new Pet { PetId = 4, Name = "Salem Saberhagen" },
-        new Pet { PetId = 7, Name = "K-9" }
-    };
-
-    private class Pet
-    {
-        public int PetId { get; set; }
-        public string? Name { get; set; }
-    }
+    private List<CourseDto> Courses { get; set; } = new List<CourseDto>();
 
     protected override async Task OnInitializedAsync()
     {
-        Courses = await lsmClient.GetAsync();
+        Courses = (await lsmClient.GetAsync()).ToList();
     }
 }

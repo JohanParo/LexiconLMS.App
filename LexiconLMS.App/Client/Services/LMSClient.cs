@@ -1,4 +1,4 @@
-﻿using LexiconLMS.Shared.Entities;
+﻿using LexiconLMS.App.Client.DTOs;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -14,9 +14,9 @@ namespace LexiconLMS.App.Client.Services
             this.httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<IEnumerable<Course>?> GetAsync()
+        public async Task<IEnumerable<CourseDto>?> GetAsync()
         {
-            return await httpClient.GetFromJsonAsync<IEnumerable<Course>>("api/courses");
+            return await httpClient.GetFromJsonAsync<IEnumerable<CourseDto>>("api/courses");
         }
 
         //public async Task<ApplicationUser?> PostAsync(ApplicationUser createItem)

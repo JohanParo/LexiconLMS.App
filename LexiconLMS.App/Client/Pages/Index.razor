@@ -1,4 +1,7 @@
-﻿@page "/"
+﻿@using Microsoft.AspNetCore.Authorization;
+
+@page "/"
+@*@attribute [Authorize]*@
 
 <PageTitle>Index</PageTitle>
 
@@ -8,4 +11,11 @@
 <CardGroupActivities title="Your Activities"></CardGroupActivities>
 <SurveyPrompt Title="How is Blazor working for you?" />
 
-<Test></Test>
+<AuthorizeView>
+    <Authorized>
+        <Test></Test>
+    </Authorized>
+    <NotAuthorized>
+        <p>Not logged in...</p>
+    </NotAuthorized>
+</AuthorizeView>

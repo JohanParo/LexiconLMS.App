@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LexiconLMS.App.Server.Data;
-using LexiconLMS.App.Server;
+using LexiconLMS.App.Server.Models;
 
 namespace LexiconLMS.App.Server.Controllers
 {
