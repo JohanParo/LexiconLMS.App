@@ -17,7 +17,7 @@ namespace LexiconLMS.App.Server.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -44,8 +44,8 @@ namespace LexiconLMS.App.Server.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descritpion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -184,8 +184,8 @@ namespace LexiconLMS.App.Server.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CourseId = table.Column<int>(type: "int", nullable: false)
@@ -321,7 +321,8 @@ namespace LexiconLMS.App.Server.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModuleId = table.Column<int>(type: "int", nullable: false),

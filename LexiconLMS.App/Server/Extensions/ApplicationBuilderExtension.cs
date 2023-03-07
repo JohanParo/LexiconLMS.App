@@ -1,4 +1,5 @@
 ﻿using LexiconLMS.App.Server.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexiconLMS.App.Server.Extensions
 {
@@ -13,16 +14,16 @@ namespace LexiconLMS.App.Server.Extensions
                 var db = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
                 db.Database.EnsureDeleted();
-                //db.Database.Migrate();
+                db.Database.Migrate();
 
                 var config = serviceProvider.GetRequiredService<IConfiguration>();
-                var adminPW = "123456"; //config["AdminPW"];  // user-secrets
+                var password = "Bytmig123!"; //config["AdminPW"];  // user-secrets
 
-                ArgumentNullException.ThrowIfNull(adminPW, nameof(adminPW));
+                ArgumentNullException.ThrowIfNull(password, nameof(password));
 
                 try
                 {
-                    await SeedData.InitAsync(db, serviceProvider, adminPW);
+                    await SeedData.InitAsync(db, serviceProvider, password);
                 }
                 catch (Exception ex)
                 {

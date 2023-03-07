@@ -11,10 +11,10 @@ namespace LexiconLMS.Shared.Entities
 	public class ApplicationUser : IdentityUser
 	{
 		//public int Id { get; set; }
-		public string? FirstName { get; set; }
-		public string? LastName { get; set; }
+		public string FirstName { get; set; } = string.Empty;
+		public string LastName { get; set; } = string.Empty;
 		public int? CourseId { get; set; }
 
-        public  ICollection<Course> Courses { get; set; }
+        //public  Course? Course { get; set; }
     }
 }

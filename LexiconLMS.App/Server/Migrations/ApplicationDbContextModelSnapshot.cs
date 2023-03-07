@@ -192,7 +192,6 @@ namespace LexiconLMS.App.Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndTime")
@@ -203,6 +202,9 @@ namespace LexiconLMS.App.Server.Migrations
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -222,7 +224,6 @@ namespace LexiconLMS.App.Server.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -314,8 +315,7 @@ namespace LexiconLMS.App.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Descritpion")
-                        .IsRequired()
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndTime")
@@ -325,7 +325,6 @@ namespace LexiconLMS.App.Server.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -395,7 +394,6 @@ namespace LexiconLMS.App.Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndTime")
@@ -405,7 +403,6 @@ namespace LexiconLMS.App.Server.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
