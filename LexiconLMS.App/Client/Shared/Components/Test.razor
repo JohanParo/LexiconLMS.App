@@ -1,6 +1,6 @@
 ﻿@using LexiconLMS.App.Client.Services;
 
-@inject LMSClient lsmClient;
+@inject LMSClient<CourseDto> lsmClient;
 
 <CardGroupTemplate Items="Courses" Context="course">
     <GroupHeader>Test</GroupHeader>
@@ -18,6 +18,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Courses = (await lsmClient.GetAsync()).ToList();
+        Courses = (await lsmClient.GetAsync("api/courses")).ToList();
     }
 }

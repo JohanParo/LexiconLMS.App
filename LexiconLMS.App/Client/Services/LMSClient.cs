@@ -4,7 +4,7 @@ using System.Net.Http.Json;
 
 namespace LexiconLMS.App.Client.Services
 {
-    public class LMSClient
+    public class LMSClient<T> where T : class
     {
         private readonly HttpClient httpClient;
 
@@ -14,9 +14,9 @@ namespace LexiconLMS.App.Client.Services
             this.httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<IEnumerable<CourseDto>?> GetAsync()
+        public async Task<IEnumerable<T>?> GetAsync(string uri)
         {
-            return await httpClient.GetFromJsonAsync<IEnumerable<CourseDto>>("api/courses");
+            return await httpClient.GetFromJsonAsync<IEnumerable<T>>(uri);
         }
 
         //public async Task<ApplicationUser?> PostAsync(ApplicationUser createItem)

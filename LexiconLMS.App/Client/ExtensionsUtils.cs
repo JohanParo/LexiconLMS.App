@@ -18,7 +18,7 @@ namespace LexiconLMS.App.Client
             if (value == null || value.Length < length || value.IndexOf(" ", length) == -1)
                 return value!;
 
-            return string.Concat(value.Substring(0, value.IndexOf(" ", length)),"...");
+            return string.Concat(value[..value.IndexOf(" ", length)],"...");
         }
     }
 
