@@ -120,7 +120,7 @@ namespace LexiconLMS.App.Server.Data
                 .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.FirstName, u.LastName, "lexicon.se"))
                 .RuleFor(u => u.UserName, (f, u) => u.Email)
                 .RuleFor(u => u.EmailConfirmed, f => true)
-                //.RuleFor(u => u.Avatar, f => f.Internet.Avatar())
+                .RuleFor(u => u.Avatar, f => f.Internet.Avatar())
                 ;
 
             return faker.Generate(numberOfStudents);
@@ -183,13 +183,5 @@ namespace LexiconLMS.App.Server.Data
                 if (!result.Succeeded) throw new Exception(string.Join("\n", result.Errors));
             }
         }
-            
-       
-
-
-
-
-
-
     }
 }
