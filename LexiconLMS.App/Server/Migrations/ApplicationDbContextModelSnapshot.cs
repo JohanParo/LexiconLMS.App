@@ -22,21 +22,6 @@ namespace LexiconLMS.App.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ApplicationUserCourse", b =>
-                {
-                    b.Property<int>("CoursesId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsersId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("CoursesId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("ApplicationUserCourse");
-                });
-
             modelBuilder.Entity("Duende.IdentityServer.EntityFramework.Entities.DeviceFlowCodes", b =>
                 {
                     b.Property<string>("UserCode")
@@ -294,6 +279,8 @@ namespace LexiconLMS.App.Server.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -564,21 +551,6 @@ namespace LexiconLMS.App.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ApplicationUserCourse", b =>
-                {
-                    b.HasOne("LexiconLMS.App.Server.Course", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LexiconLMS.App.Server.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("LexiconLMS.App.Server.Activity", b =>
                 {
                     b.HasOne("LexiconLMS.App.Server.ActivityType", "ActivityType")
@@ -594,6 +566,13 @@ namespace LexiconLMS.App.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("ActivityType");
+                });
+
+            modelBuilder.Entity("LexiconLMS.App.Server.ApplicationUser", b =>
+                {
+                    b.HasOne("LexiconLMS.App.Server.Course", null)
+                        .WithMany("Users")
+                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("LexiconLMS.App.Server.Document", b =>
@@ -675,6 +654,8 @@ namespace LexiconLMS.App.Server.Migrations
             modelBuilder.Entity("LexiconLMS.App.Server.Course", b =>
                 {
                     b.Navigation("Modules");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("LexiconLMS.App.Server.DocumentType", b =>
