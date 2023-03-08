@@ -1,0 +1,67 @@
+﻿
+<EditForm EditContext="editContext">
+    
+    <div class="form-group mb-3">
+        <label for="title">Title</label>
+        <InputText id="title" class="form-control" @bind-Value="Course.Title" placeholder="Enter title"></InputText>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="description">Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="@Course.Description" placeholder="Enter description"></InputTextArea>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="startTime">Start date</label>
+        <InputDate class="form-control" @bind-Value="@Course.StartTime" placeholder="Enter start date"></InputDate>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="endTime">End date</label>
+        <InputDate id="endTime" class="form-control" @bind-Value="@Course.EndTime" placeholder="Enter end date"></InputDate>
+    </div>
+
+    <div class="form-check form-switch mb-3">
+        <label for="isPublished" class="form-check-label">Publish now</label>
+        <InputCheckbox id="publish" class="form-check-input" @bind-Value="@Course.IsPublished"></InputCheckbox>
+    </div>          
+        
+    <div class="form-group mb-3">
+        <label for="file">Upload file</label>
+            <InputFile class="form-control-file" id="file"></InputFile>           @* Add OnChange="OnInputFileChange" or bind-value?*@
+    </div>
+
+    <div class="input-group-append input-group-lg">
+        <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
+    </div>
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public CourseDTO2 Course { get; set; } = new CourseDTO2(); // should be DTO:s
+    private EditContext editContext = default!;   
+
+    //[Inject]
+    //public ILMSClient LMSClient { get; set; } = default!;
+
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Course);        
+    }   
+      
+
+    public async Task OnSave()
+    {
+        if (Course is null)
+        {
+            throw new ArgumentNullException(nameof(Course));
+        }       
+       
+        //var editedCourse = await LMSClient.PutAsync(Course);
+    }
+   
+
+}
