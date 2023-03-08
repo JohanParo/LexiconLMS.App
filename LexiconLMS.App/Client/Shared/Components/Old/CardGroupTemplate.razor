@@ -8,7 +8,7 @@
             if (CardTemplate is not null)
             {
                 <div class="col-lg-@(12/4) g-4">
-                    <div class="card">
+                    <div class="card h-100">
                         @CardTemplate(item)
                     </div>
                 </div>
@@ -28,5 +28,6 @@
 
     [Parameter]
     public IReadOnlyList<TItem> Items { get; set; }
+
 
 }

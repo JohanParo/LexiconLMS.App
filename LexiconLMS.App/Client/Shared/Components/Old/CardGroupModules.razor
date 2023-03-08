@@ -1,21 +1,21 @@
 ﻿@using LexiconLMS.App.Client.DTOs;
 <div class="accordion mb-4" id="accordionModules">
     <div class="accordion-item">
-@*<div class="container-fluid border rounded p-0 mb-4 m-0">*@
+        @*<div class="container-fluid border rounded p-0 mb-4 m-0">*@
         <h4 class="accordion-header" id="headingOne">
             <button class="accordion-button h4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                 @title
             </button>
-            </h4>
+        </h4>
 
         <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-    <div class="row px-4 pb-4">
-        @foreach (var item in itemlist)
-        {
-            <CardModule Module="item" cols="@cols"></CardModule>
-        }
-    </div>
+                <div class="row px-4 pb-4">
+                    @foreach (var item in itemlist)
+                    {
+                        <CardModule Module="item" cols="@cols"></CardModule>
+                    }
+                </div>
             </div>
         </div>
     </div>

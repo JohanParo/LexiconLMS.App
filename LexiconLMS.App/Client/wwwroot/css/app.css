@@ -99,3 +99,25 @@ a, .btn-link {
     .loading-progress-text:after {
         content: var(--blazor-load-percentage-text, "Loading");
     }
+.accordion-button.h4 {
+    font-size: inherit !important;
+}
+
+.accordion-header .accordion-button.h4:focus {
+    border-color: rgba(0,0,0,.125);
+    color: var(--bs-body-color);
+    box-shadow: 0 0 0 .25rem rgba(0,0,0,.25);
+}
+
+.accordion-header .accordion-button:not(.collapsed) {
+    color: var(--bs-body-color);
+    background-color: #fff;
+}
+
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    text-anchor: middle;
+}

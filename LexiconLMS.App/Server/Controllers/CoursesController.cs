@@ -29,7 +29,7 @@ namespace LexiconLMS.App.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Course.ToListAsync();
+            return await _context.Course.Include(c=>c.Modules).ToListAsync();
         }
 
         // GET: api/Courses/5
@@ -40,7 +40,11 @@ namespace LexiconLMS.App.Server.Controllers
           {
               return NotFound();
           }
-            var course = await _context.Course.FindAsync(id);
+            //var course = await _context.Course.FindAsync(id);
+            var course = await _context.Course
+                .Include(c=>c.Users)
+                .Include(c => c.Modules).ThenInclude(m=>m.Activities)
+                .FirstOrDefaultAsync(i=>i.Id==id);
 
             if (course == null)
             {

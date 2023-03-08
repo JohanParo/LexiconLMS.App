@@ -23,7 +23,7 @@ namespace LexiconLMS.App.Server.Data
             if (string.IsNullOrEmpty(password))
                 throw new Exception("Can't get password from config");
 
-            if (db.Users.Any()) return;  // Seeda ej om det redan finns data på databasen
+            //if (db.Users.Any()) return;  // Seeda ej om det redan finns data på databasen
 
             ArgumentNullException.ThrowIfNull(nameof(services));
             
@@ -103,7 +103,7 @@ namespace LexiconLMS.App.Server.Data
 
             var faker = new Faker<Activity>()
                .RuleFor(a => a.Title, (f, a) => f.Company.CompanyName())
-               .RuleFor(a => a.Description, (f, a) => f.Lorem.Sentence())
+               .RuleFor(a => a.Description, (f, a) => f.Lorem.Paragraphs(5))
                .RuleFor(a => a.StartTime, f => DateTime.Now)
                .RuleFor(a => a.EndTime, f => DateTime.Now.AddHours(8))
                .RuleFor(a => a.ActivityType, f => new ActivityType { Type = f.PickRandom(activityTypes) });

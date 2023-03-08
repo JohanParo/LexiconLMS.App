@@ -1,0 +1,57 @@
+﻿@typeparam TItem
+<div class="accordion mb-4" id=@($"accordionModules-{RanId}")>
+    <div class="accordion-item">
+        @if (Collapsable)
+        {
+            <h4 class="accordion-header" id=@($"accordionHeading-{RanId}")>
+                <button class="accordion-button h4" type="button" data-bs-toggle="collapse" data-bs-target=@($"#accordionCollapse-{RanId}") aria-expanded="true" aria-controls=@($"accordionCollapse-{RanId}")>
+                    @GroupHeader
+                </button>
+            </h4>
+        }
+        else
+        {
+            <h4 class="border-bottom p-4">@GroupHeader</h4>
+        }
+        <div id=@($"accordionCollapse-{RanId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RanId}") data-bs-parent=@($"#accordionModules-{RanId}")>
+            <div class="accordion-body">
+                <div class="row px-4 pb-4">
+                    @foreach (var item in Items)
+                    {
+                        if (CardTemplate is not null)
+                        {
+                            <div class="col-lg-@(12/Cols) g-4">
+                                @CardTemplate(item)
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool Collapsable { get; set; }
+
+    [Parameter]
+    public int Cols { get; set; } = 4;
+
+    [Parameter]
+    public RenderFragment? GroupHeader { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? CardTemplate { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<TItem> Items { get; set; }
+
+    Random random = new Random();
+    string RanId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        RanId = String.Format("{0:X4}", random.Next(1000));
+    }
+}

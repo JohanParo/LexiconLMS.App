@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace LexiconLMS.App.Client.DTOs
 {
 #nullable disable
-    public class CourseDto
+    public class CourseDto:IEntityDto
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
