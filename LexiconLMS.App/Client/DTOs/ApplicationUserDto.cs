@@ -4,7 +4,7 @@ namespace LexiconLMS.App.Client.DTOs
 {
     public class ApplicationUserDto : IdentityUser
     {
-        //public int Id { get; set; }
+        //public string Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string FullName => $"{FirstName} {LastName}";

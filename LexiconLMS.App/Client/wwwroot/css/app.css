@@ -121,3 +121,6 @@ a, .btn-link {
     user-select: none;
     text-anchor: middle;
 }
+.cursor-hand {
+    cursor: pointer;
+}

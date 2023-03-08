@@ -2,64 +2,61 @@
 @using LexiconLMS.App.Client.Services;
 
 @inject AuthenticationStateProvider authStateProvider;
+@inject IJSRuntime JsRuntime
 @inject LMSClient lsmClient;
 
 @page "/"
-@*@attribute [Authorize]*@
+@attribute [Authorize]
 
-<PageTitle>Index</PageTitle>
+<PageTitle>@Course.Title</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
-        <BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="true" Cols="4">
-            <GroupHeader>My Modules</GroupHeader>
-            <CardTemplate Context="item">
-                <CardModule item="item"></CardModule>
-            </CardTemplate>
-        </BlockGroupTemplate>
+@*<AuthorizeView>
+    <Authorized>*@
+<h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
 
-        <BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="true" Cols="1">
-            <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
-            <CardTemplate Context="item">
-                <CardModule item="item" Shadow="true"></CardModule>
-            </CardTemplate>
-        </BlockGroupTemplate>
-    </Authorized>
+<BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="true" Cols="4" Id="section-modules">
+    <GroupHeader>My Modules</GroupHeader>
+    <CardTemplate Context="item">
+        <CardModule CardClick="OnModuleSelect" item="item"></CardModule>
+    </CardTemplate>
+</BlockGroupTemplate>
+
+<BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="true" Cols="1" Id="section-activities">
+    <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
+    <CardTemplate Context="item">
+        <CardModule item="item" Shadow="true"></CardModule>
+    </CardTemplate>
+</BlockGroupTemplate>
+@*    </Authorized>
     <NotAuthorized>
         <p>Not logged in...</p>
     </NotAuthorized>
-</AuthorizeView>
+</AuthorizeView>*@
 
 
 @code {
     private CourseDto Course { get; set; } = new();
     private ModuleDto SelectedModule { get; set; } = new();
-    //private List<CourseDto> Items { get; set; } = new();
     private List<ModuleDto> ModuleItems { get; set; } = new();
     private List<ActivityDto> ActivityItems { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var user = (await authStateProvider.GetAuthenticationStateAsync()).User;
-        if (user.Identity.IsAuthenticated)
-        {
-            Course = (await lsmClient.GetByIdAsync<CourseDto>("1","api/courses"));
-
-            //Items = (await lsmClient.GetAsync<CourseDto>("api/courses")).ToList();
-            //ModuleItems = (await lsmClient.GetAsync<ModuleDto>("api/modules")).ToList();
-
-            ModuleItems = Course.Modules;
-            SelectedModule = ModuleItems.FirstOrDefault();
-            ActivityItems = SelectedModule.Activities;
-        }
+        //var user = (await authStateProvider.GetAuthenticationStateAsync()).User;
+        //if (user.Identity.IsAuthenticated)
+        //{
+        Course = (await lsmClient.GetByIdAsync<CourseDto>("1", "api/courses"));
+        ModuleItems = Course.Modules;
+        SelectedModule = ModuleItems.FirstOrDefault();
+        ActivityItems = SelectedModule.Activities;
+        //}
     }
 
-    Random random = new Random();
-    string color { get; set; } = "#868e96";
-
-    protected override void OnParametersSet()
+    private async Task OnModuleSelect(int id)
     {
-        color = String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
+        SelectedModule = ModuleItems.FirstOrDefault(m => m.Id == id);
+        ActivityItems = SelectedModule.Activities;
+       //JSRuntime.("scrollIntoView", "section-activities");
+        await JsRuntime.InvokeVoidAsync("scrollIntoView", "section-activities");
     }
 }

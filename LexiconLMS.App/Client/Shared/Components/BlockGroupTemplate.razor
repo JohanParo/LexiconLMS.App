@@ -1,5 +1,5 @@
 ﻿@typeparam TItem
-<div class="accordion mb-4" id=@($"accordionModules-{RanId}")>
+<div class="accordion mb-4" id="@Id">
     <div class="accordion-item">
         @if (Collapsable)
         {
@@ -36,6 +36,9 @@
     public bool Collapsable { get; set; }
 
     [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
     public int Cols { get; set; } = 4;
 
     [Parameter]
@@ -50,7 +53,7 @@
     Random random = new Random();
     string RanId { get; set; }
 
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
         RanId = String.Format("{0:X4}", random.Next(1000));
     }

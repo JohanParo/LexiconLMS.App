@@ -23,7 +23,7 @@ namespace LexiconLMS.App.Server.Data
             if (string.IsNullOrEmpty(password))
                 throw new Exception("Can't get password from config");
 
-            //if (db.Users.Any()) return;  // Seeda ej om det redan finns data på databasen
+            if (db.Users.Any()) return;  // Seeda ej om det redan finns data på databasen
 
             ArgumentNullException.ThrowIfNull(nameof(services));
             
@@ -40,7 +40,8 @@ namespace LexiconLMS.App.Server.Data
             var adminEmail = "admin@admin.se";
             var adminFirstName = "Admin";
             var adminLastName = "Admin";
-            var admin = await AddAdminAsync(adminEmail, adminFirstName, adminLastName, password);
+            var adminAvatar = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1227.jpg";
+            var admin = await AddAdminAsync(adminEmail, adminFirstName, adminLastName, password, adminAvatar);
 
             await AddToRolesAsync(admin, roleNames);
          
@@ -150,7 +151,7 @@ namespace LexiconLMS.App.Server.Data
             }
         }
 
-        private static async Task<ApplicationUser> AddAdminAsync(string adminEmail, string adminFirstName, string adminLastName, string password)
+        private static async Task<ApplicationUser> AddAdminAsync(string adminEmail, string adminFirstName, string adminLastName, string password, string adminAvatar)
         {
             var foundUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -161,7 +162,9 @@ namespace LexiconLMS.App.Server.Data
                 UserName = adminEmail,
                 Email = adminEmail,
                 FirstName = adminFirstName,
-                LastName = adminLastName
+                LastName = adminLastName,
+                Avatar = adminAvatar
+                                
             };
 
             var result = await userManager.CreateAsync(admin, password);            
