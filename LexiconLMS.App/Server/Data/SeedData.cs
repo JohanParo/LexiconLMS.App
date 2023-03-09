@@ -42,8 +42,7 @@ namespace LexiconLMS.App.Server.Data
             var adminLastName = "Admin";
             var adminAvatar = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1227.jpg";
             var admin = await AddAdminAsync(adminEmail, adminFirstName, adminLastName, password, adminAvatar);
-
-            await AddToRolesAsync(admin, roleNames);
+                       
          
 
             var courses = GenerateCourses(5);  // Generates courses with associated modules and activities
@@ -167,7 +166,8 @@ namespace LexiconLMS.App.Server.Data
                                 
             };
 
-            var result = await userManager.CreateAsync(admin, password);            
+            var result = await userManager.CreateAsync(admin, password);
+            await userManager.AddToRoleAsync(admin, "Admin");
 
             if (!result.Succeeded) throw new Exception(string.Join("\n", result.Errors));
 
