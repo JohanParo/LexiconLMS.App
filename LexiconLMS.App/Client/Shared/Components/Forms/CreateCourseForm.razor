@@ -2,6 +2,8 @@
 
 <EditForm EditContext="editContext">
     
+    <h3>Add course</h3>
+
     <div class="form-group mb-3">
         <label for="title">Title</label>
         <InputText id="title" class="form-control" @bind-Value="Course.Title" placeholder="Enter title"></InputText>
@@ -41,9 +43,8 @@
 
 
 @code {
-
     [Parameter]
-    public CourseDto Course { get; set; } = new(); // should be DTO:s
+    public CourseDto Course { get; set; } = new (); 
     private EditContext editContext = default!;   
 
     [Inject]
@@ -54,16 +55,24 @@
     {
         editContext = new EditContext(Course);        
     }   
-      
+
 
     public async Task OnSave()
     {
         if (Course is null)
         {
             throw new ArgumentNullException(nameof(Course));
-        }       
-       
-        var editedCourse = await lmsClient.PostAsync(Course, "api/courses");
+        }  
+
+        if (Course.Id == 0)
+        {
+            var newCourse = await lmsClient.PostAsync(Course, "api/courses");
+        }
+        else
+        {
+            var isEdited = await lmsClient.PutAsync(Course, "api/courses");            
+        }
+
     }
    
 

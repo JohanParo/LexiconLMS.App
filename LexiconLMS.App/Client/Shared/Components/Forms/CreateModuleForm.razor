@@ -1,0 +1,91 @@
+﻿@using LexiconLMS.App.Client.Services;
+
+<EditForm EditContext="editContext">
+
+    <h3>Add module</h3>
+
+    <div class="form-group mb-3">
+        <label for="title">Title</label>
+        <InputText id="title" class="form-control" @bind-Value="Module.Title" placeholder="Enter title"></InputText>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="description">Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="@Module.Description" placeholder="Enter description"></InputTextArea>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="startTime">Start date</label>
+        <InputDate class="form-control" @bind-Value="@Module.StartTime" placeholder="Enter start date"></InputDate>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="endTime">End date</label>
+        <InputDate id="endTime" class="form-control" @bind-Value="@Module.EndTime" placeholder="Enter end date"></InputDate>
+    </div>
+
+   @* <div class="form-group mb-3">
+        <label>Course id</label>
+        <InputSelect class="form-control" @bind-Value="@Module.CourseId" placeholder="Select course id">
+        <option value="@Course.Id">@Course.Title</option>
+        </InputSelect>
+    </div>*@
+
+
+    @*  <div class="form-check form-switch mb-3">
+    <label for="isPublished" class="form-check-label">Publish now</label>
+    <InputCheckbox id="publish" class="form-check-input" @bind-Value="@Course.IsPublished"></InputCheckbox>
+    </div>  *@
+
+    @* <div class="form-group mb-3">
+    <label for="file">Upload file</label>
+    <InputFile class="form-control-file" id="file"></InputFile>
+    </div>*@
+    @* Add OnChange="OnInputFileChange" or bind-value?*@
+
+
+    <div class="input-group-append input-group-lg">
+        <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
+    </div>
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public CourseDto Course { get; set; } = new();
+
+    [Parameter]
+    public ModuleDto Module { get; set; } = new();
+
+    private EditContext editContext = default!;
+
+    [Inject]
+    public LMSClient lmsClient { get; set; } = default!;
+
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Module);
+    }
+
+
+    public async Task OnSave()
+    {
+        if (Module is null)
+        {
+            throw new ArgumentNullException(nameof(Module));
+        }
+
+        if (Module.Id == 0)
+        {
+            Module.CourseId = Course.Id;
+            var newCourse = await lmsClient.PostAsync(Module, "api/modules");
+        }
+        else
+        {
+            var isEdited = await lmsClient.PutAsync(Module, "api/modules");
+        }
+    }
+
+}
