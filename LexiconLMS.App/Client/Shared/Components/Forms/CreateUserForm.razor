@@ -1,0 +1,94 @@
+﻿@using LexiconLMS.App.Client.Services;
+
+<EditForm EditContext="editContext">
+
+    <h3>Add user</h3>
+
+    <div class="form-group mb-3">
+        <label>First name</label>
+        <InputText id="firstname" class="form-control" @bind-Value="User.FirstName" placeholder="Enter title"></InputText>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Last name</label>
+        <InputTextArea id="lastname" class="form-control" @bind-Value="@User.LastName" placeholder="Enter last name"></InputTextArea>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>E-mail</label>
+        <InputText class="form-control" @bind-Value="@User.Email" placeholder="Enter e-mail"></InputText>
+    </div>
+
+@*    <div class="form-group">
+        <label for="IsOnline" class="col-form-label col-md-4">Status at start: </label>
+        <div class="col-md-8">
+            <InputSelect id="isOnline" class="form-select col-md-8"> @bind-Value="@User.Role">
+                <option value="-1" disabled selected>(select)</option>
+                <option value="true">Student</option>
+                <option value="false">Admin</option>
+            </InputSelect>
+        </div>
+      </div>*@
+    
+
+ @*   <div class="form-group">
+        <label>Type of user:</label>
+        <div class="col-md-8">
+            <InputSelect id="isOnline" class="form-select col-md-8" @bind-Value="@User.Role">
+                <option value="-1" disabled selected>(select)</option>
+                <option value="true">Student</option>
+                <option value="false">Admin</option>
+            </InputSelect>
+        </div>
+    </div>*@
+
+    @*  <div class="form-check form-switch mb-3">
+    <label for="isPublished" class="form-check-label">Publish now</label>
+    <InputCheckbox id="publish" class="form-check-input" @bind-Value="@Course.IsPublished"></InputCheckbox>
+    </div>  *@
+
+    @* <div class="form-group mb-3">
+    <label for="file">Upload file</label>
+    <InputFile class="form-control-file" id="file"></InputFile>
+    </div>*@
+    @* Add OnChange="OnInputFileChange" or bind-value?*@
+
+
+   @* <div class="input-group-append input-group-lg">
+        <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
+    </div>*@
+</EditForm>
+
+@code {
+    [Parameter]
+    public ApplicationUserDto User { get; set; } = new();
+
+    private EditContext editContext = default!;
+
+    [Inject]
+    public LMSClient lmsClient { get; set; } = default!;
+
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(User);
+    }
+
+
+    public async Task OnSave()
+    {
+        if (User is null)
+        {
+            throw new ArgumentNullException(nameof(User));
+        }
+
+        //if (User.Id == null)
+        //{            
+        //    var newCourse = await lmsClient.PostAsync(User, "api/modules");
+        //}
+        //else
+        //{
+        //    var isEdited = await lmsClient.PutAsync(User, "api/modules");
+        //}
+    }
+}

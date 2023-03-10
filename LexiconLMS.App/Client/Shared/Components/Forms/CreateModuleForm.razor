@@ -1,12 +1,31 @@
 ﻿@using LexiconLMS.App.Client.Services;
 
+
 <EditForm EditContext="editContext">
 
     <h3>Add module</h3>
 
+  <div class="form-group mb-3">
+    <label>Select course</label>
+    <select class="form-control" @bind="Module.CourseId">
+            <option>Select course</option>
+            @foreach (var item in Courses)
+            {
+                <option value="@item.Id">@item.Title</option>
+            }
+    </select>
+  </div>
+@*
+
+   <div class="form-group mb-3">
+        <label for="title">Title</label>
+        <InputNumber id="id" class="form-control" @bind-Value="@Module.CourseId" placeholder="Enter title"></InputNumber>
+    </div>*@
+
+
     <div class="form-group mb-3">
         <label for="title">Title</label>
-        <InputText id="title" class="form-control" @bind-Value="Module.Title" placeholder="Enter title"></InputText>
+        <InputText id="title" class="form-control" @bind-Value="@Module.Title" placeholder="Enter title"></InputText>
     </div>
 
     <div class="form-group mb-3">
@@ -23,13 +42,6 @@
         <label for="endTime">End date</label>
         <InputDate id="endTime" class="form-control" @bind-Value="@Module.EndTime" placeholder="Enter end date"></InputDate>
     </div>
-
-   @* <div class="form-group mb-3">
-        <label>Course id</label>
-        <InputSelect class="form-control" @bind-Value="@Module.CourseId" placeholder="Select course id">
-        <option value="@Course.Id">@Course.Title</option>
-        </InputSelect>
-    </div>*@
 
 
     @*  <div class="form-check form-switch mb-3">
@@ -58,6 +70,8 @@
     [Parameter]
     public ModuleDto Module { get; set; } = new();
 
+    public List<CourseDto> Courses { get; set; } = new();
+
     private EditContext editContext = default!;
 
     [Inject]
@@ -67,7 +81,15 @@
     protected override void OnInitialized()
     {
         editContext = new EditContext(Module);
+             
     }
+
+    protected async override Task OnInitializedAsync()
+    {
+        
+        Courses = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList();
+    }
+
 
 
     public async Task OnSave()
@@ -79,7 +101,7 @@
 
         if (Module.Id == 0)
         {
-            Module.CourseId = Course.Id;
+            //Module.CourseId = Course.Id;
             var newCourse = await lmsClient.PostAsync(Module, "api/modules");
         }
         else

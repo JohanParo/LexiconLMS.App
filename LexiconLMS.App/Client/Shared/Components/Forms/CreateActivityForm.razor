@@ -1,0 +1,92 @@
+﻿@using LexiconLMS.App.Client.Services;
+
+<EditForm EditContext="editContext">
+
+    <h3>Add activity</h3>
+
+    <div class="form-group mb-3">
+        <label for="title">Title</label>
+        <InputText id="title" class="form-control" @bind-Value="Activity.Title" placeholder="Enter title"></InputText>
+    </div>
+
+    @*<div class="form-group mb-3">
+        <label>Activity type</label>
+        <InputText id="activityType" class="form-control" @bind-Value="Activity.ActivityTypeType" placeholder="Enter Activity type"></InputText>
+    </div>*@
+
+    <div class="form-group mb-3">
+        <label for="description">Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="@Activity.Description" placeholder="Enter description"></InputTextArea>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="startTime">Start date</label>
+        <InputDate class="form-control" @bind-Value="@Activity.StartTime" placeholder="Enter start date"></InputDate>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="endTime">End date</label>
+        <InputDate id="endTime" class="form-control" @bind-Value="@Activity.EndTime" placeholder="Enter end date"></InputDate>
+    </div>
+    
+
+    @*  <div class="form-check form-switch mb-3">
+    <label for="isPublished" class="form-check-label">Publish now</label>
+    <InputCheckbox id="publish" class="form-check-input" @bind-Value="@Course.IsPublished"></InputCheckbox>
+    </div>  *@
+
+    @* <div class="form-group mb-3">
+    <label for="file">Upload file</label>
+    <InputFile class="form-control-file" id="file"></InputFile>
+    </div>*@
+    @* Add OnChange="OnInputFileChange" or bind-value?*@
+
+
+    <div class="input-group-append input-group-lg">
+        <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
+    </div>
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public ModuleDto Module { get; set; } = new();
+
+    [Parameter]
+    public ActivityDto Activity { get; set; } = new();
+
+    public ActivityTypeDto ActivityType { get; set; } = new();
+
+    private EditContext editContext = default!;
+
+    [Inject]
+    public LMSClient lmsClient { get; set; } = default!;
+
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Activity);
+    }
+
+
+    public async Task OnSave()
+    {
+        if (Activity is null)
+        {
+            throw new ArgumentNullException(nameof(Activity));
+        }
+
+        if (Activity.Id == 0)
+        {
+            //Activity = new ActivityDto {ActivityType.Type="E-learning"};
+            Activity.ModuleId = Module.Id;
+            var newActivity = await lmsClient.PostAsync(Activity, "api/activities");
+        }
+        else
+        {
+            var isEdited = await lmsClient.PutAsync(Activity, "api/activities");
+        }
+    }
+
+}

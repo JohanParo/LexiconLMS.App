@@ -61,11 +61,19 @@
     }
 }
 
-<CreateForm></CreateForm>
+@*<CreateCourseForm Course="Course"></CreateCourseForm>*@
+@*<CreateCourseForm Course="Test"></CreateCourseForm>*@
+@*<CreateCourseForm></CreateCourseForm>*@ 
 
-@*<CreateForm Course="Test"></CreateForm>*@
+<CreateModuleForm></CreateModuleForm>
+@*<CreateModuleForm Course="Course"></CreateModuleForm>*@
+@*<CreateModuleForm Module="SelectedModule"></CreateModuleForm>*@
+
+@*<CreateActivityForm Module="SelectedModule"></CreateActivityForm>*@
+@*<CreateActivityForm Module="SelectedActivity"></CreateActivityForm>*@
+
 
 @code
 {
-    private CourseDTO2 Test = new() {Title="net", Description="hjhja hkahkj", EndTime=DateTime.Now, Id=99 };
+    private CourseDto Test = new() {Title="net", Description="hjhja hkahkj", EndTime=DateTime.Now };
 }

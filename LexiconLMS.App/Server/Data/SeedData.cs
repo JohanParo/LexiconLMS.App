@@ -42,9 +42,9 @@ namespace LexiconLMS.App.Server.Data
             var adminLastName = "Admin";
             var adminAvatar = "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1227.jpg";
             var admin = await AddAdminAsync(adminEmail, adminFirstName, adminLastName, password, adminAvatar);
-                       
-         
 
+
+            GanerateActivityTypes();
             var courses = GenerateCourses(5);  // Generates courses with associated modules and activities
 
             foreach (var course in courses)  // Adds students to each course
@@ -58,6 +58,10 @@ namespace LexiconLMS.App.Server.Data
             await db.SaveChangesAsync();
         }
 
+        private static void GanerateActivityTypes()
+        {
+            
+        }
 
         private static List<Course> GenerateCourses(int numberOfCourses)
         {

@@ -10,7 +10,9 @@ namespace LexiconLMS.App.Client.DTOs
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        //public ActivityType ActivityType { get; set; }
+        //public ActivityTypeDto ActivityType { get; set; }
+
+        //public string ActivityTypeType { get; set; }
         public string Description { get; set; } = string.Empty;
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }

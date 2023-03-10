@@ -16,6 +16,6 @@ namespace LexiconLMS.App.Client.DTOs
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public int CourseId { get; set; }
-        public List<ActivityDto> Activities { get; set; }
+        public List<ActivityDto>? Activities { get; set; }
     }
 }
