@@ -1,8 +1,7 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@inject AuthenticationStateProvider AuthenticationStateProvider
+﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 @inject NavigationManager Navigation
-<header class="lms-header py-3">
+
+<header class="lms-header py-3" id="lms-header" @ref="exampleInput">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container">
             <NavLink class="navbar-brand" href="" Match="NavLinkMatch.All">
@@ -15,23 +14,38 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink></li>
                     <li class="nav-item"><NavLink class="nav-link" href="people">People</NavLink></li>
+
+                    <AuthorizeView Roles="Admin">
+                        <li class="nav-item"><NavLink class="nav-link" href="courses">Courses</NavLink></li>
+                        <li class="nav-item"><NavLink class="nav-link" href="#">Files</NavLink></li>
+                        <li class="nav-item"><NavLink class="nav-link" href="#">Users</NavLink></li>
+                    </AuthorizeView>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <form class="d-flex gap-2" role="search">
+                    <AuthorizeView Roles="Admin">
+                        <select class="form-select" aria-label="Create new">
+                            <option selected>Create</option>
+                            <option value="1">User</option>
+                            <option value="2">Course</option>
+                            <option value="3">Module</option>
+                            <option value="3">Activity</option>
+                        </select>
+
+                    </AuthorizeView>
+                    <input class="form-control" type="search" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-primary" type="submit">Search</button>
                 </form>
                 <AuthorizeView>
                     <Authorized>
                         <div class="dropdown text-end ps-4">
                             <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                                <img src="@(context.User.FindFirst("Avatar")?.Value ?? "https://www.w3schools.com/w3images/avatar5.png")" alt="mdo" width="32" height="32" class="rounded-circle">
                             </a>
                             <ul class="dropdown-menu text-small" style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 34px);">
-                                <li><a class="dropdown-item" href="authentication/profile">Hello, @context.User.Identity?.Name</a></li>
+                                <li><a class="dropdown-item" href="authentication/profile">Hello, @context.User.FindFirst("FullName")?.Value @context.User.Identity?.Name</a></li>
                                 <li><a class="dropdown-item" href="#">Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" @onclick="BeginLogOut">Log out</a></li>
-
                             </ul>
                         </div>
                     </Authorized>
@@ -43,34 +57,21 @@
         </div>
     </nav>
 </header>
+
+<button onclick="topFunction()" style="display:none;" id="upBtn">Up</button>
 @code {
     [Parameter]
     public string? Title { get; set; }
 
-    private string? authMessage;
-    private string? name;
-    //private IEnumerable<Claim> claims = Enumerable.Empty<Claim>();
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider
-            .GetAuthenticationStateAsync();
-        var user = authState.User;
-        
-        if (user.Identity is not null && user.Identity.IsAuthenticated)
-        {
-            authMessage = $"{user.Identity.Name} is authenticated.";
-            name = user.Identity.Name;
-        }
-        else
-        {
-            authMessage = "The user is NOT authenticated.";
-        }
-    }
 
     private void BeginLogOut()
     {
         Navigation.NavigateToLogout("authentication/logout");
+    }
+    private ElementReference exampleInput;
+    private async Task ChangeFocus()
+    {
+        await exampleInput.FocusAsync();
     }
 }
 

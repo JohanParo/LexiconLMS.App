@@ -1,10 +1,10 @@
+using Duende.IdentityServer.Services;
 using LexiconLMS.App.Server.Data;
-using LexiconLMS.App.Server.Extensions;
+using LexiconLMS.App.Server.Models;
+using LexiconLMS.App.Server.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using LexiconLMS.App.Server.Models;
 
 namespace LexiconLMS.App.Server
 {
@@ -34,7 +34,18 @@ namespace LexiconLMS.App.Server
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             builder.Services.AddIdentityServer()
-                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(
+                options =>
+                {
+                    options.IdentityResources["openid"].UserClaims.Add("role");
+                    options.ApiResources.Single().UserClaims.Add("role");
+                }
+                )
+                //.AddProfileService<AvatarProfileService>()
+                ;
+
+            builder.Services.AddScoped<IProfileService, AvatarProfileService>();
+            //builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AvatarClaimsPrincipalFactory>();
 
             builder.Services.AddAuthentication()
                 .AddIdentityServerJwt();
@@ -44,7 +55,7 @@ namespace LexiconLMS.App.Server
 
             var app = builder.Build();
 
-            await app.SeedDataAsync();
+            //await app.SeedDataAsync();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

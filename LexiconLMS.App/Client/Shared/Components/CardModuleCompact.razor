@@ -1,0 +1,44 @@
+﻿<div class="card">
+    <div class="row">
+@*        <div class="col-1">
+            <svg class="bd-placeholder-img img-fluid rounded-start" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="@color"></rect></svg>
+        </div>*@
+        <div class="col">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-2">
+                        <small><a href="#" @onclick="() => OnClick(item.Id)" @onclick:stopPropagation="true" class="stretched-link text-decoration-none text-reset">@item.Title</a></small>
+                    </div>
+                    <div class="col-2">
+                        <small class="text-muted">@item.StartTime.ToString("yy-MM-dd") - @item.EndTime.ToString("yy-MM-dd")</small>
+                    </div>
+                    <div class="col">
+                        <small>@item.Description</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IEntityDto item { get; set; }
+
+    [Parameter]
+    public EventCallback<int> CardClick { get; set; }
+
+    public async Task OnClick(int id)
+    {
+        await CardClick.InvokeAsync(id);
+
+    }
+
+    Random random = new Random();
+    string color { get; set; } = "#868e96";
+    protected override void OnInitialized()
+    {
+        color = String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
+    }
+
+}

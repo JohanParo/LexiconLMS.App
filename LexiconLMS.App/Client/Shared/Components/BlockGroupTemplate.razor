@@ -16,14 +16,43 @@
         <div id=@($"accordionCollapse-{RanId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RanId}") data-bs-parent=@($"#accordionModules-{RanId}")>
             <div class="accordion-body">
                 <div class="row px-4 pb-4">
-                    @foreach (var item in Items)
+                    @if (CardTemplate is not null)
                     {
-                        if (CardTemplate is not null)
+                        @foreach (var item in Items)
                         {
                             <div class="col-lg-@(12/Cols) g-4">
                                 @CardTemplate(item)
                             </div>
                         }
+                    }
+                    @if (TableTemplate is not null)
+                    {
+                        <table class="table table-sm align-middle table-hover">
+                            <thead>
+                                <tr>
+                                    @if (TableHeaders is not null)
+                                    {
+                                        @foreach (var h in TableHeaders)
+                                        {
+                                            <th scope="col">@h</th>
+                                        }
+                                    }
+                                    @*  <th scope="col">#</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Title</th>*@
+                                    @*<th scope="col">@nameof(IEntityDto.Title)</th>*@
+                                    @*                                    <th scope="col">Start Date</th>
+                                <th scope="col">End Date</th>
+                                <th scope="col"></th>*@
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Items)
+                                {
+                                    @TableTemplate(item)
+                                }
+                            </tbody>
+                        </table>
                     }
                 </div>
             </div>
@@ -46,6 +75,12 @@
 
     [Parameter]
     public RenderFragment<TItem>? CardTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? TableTemplate { get; set; }
+
+    [Parameter]
+    public List<string>? TableHeaders { get; set; }
 
     [Parameter]
     public IReadOnlyList<TItem> Items { get; set; }

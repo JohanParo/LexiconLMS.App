@@ -29,15 +29,38 @@
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-   <script type="text/javascript">
-       function scrollIntoView(elementId) {
-           var elem = document.getElementById(elementId);
-           if (elem) {
-               elem.scrollIntoView();
-               window.location.hash = elementId;
-           }
-       }
-   </script>
+    <script type="text/javascript">
+        function scrollIntoView(elementId) {
+            var elem = document.getElementById(elementId);
+            if (elem) {
+                elem.scrollIntoView();
+                window.location.hash = elementId;
+            }
+        }
+    </script>
+    <script type="text/javascript" defer>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the button:
+            let mybutton = document.getElementById("upBtn");
+        });
+            // When the user scrolls down 20px from the top of the document, show the button
+            window.onscroll = function () { scrollFunction() };
+
+            function scrollFunction() {
+                if (document.body.scrollTop > 40 || document.documentElement.scrollTop > 40) {
+                    document.getElementById("upBtn").style.display = "block";
+                } else {
+                    document.getElementById("upBtn").style.display = "none";
+                }
+            }
+
+            // When the user clicks on the button, scroll to the top of the document
+            function topFunction() {
+                document.body.scrollTop = 0; // For Safari
+                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            }
+
+    </script>
 
 </body>
 

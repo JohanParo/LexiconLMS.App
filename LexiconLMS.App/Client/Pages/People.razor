@@ -4,7 +4,20 @@
 @inject LMSClient lsmClient;
 @attribute [Authorize]
 
+
 <PageTitle>People</PageTitle>
+
+
+<AuthorizeView>
+    <Authorized>
+        <p>@(@context.User.IsInRole("Admin") ? "Admin" : "Inte admin")</p>
+        <p>@(@context.User.IsInRole("Student") ? "Student" : "Inte student")</p>
+    </Authorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Admin">
+    <p>You have an 'Admin' role claim.</p>
+</AuthorizeView>
 
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
 
@@ -15,6 +28,7 @@
     </CardTemplate>
 </BlockGroupTemplate>
 
+
 @*<h1 class="text-end text-muted">.Net Core 2022-2023</h1>
 <CardGroupPeople title="Teachers" cols="4"></CardGroupPeople>
 <CardGroupPeople title="Students" cols="6"></CardGroupPeople>*@
@@ -23,12 +37,14 @@
     private CourseDto Course { get; set; } = new();
     private List<ApplicationUserDto> UserItems { get; set; } = new();
 
+
     protected override async Task OnInitializedAsync()
     {
-
         Course = (await lsmClient.GetByIdAsync<CourseDto>("1", "api/courses"));
         UserItems = Course.Users;
-        var test = "hej";
     }
 
 }
+
+
+
