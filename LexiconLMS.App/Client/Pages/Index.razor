@@ -21,10 +21,13 @@
     </CardTemplate>
 </BlockGroupTemplate>
 
-<BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="true" Cols="1" Id="section-activities">
+<BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="true" Cols="1" Id="section-activities" Links="true">
     <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
+    <LinkTemplate>
+        <div><a href="#" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
+    </LinkTemplate>
     <CardTemplate Context="item">
-        <CardModule item="item" Shadow="true"></CardModule>
+        <CardModule item="item" Shadow="true" Time="true"></CardModule>
     </CardTemplate>
 </BlockGroupTemplate>
 @*    </Authorized>
@@ -42,22 +45,50 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //var user = (await authStateProvider.GetAuthenticationStateAsync()).User;
-        //if (user.Identity.IsAuthenticated)
-        //{
-        Course = (await lsmClient.GetByIdAsync<CourseDto>("1", "api/courses"));
+        var userCourseIdStr = (await authStateProvider.GetAuthenticationStateAsync()).User.FindFirst("CourseId")?.Value;
+        var userCourseIdInt = 0;
+        if (!string.IsNullOrEmpty(userCourseIdStr))
+        {
+            try
+            {
+                userCourseIdInt = Int32.Parse(userCourseIdStr);
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"Unable to parse '{userCourseIdStr}'");
+            }
+
+            //need to fix all int/str things here!
+
+
+            if (userCourseIdInt > 0)
+            {
+                Course = (await lsmClient.GetByIdAsync<CourseDto>(userCourseIdInt.ToString(), "api/courses"));
+            }
+        }
+       
+        if(string.IsNullOrEmpty(Course.Title))
+        {
+            Course = (await lsmClient.GetByIdAsync<CourseDto>("1", "api/courses"));
+        }
+
         ModuleItems = Course.Modules;
         SelectedModule = ModuleItems.FirstOrDefault();
-        ActivityItems = SelectedModule.Activities;
-        //}
+        ActivityItems = SelectedModule.Activities.OrderBy(a => a.StartTime).ToList();
+
     }
 
     private async Task OnModuleSelect(int id)
     {
         SelectedModule = ModuleItems.FirstOrDefault(m => m.Id == id);
-        ActivityItems = SelectedModule.Activities;
+        ActivityItems = SelectedModule.Activities.OrderBy(a=>a.StartTime).ToList();
        //JSRuntime.("scrollIntoView", "section-activities");
         await JsRuntime.InvokeVoidAsync("scrollIntoView", "section-activities");
+    }
+
+    private async Task OnActivitySelect(string id)
+    {
+        await JsRuntime.InvokeVoidAsync("scrollIntoView", $"card-{id}");
     }
 
 

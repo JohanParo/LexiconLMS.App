@@ -1,11 +1,11 @@
-﻿<div class="card h-100 @(Shadow?"shadow":"") ">
-    <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="@color"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+﻿<div class="card h-100 @(Shadow?"shadow":"")" id="card-@item.Title">
+    <svg class="bd-placeholder-img card-img-top" width="100%" height="6" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="@color"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em"></text></svg>
     <div class="card-body">
         <h5 class="card-title"><a href="#" @onclick="() => OnClick(item.Id)" @onclick:stopPropagation="true" class="stretched-link text-decoration-none text-reset">@item.Title</a></h5>
         <p>@item.Description</p>
     </div>
     <div class="card-footer text-center">
-        <small class="text-muted">@item.StartTime.ToString("yy-MM-dd") - @item.EndTime.ToString("yy-MM-dd")</small>
+        <small class="text-muted">@item.StartTime.ToString(dateString) - @item.EndTime.ToString(dateString)</small>
     </div>
 </div>
 
@@ -14,21 +14,30 @@
     public bool Shadow { get; set; }
 
     [Parameter]
+    public bool? Time { get; set; }
+
+    [Parameter]
     public IEntityDto item { get; set; }
 
     [Parameter]
     public EventCallback<int> CardClick { get; set; }
 
+    string dateString = "yy-MM-dd";
+
     public async Task OnClick(int id)
     {
-       await CardClick.InvokeAsync(id);
-       
+        await CardClick.InvokeAsync(id);
+
     }
 
     Random random = new Random();
     string color { get; set; } = "#868e96";
     protected override void OnInitialized()
     {
+        if (Time==true)
+        {
+            dateString="yy-MM-dd HH:dd";
+        }
         color = String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
     }
 

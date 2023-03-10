@@ -23,10 +23,18 @@ namespace LexiconLMS.App.Server.Services
 
             if (!string.IsNullOrEmpty(user.Avatar))
             {
-                context.IssuedClaims.AddRange(roleClaims);
                 context.IssuedClaims.Add(new Claim("Avatar", user.Avatar));
+            }
+            if (!string.IsNullOrEmpty(user.FirstName) && !string.IsNullOrEmpty(user.LastName))
+            {
                 context.IssuedClaims.Add(new Claim("FullName", $"{user.FirstName} {user.LastName}"));
             }
+            if (user.CourseId is not null)
+            {
+                context.IssuedClaims.Add(new Claim("CourseId", user.CourseId.ToString()));
+            }
+            
+            context.IssuedClaims.AddRange(roleClaims);
         }
 
         public async Task IsActiveAsync(IsActiveContext context)

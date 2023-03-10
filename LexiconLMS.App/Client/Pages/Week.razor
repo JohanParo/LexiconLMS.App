@@ -1,0 +1,304 @@
+﻿@page "/week"
+
+@using Microsoft.AspNetCore.Authorization;
+@using LexiconLMS.App.Client.Services;
+
+@inject LMSClient lsmClient;
+
+@attribute [Authorize]
+<h3>Week view</h3>
+
+
+<div class="container py-7">
+    <!-- Days -->
+    <div class="row">
+        @foreach (var day in DailyActivitites)
+        {
+            @if (day is not null)
+            {
+                <div class="col-lg-@(12/DailyActivitites.Count) mb-3" id="@day.FirstOrDefault().StartTime.ToString("dddd d/M")">
+                    <h4 class="mt-0 mb-3 text-dark op-8 font-weight-bold">@day.FirstOrDefault().StartTime.ToString("dddd d/M")</h4>
+                    <ul class="list-timeline list-timeline-primary">
+                        @foreach (var item in day)
+                        {
+                            @if (item is not null)
+                            {
+                                <li class="list-timeline-item p-0 pb-3 pb-lg-4 d-flex flex-wrap flex-column">
+                                    <p class="my-0 text-dark flex-fw text-sm ">
+                                        <span class="text-inverse op-8">@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</span>
+                                    </p>
+                                    <p class="my-0 flex-fw text-xs text-primary op-8" id="day-1-item-1">
+                                        <a href="@item.Id" class="stretched-link">@item.Title</a>
+                                    </p>
+                                    <p class="my-0 flex-fw text-xs text-dark op-8" id="day-1-item-1">
+                                        @ExtensionsUtils.TrimString(item.Description,100)
+                                    </p>
+
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+        }
+
+    </div>
+</div>
+
+
+
+
+
+@code {
+    private CourseDto Course { get; set; } = new();
+    private ModuleDto SelectedModule { get; set; } = new();
+    private List<ModuleDto> ModuleItems { get; set; } = new();
+    private List<ActivityDto> ActivityItems { get; set; } = new();
+
+    private List<List<ActivityDto>> DailyActivitites { get; set; } = new List<List<ActivityDto>>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Course = (await lsmClient.GetByIdAsync<CourseDto>("1", "api/courses"));
+        ModuleItems = Course.Modules;
+        SelectedModule = ModuleItems.FirstOrDefault();
+        ActivityItems = SelectedModule.Activities;
+
+        DailyActivitites = ActivityItems
+        .OrderBy(a => a.StartTime)
+        .GroupBy(p => p.StartTime.Date)
+        .Select(g => g.ToList())
+        .Take(5).ToList();
+
+        Console.WriteLine(DailyActivitites.FirstOrDefault());
+        Console.WriteLine(DailyActivitites.FirstOrDefault().FirstOrDefault().Title);
+    }
+
+
+}
+
+
+
+
+
+
+
+@*
+
+<table class="calendar table table-bordered">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th width="20%">Monday</th>
+      <th width="20%">Tuesday</th>
+      <th width="20%">Wednesday</th>
+      <th width="20%">Thursday</th>
+      <th width="20%">Friday</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>09:00</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>09:30</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>10:00</td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid lecture" style="width: 99%; height: 100%;">
+          <span class="title">Combinatorics</span>
+          <span class="lecturer">
+            <a> Prof. Someone </a>
+          </span>
+          <span class="location">23/111</span>
+        </div>
+      </td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid lecture" style="width: 99%; height: 100%;">
+          <span class="title">Algebra 2</span>
+          <span class="lecturer">
+            <a>Prof.Else </a>
+          </span>
+          <span class="location">44/654</span>
+        </div>
+      </td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid lecture" style="width: 99%; height: 100%;">
+          <span class="title">Data Structures</span>
+          <span class="lecturer">
+            <a> Prof.If </a>
+          </span>
+          <span class="location">54/222</span>
+        </div>
+      </td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>10:30</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>11:00</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>11:30</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>12:00</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" has-events conflicts " rowspan="4">
+        <div class="row-fluid practice" style="width: 49.5%; height: 100%;">
+          <span class="title">Algebra 2</span>
+          <span class="lecturer">
+            <a> Mr. Someone </a>
+          </span>
+          <span class="location">12/444</span>
+        </div>
+        <div class="row-fluid lecture" style="width: 49.5%; height: 100%;">
+          <span class="title">Calculus 1</span>
+          <span class="lecturer">
+            <a> Prof. Foo </a>
+          </span>
+          <span class="location">66/321</span>
+        </div>
+      </td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid lecture" style="width: 99%; height: 100%;">
+          <span class="title">Algebra 2</span>
+          <span class="lecturer">
+            <a> Prof. Oak </a>
+          </span>
+          <span class="location">54/224</span>
+        </div>
+      </td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>12:30</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>13:00</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>13:30</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>14:00</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid lecture" style="width: 99%; height: 100%;">
+          <span class="title">Data Structures</span>
+          <span class="lecturer">
+            <a> Prof. Oak </a>
+          </span>
+          <span class="location">33/111</span>
+        </div>
+      </td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" has-events" rowspan="6">
+        <div class="row-fluid lecture" style="width: 99%; height: 100%;">
+          <span class="title">Calculus 1</span>
+          <span class="lecturer">
+            <a> Dr. Ok </a>
+          </span>
+          <span class="location">12/54</span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>14:30</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>15:00</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>15:30</td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+    <tr>
+      <td>16:00</td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid practice" style="width: 99%; height: 100%;">
+          <span class="title">Calculus 1</span>
+          <span class="lecturer">
+            <a> Mrs. Ak </a>
+          </span>
+          <span class="location">54/125</span>
+        </div>
+      </td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid lecture" style="width: 99%; height: 100%;">
+          <span class="title">Combinatorics</span>
+          <span class="lecturer">
+            <a> Ms. Nice </a>
+          </span>
+          <span class="location">99/411</span>
+        </div>
+      </td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid practice" style="width: 99%; height: 100%;">
+          <span class="title">Combinatorics</span>
+          <span class="lecturer">
+            <a> Ms. K </a>
+          </span>
+          <span class="location">24/900</span>
+        </div>
+      </td>
+      <td class=" has-events" rowspan="4">
+        <div class="row-fluid practice" style="width: 99%; height: 100%;">
+          <span class="title">Data Structures</span>
+          <span class="lecturer">
+            <a> Mr. Ben </a>
+          </span>
+          <span class="location">54/214</span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>16:30</td>
+    </tr>
+    <tr>
+      <td>17:00</td>
+      <td class=" no-events" rowspan="1"></td>
+    </tr>
+  </tbody>
+</table>
+
+
+*@

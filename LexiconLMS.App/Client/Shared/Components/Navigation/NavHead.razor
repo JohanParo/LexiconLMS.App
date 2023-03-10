@@ -13,12 +13,15 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink></li>
+                    <AuthorizeView>
                     <li class="nav-item"><NavLink class="nav-link" href="people">People</NavLink></li>
-
+                    <li class="nav-item"><NavLink class="nav-link" href="week">Week</NavLink></li>
+                    </AuthorizeView>
                     <AuthorizeView Roles="Admin">
                         <li class="nav-item"><NavLink class="nav-link" href="courses">Courses</NavLink></li>
-                        <li class="nav-item"><NavLink class="nav-link" href="#">Files</NavLink></li>
-                        <li class="nav-item"><NavLink class="nav-link" href="#">Users</NavLink></li>
+@*                        <li class="nav-item"><NavLink class="nav-link" href="#">Files</NavLink></li>
+                        <li class="nav-item"><NavLink class="nav-link" href="#">Users</NavLink></li>*@
+
                     </AuthorizeView>
                 </ul>
                 <form class="d-flex gap-2" role="search">
@@ -43,6 +46,7 @@
                             </a>
                             <ul class="dropdown-menu text-small" style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 34px);">
                                 <li><a class="dropdown-item" href="authentication/profile">Hello, @context.User.FindFirst("FullName")?.Value @context.User.Identity?.Name</a></li>
+                                @*<li><a class="dropdown-item" href="authentication/profile">@context.User.FindFirst("CourseId")?.Value</a></li>*@
                                 <li><a class="dropdown-item" href="#">Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" @onclick="BeginLogOut">Log out</a></li>
