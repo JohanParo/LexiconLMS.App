@@ -14,6 +14,7 @@ namespace LexiconLMS.App.Server.Data
         private static UserManager<ApplicationUser> userManager = default!;
         private static RoleManager<IdentityRole> roleManager = default!;
         private static Faker faker = null!;
+        private static List<ActivityType> activityTypes = null!;
 
         public static async Task InitAsync(ApplicationDbContext context, IServiceProvider services, string password)
         {
@@ -44,7 +45,7 @@ namespace LexiconLMS.App.Server.Data
             var admin = await AddAdminAsync(adminEmail, adminFirstName, adminLastName, password, adminAvatar);
 
 
-         
+            var activityTypes = GenerateActivityTypes();
             var courses = GenerateCourses(5);  // Generates courses with associated modules and activities
 
             foreach (var course in courses)  // Adds students to each course
@@ -98,19 +99,31 @@ namespace LexiconLMS.App.Server.Data
         }
 
         private static List<Activity> GenerateActivities(int numberOfActivities)
-        {
-            string[] activityTypes = { "Lecture", "E-learning", "Practice session", "Assignment" };
+        {   
 
             var faker = new Faker<Activity>()
                .RuleFor(a => a.Title, (f, a) => f.Company.CompanyName())
                .RuleFor(a => a.Description, (f, a) => f.Lorem.Paragraphs(5))
                .RuleFor(a => a.StartTime, f => DateTime.Now)
                .RuleFor(a => a.EndTime, f => DateTime.Now.AddHours(8))
-               .RuleFor(a => a.ActivityType, f => new ActivityType { Type = f.PickRandom(activityTypes) });
+               .RuleFor(a => a.ActivityType, f => f.PickRandom(activityTypes));
 
             return faker.Generate(numberOfActivities);
         }
 
+        public static List<ActivityType> GenerateActivityTypes()
+        {
+            activityTypes = new List<ActivityType>();
+            string[] types = { "Lecture", "E-learning", "Practice session", "Assignment" };
+
+            for (int i = 0; i < types.Length; i++)
+            {
+                ActivityType activityType = new ActivityType { Type = types[i] };    
+                activityTypes.Add(activityType);
+            }
+
+            return activityTypes;
+        }
 
         private static List<ApplicationUser> GenerateStudents(int numberOfStudents)
         {
