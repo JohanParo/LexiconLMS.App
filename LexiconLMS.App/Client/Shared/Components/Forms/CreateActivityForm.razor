@@ -8,16 +8,16 @@
         <label for="title">Title</label>
         <InputText id="title" class="form-control" @bind-Value="Activity.Title" placeholder="Enter title"></InputText>
     </div>
-
+        
     <div class="form-group mb-3">
-        <label>Activity type</label>
-        <InputSelect class="form-select" @bind-Value="Activity.ActivityTypeId">
-            <option selected>-- Select activity type --</option>   
-            <option value="1">Lecture</option>
-            <option value="2">E-learning</option>
-            <option value="3">Practice session</option>
-            <option value="4">Assignment</option>        
-        </InputSelect>
+    <label>Activity type</label>
+    <InputSelect class="form-select" @bind-Value="Activity.ActivityTypeId">
+            <option selected>-- Select activity type --</option>
+            @foreach (var item in ActivityTypes)
+            {
+                <option value="@item.Id">@item.Type</option>
+            }
+    </InputSelect>
     </div> 
 
     <div class="form-group mb-3">
@@ -81,6 +81,7 @@
 
     [Parameter]
     public ActivityDto Activity { get; set; } = new (); 
+    private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
     private CourseDto Course { get; set; } = new ();
     private List<CourseDto> Courses { get; set; } = new();
     private List<ModuleDto> Modules { get; set; } = new();
@@ -98,6 +99,7 @@
     protected async override Task OnInitializedAsync()
     {
         Courses = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList();
+        ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
     }
 
     public async Task CourseHasChangedAsync(int id)
