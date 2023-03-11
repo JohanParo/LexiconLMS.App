@@ -65,15 +65,17 @@
 @*<CreateCourseForm Course="Test"></CreateCourseForm>*@
 @*<CreateCourseForm></CreateCourseForm>*@ 
 
-<CreateModuleForm></CreateModuleForm>
+@*<CreateModuleForm></CreateModuleForm>*@
 @*<CreateModuleForm Course="Course"></CreateModuleForm>*@
 @*<CreateModuleForm Module="SelectedModule"></CreateModuleForm>*@
 
 @*<CreateActivityForm Module="SelectedModule"></CreateActivityForm>*@
-@*<CreateActivityForm Module="SelectedActivity"></CreateActivityForm>*@
+@*<CreateActivityForm>Activity="Activity"</CreateActivityForm>*@
+<CreateActivityForm></CreateActivityForm>
 
 
 @code
 {
+    private ActivityDto Activity = new() { Title = "Code Fundamentals", Description = "fun", StartTime = DateTime.Now, EndTime = DateTime.Now, ModuleId = 1, ActivityTypeId=1};
     private CourseDto Test = new() {Title="net", Description="hjhja hkahkj", EndTime=DateTime.Now };
 }

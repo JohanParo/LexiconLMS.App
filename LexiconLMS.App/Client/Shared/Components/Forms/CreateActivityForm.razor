@@ -9,26 +9,57 @@
         <InputText id="title" class="form-control" @bind-Value="Activity.Title" placeholder="Enter title"></InputText>
     </div>
 
-    @*<div class="form-group mb-3">
+    <div class="form-group mb-3">
         <label>Activity type</label>
-        <InputText id="activityType" class="form-control" @bind-Value="Activity.ActivityTypeType" placeholder="Enter Activity type"></InputText>
-    </div>*@
+        <InputSelect class="form-select" @bind-Value="Activity.ActivityTypeId">
+            <option selected>-- Select activity type --</option>   
+            <option value="1">Lecture</option>
+            <option value="2">E-learning</option>
+            <option value="3">Practice session</option>
+            <option value="4">Assignment</option>        
+        </InputSelect>
+    </div> 
+
+    <div class="form-group mb-3">
+        <label>Course</label>
+        <InputSelect 
+         Value="Course.Id" 
+         ValueChanged="@( async (int selectedId) => await CourseHasChangedAsync(selectedId))"
+         ValueExpression="@( () => Course.Id)"
+         class="form-select">
+            <option selected>-- Select course --</option>
+            @foreach (var item in Courses)
+            {
+                <option value="@item.Id">@item.Title</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Module</label>
+        <InputSelect class="form-select" @bind-Value="Activity.ModuleId">
+            <option selected>-- Select module --</option>           
+            @foreach (var item in Modules)
+            {
+                <option value="@item.Id">@item.Title</option>
+            }
+        </InputSelect>
+    </div> 
 
     <div class="form-group mb-3">
         <label for="description">Description</label>
-        <InputTextArea id="description" class="form-control" @bind-Value="@Activity.Description" placeholder="Enter description"></InputTextArea>
+        <InputTextArea id="description" class="form-control" @bind-Value="Activity.Description" placeholder="Enter description"></InputTextArea>
     </div>
 
     <div class="form-group mb-3">
         <label for="startTime">Start date</label>
-        <InputDate class="form-control" @bind-Value="@Activity.StartTime" placeholder="Enter start date"></InputDate>
+        <InputDate class="form-control" @bind-Value="Activity.StartTime" placeholder="Enter start date"></InputDate>
     </div>
 
     <div class="form-group mb-3">
         <label for="endTime">End date</label>
-        <InputDate id="endTime" class="form-control" @bind-Value="@Activity.EndTime" placeholder="Enter end date"></InputDate>
-    </div>
-    
+        <InputDate id="endTime" class="form-control" @bind-Value="Activity.EndTime" placeholder="Enter end date"></InputDate>
+    </div>    
 
     @*  <div class="form-check form-switch mb-3">
     <label for="isPublished" class="form-check-label">Publish now</label>
@@ -41,23 +72,18 @@
     </div>*@
     @* Add OnChange="OnInputFileChange" or bind-value?*@
 
-
     <div class="input-group-append input-group-lg">
         <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
     </div>
 </EditForm>
 
-
 @code {
 
     [Parameter]
-    public ModuleDto Module { get; set; } = new();
-
-    [Parameter]
-    public ActivityDto Activity { get; set; } = new();
-
-    public ActivityTypeDto ActivityType { get; set; } = new();
-
+    public ActivityDto Activity { get; set; } = new (); 
+    private CourseDto Course { get; set; } = new ();
+    private List<CourseDto> Courses { get; set; } = new();
+    private List<ModuleDto> Modules { get; set; } = new();
     private EditContext editContext = default!;
 
     [Inject]
@@ -69,6 +95,17 @@
         editContext = new EditContext(Activity);
     }
 
+    protected async override Task OnInitializedAsync()
+    {
+        Courses = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList();
+    }
+
+    public async Task CourseHasChangedAsync(int id)
+    {
+        Course.Id = id;
+        Modules = (await lmsClient.GetAsync<ModuleDto>("api/modules")).Where(m => m.CourseId.Equals(id)).ToList();
+        StateHasChanged();
+    }        
 
     public async Task OnSave()
     {
@@ -78,10 +115,8 @@
         }
 
         if (Activity.Id == 0)
-        {
-            //Activity = new ActivityDto {ActivityType.Type="E-learning"};
-            Activity.ModuleId = Module.Id;
-            var newActivity = await lmsClient.PostAsync(Activity, "api/activities");
+        {           
+            var newActivity = await lmsClient.PostAsync(Activity, "api/activities");            
         }
         else
         {

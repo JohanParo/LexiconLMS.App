@@ -44,7 +44,7 @@ namespace LexiconLMS.App.Server.Data
             var admin = await AddAdminAsync(adminEmail, adminFirstName, adminLastName, password, adminAvatar);
 
 
-            GanerateActivityTypes();
+         
             var courses = GenerateCourses(5);  // Generates courses with associated modules and activities
 
             foreach (var course in courses)  // Adds students to each course
@@ -57,11 +57,7 @@ namespace LexiconLMS.App.Server.Data
             await db.AddRangeAsync(courses);
             await db.SaveChangesAsync();
         }
-
-        private static void GanerateActivityTypes()
-        {
-            
-        }
+              
 
         private static List<Course> GenerateCourses(int numberOfCourses)
         {
