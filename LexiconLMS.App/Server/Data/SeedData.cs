@@ -57,55 +57,49 @@ namespace LexiconLMS.App.Server.Data
 
             await db.AddRangeAsync(courses);
             await db.SaveChangesAsync();
-        }
-              
+        }              
 
         private static List<Course> GenerateCourses(int numberOfCourses)
         {
-            string[] courseTitles = { ".NET", "FrontEnd" };
+            string[] courseTitles = { ".NET", "FrontEnd", "Java", "IT support"  };
 
             var faker = new Faker<Course>()
                 .RuleFor(c => c.Title, f => f.PickRandom(courseTitles))
                 .RuleFor(c => c.Description, f => f.Lorem.Sentence())
-                .RuleFor(c => c.StartTime, f => f.Date.Soon())
-                .RuleFor(c => c.EndTime, f => DateTime.Now.AddMonths(5))
-                .RuleFor(c => c.Modules, f => GenerateModules(8))  
+                .RuleFor(c => c.StartTime, f => DateTime.Now.AddDays(f.Random.Int(-100,100)))
+                .RuleFor(c => c.EndTime, (f,c) => c.StartTime.AddMonths(11))
+                .RuleFor(c => c.Modules, (f,c) => GenerateModules(8, c.StartTime))  
                 ;
 
             return faker.Generate(numberOfCourses);
         }
 
-        private static List<Module> GenerateModules(int numberOfModules)
-        {
-            var faker = new Faker();
-            var modules = new List<Module>();
-
-            string[] moduleTitles = { "C#", "Git", "API", "APL", "FrontEnd", "Blazor", "MVC", "Azure" };
-
-            for (int i = 0; i < numberOfModules; i++)
-            {
-                Module module = new Module
-                {
-                    Title = moduleTitles[i],
-                    StartTime = DateTime.Now.AddMonths(i),
-                    EndTime = DateTime.Now.AddMonths(i + 1),
-                    Description = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(faker.Lorem.Sentence()),
-                    Activities = GenerateActivities(10),
-                };
-
-                modules.Add(module);
-            }
-            return modules;
+        private static List<Module> GenerateModules(int numberOfModules, DateTime courseStart)
+        {            
+            string[] moduleTitles = { "C#", "Git", "API", "APL", "FrontEnd", "Blazor", "MVC", "Azure", "General"};
+            int i = 0;
+            int j = 0;
+           
+            var faker = new Faker<Module>()
+                .RuleFor(m => m.Title, f => moduleTitles[i++])
+                .RuleFor(m => m.Description, f => f.Lorem.Sentence(5))
+                .RuleFor(m => m.StartTime, f => courseStart.AddMonths(j++))
+                .RuleFor(m => m.EndTime, (f,m) => m.StartTime.AddMonths(1).AddDays(-1))
+                .RuleFor(m => m.Activities, (f,m) => GenerateActivities(10, m.StartTime))                  
+                ;
+           
+            return faker.Generate(numberOfModules);
         }
+           
 
-        private static List<Activity> GenerateActivities(int numberOfActivities)
-        {   
-
+        private static List<Activity> GenerateActivities(int numberOfActivities, DateTime moduleStart)
+        {
+            int j = 0;
             var faker = new Faker<Activity>()
-               .RuleFor(a => a.Title, (f, a) => f.Company.CompanyName())
-               .RuleFor(a => a.Description, (f, a) => f.Lorem.Paragraphs(5))
-               .RuleFor(a => a.StartTime, f => DateTime.Now)
-               .RuleFor(a => a.EndTime, f => DateTime.Now.AddHours(8))
+               .RuleFor(a => a.Title, f => f.Company.CompanyName())
+               .RuleFor(a => a.Description, f => f.Lorem.Paragraphs(5))
+               .RuleFor(a => a.StartTime, f => moduleStart.AddDays(j++))
+               .RuleFor(a => a.EndTime, (f,a) => a.StartTime.AddDays(1))
                .RuleFor(a => a.ActivityType, f => f.PickRandom(activityTypes));
 
             return faker.Generate(numberOfActivities);
