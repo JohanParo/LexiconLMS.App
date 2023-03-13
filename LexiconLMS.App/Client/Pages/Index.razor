@@ -36,6 +36,17 @@
     </NotAuthorized>
 </AuthorizeView>*@
 
+@*<CreateCourseForm Course="Course"></CreateCourseForm>*@
+@*<CreateCourseForm Course="Test"></CreateCourseForm>*@
+@*<CreateCourseForm></CreateCourseForm>*@ 
+
+@*<CreateModuleForm></CreateModuleForm>*@
+@*<CreateModuleForm Course="Course"></CreateModuleForm>*@
+@*<CreateModuleForm Module="SelectedModule"></CreateModuleForm>*@
+
+@*<CreateActivityForm Module="SelectedModule"></CreateActivityForm>*@
+@*<CreateActivityForm>Activity="Activity"</CreateActivityForm>*@
+<CreateActivityForm></CreateActivityForm>
 
 @code {
     private CourseDto Course { get; set; } = new();
@@ -94,8 +105,5 @@
 
 }
 
-@*<CreateForm Course="Test"></CreateForm>
-@code
-{
-    private CourseDTO2 Test = new() {Title="net", Description="hjhja hkahkj", EndTime=DateTime.Now, Id=99 };
-}*@
+
+
