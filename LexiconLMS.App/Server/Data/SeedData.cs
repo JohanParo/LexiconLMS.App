@@ -100,7 +100,7 @@ namespace LexiconLMS.App.Server.Data
 
         private static List<Activity> GenerateActivities(int numberOfActivities)
         {
-            string[] activityTypes = { "Lecture", "E-learning", "Practice session", "Assignment" };
+            string[] activityTypes = { "Lecture", "E-learning", "Practice session", "Assignment", "Misc" };
 
             var faker = new Faker<Activity>()
                .RuleFor(a => a.Title, (f, a) => f.Company.CompanyName())
