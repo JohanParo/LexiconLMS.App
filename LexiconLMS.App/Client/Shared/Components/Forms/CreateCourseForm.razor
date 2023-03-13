@@ -39,6 +39,7 @@
     <div class="input-group-append input-group-lg">
         <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
     </div>
+
 </EditForm>
 
 
@@ -49,6 +50,10 @@
 
     [Inject]
     public LMSClient lmsClient { get; set; } = default!;
+
+
+    [Parameter]
+    public EventCallback<CourseDto> SaveEvent  { get; set; }
 
 
     protected override void OnInitialized()
@@ -67,10 +72,14 @@
         if (Course.Id == 0)
         {
             var newCourse = await lmsClient.PostAsync(Course, "api/courses");
+            //if newCourse = null - statusmessage
+            await SaveEvent.InvokeAsync(newCourse);
         }
         else
         {
-            var isEdited = await lmsClient.PutAsync(Course, "api/courses");            
+            var isEdited = await lmsClient.PutAsync(Course, "api/courses");  
+            //if isEdited = true - statusmessage
+            await SaveEvent.InvokeAsync(Course);
         }
     }
    

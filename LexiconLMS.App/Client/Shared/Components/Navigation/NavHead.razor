@@ -14,19 +14,20 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink></li>
                     <AuthorizeView>
-                    <li class="nav-item"><NavLink class="nav-link" href="people">People</NavLink></li>
-                    <li class="nav-item"><NavLink class="nav-link" href="week">Week</NavLink></li>
+                        <li class="nav-item"><NavLink class="nav-link" href="people">People</NavLink></li>
+                        <li class="nav-item"><NavLink class="nav-link" href="week">Week</NavLink></li>
                     </AuthorizeView>
                     <AuthorizeView Roles="Admin">
                         <li class="nav-item"><NavLink class="nav-link" href="courses">Courses</NavLink></li>
-@*                        <li class="nav-item"><NavLink class="nav-link" href="#">Files</NavLink></li>
+                        @*                        <li class="nav-item"><NavLink class="nav-link" href="#">Files</NavLink></li>
                         <li class="nav-item"><NavLink class="nav-link" href="#">Users</NavLink></li>*@
 
                     </AuthorizeView>
                 </ul>
-                <form class="d-flex gap-2" role="search">
+                <form class="d-flex gap-2">
+                    @*                <form class="d-flex gap-2" role="search">*@
                     <AuthorizeView Roles="Admin">
-                        <select class="form-select" aria-label="Create new">
+                        <select class="form-select" @onchange="DoStuff" aria-label="Create new">
                             <option selected>Create</option>
                             <option value="1">User</option>
                             <option value="2">Course</option>
@@ -35,8 +36,8 @@
                         </select>
 
                     </AuthorizeView>
-                    <input class="form-control" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                    @*                    <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-primary" type="submit">Search</button>*@
                 </form>
                 <AuthorizeView>
                     <Authorized>
@@ -76,6 +77,12 @@
     private async Task ChangeFocus()
     {
         await exampleInput.FocusAsync();
+    }
+
+    void DoStuff(ChangeEventArgs e)
+    {
+        var SelectedString = e.Value.ToString();
+        Console.WriteLine("It is definitely: " + SelectedString);
     }
 }
 

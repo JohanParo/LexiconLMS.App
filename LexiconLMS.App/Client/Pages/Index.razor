@@ -7,7 +7,17 @@
 
 @page "/"
 @attribute [Authorize]
-
+@*<AuthorizeView Roles="Admin">
+    <EditForm EditContext="editContext">
+    <InputSelect @bind-Value=selectItemId class="form-control">
+        @foreach (CourseDto course in courses)
+        {
+            <option value="@course.Id">@course.Title</option>
+        }
+    </InputSelect>
+</EditForm>
+    <PageTitle>@Course.Title</PageTitle>
+</AuthorizeView>*@
 <PageTitle>@Course.Title</PageTitle>
 
 @*<AuthorizeView>
@@ -17,7 +27,7 @@
 <BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="true" Cols="4" Id="section-modules">
     <GroupHeader>My Modules</GroupHeader>
     <CardTemplate Context="item">
-        <CardModule CardClick="OnModuleSelect" item="item"></CardModule>
+        <CardModule CardClick="OnModuleSelect" item="item" Muted="true"></CardModule>
     </CardTemplate>
 </BlockGroupTemplate>
 
@@ -27,7 +37,7 @@
         <div><a href="#" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
     </LinkTemplate>
     <CardTemplate Context="item">
-        <CardModule item="item" Shadow="true" Time="true"></CardModule>
+        <CardModule item="item" Shadow="true" Muted="false" Time="true"></CardModule>
     </CardTemplate>
 </BlockGroupTemplate>
 @*    </Authorized>
@@ -53,6 +63,21 @@
     private ModuleDto SelectedModule { get; set; } = new();
     private List<ModuleDto> ModuleItems { get; set; } = new();
     private List<ActivityDto> ActivityItems { get; set; } = new();
+
+    //private EditContext editContext = default!;
+    //protected override void OnInitialized()
+    //{
+    //    editContext = new EditContext(Course);
+    //    editContext.OnFieldChanged += EditContext_OnFieldChanged;
+    //}
+
+    //    private void EditContext_OnFieldChanged(object sender, FieldChangedEventArgs e)
+    //{
+    //    var getSel = Courses.FirstOrDefault(p => p.Id == selectItemId);
+    //    if (getSel != null)
+    //        selectedItem = getSel;
+    //    StateHasChanged();
+    //}
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,9 +110,19 @@
 
         ModuleItems = Course.Modules;
         SelectedModule = ModuleItems.FirstOrDefault();
+       
         ActivityItems = SelectedModule.Activities.OrderBy(a => a.StartTime).ToList();
-
     }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    //this doesn't work right now... how to fix?
+    //    if (firstRender && Course==null)
+    //    {
+    //       // await JsRuntime.InvokeVoidAsync("setSelected", $"card-{SelectedModule.Title}");
+    //        //StateHasChanged();
+    //    }
+    //}
 
     private async Task OnModuleSelect(int id)
     {

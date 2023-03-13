@@ -4,6 +4,7 @@
 @inject LMSClient lsmClient;
 @attribute [Authorize]
 
+<button class="btn" @onclick="() => ModalShow(0)">New</button>
 <BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
     <GroupHeader>Courses</GroupHeader>
     <TableTemplate Context="item">
@@ -14,10 +15,10 @@
             <td>@item.StartTime</td>
             <td>@item.EndTime</td>
             <td class="text-end">
-               @* <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button class="btn btn-primary btn-sm" @onclick="() => ModalShow(item.Id)">Edit</button>
                     <button class="btn btn-danger btn-sm" @onclick="() => ModalShow(item.Id)">Delete</button>
-                </div>*@
+                </div>
             </td>
         </tr>
     </TableTemplate>
@@ -38,15 +39,15 @@
 
                 <!-- Modal body -->
                 <div class="modal-body">
-                    <CreateForm Course="@SelectedCourse"></CreateForm>
+                    <CreateCourseForm Course="@SelectedCourse" SaveEvent="OnSaved"></CreateCourseForm>
                 </div>
 
-                <!-- Modal footer -->
+@*                <!-- Modal footer -->
                 <div class="modal-footer">
                     <button type="button" class="btn" @onclick="@ModalCancel">Cancel</button>
                     <button type="button" class="btn btn-danger" @onclick=@ModalOk>Delete</button>
                 </div>
-
+*@
             </div>
         </div>
     </div>
@@ -55,7 +56,7 @@
 @code {
     private List<CourseDto> CourseList { get; set; } = new();
     private List<string> TableHeaderList { get; set; } = new();
-    CourseDto SelectedCourse { get; set; }
+    CourseDto? SelectedCourse { get; set; }
     protected override async Task OnInitializedAsync()
     {
         CourseList = (await lsmClient.GetAsync<CourseDto>("api/courses")).ToList();
@@ -63,6 +64,23 @@
         TableHeaderList = new() {"#","Status","Title","Start Time","End Time", "" };
         Console.WriteLine(TableHeaderList.Count);
     }
+
+    async Task OnSaved(CourseDto course)
+    {
+        var courseInList = CourseList.FirstOrDefault(c => c.Id == course.Id);
+
+        if (courseInList==null)
+        {
+            CourseList.Add(course);
+        }
+        else
+        {
+            if (courseInList != null) courseInList = course;
+        }
+        showModal = false;
+    }
+
+
 
     bool showModal = false;
 
@@ -75,7 +93,7 @@
     }
     void ModalShow(int id)
     {
-        SelectedCourse = CourseList.FirstOrDefault(c => c.Id == id);
+        SelectedCourse = CourseList.FirstOrDefault(c => c.Id == id, new());
         showModal = true;
     }
 }
