@@ -81,6 +81,7 @@
 
     [Parameter]
     public ActivityDto Activity { get; set; } = new (); 
+
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
     private CourseDto Course { get; set; } = new ();
     private List<CourseDto> Courses { get; set; } = new();
@@ -93,6 +94,11 @@
 
     protected override void OnInitialized()
     {
+        if (Activity.StartTime == DateTime.MinValue)
+        {
+            Activity.StartTime = DateTime.Now;
+        }
+        
         editContext = new EditContext(Activity);
     }
 

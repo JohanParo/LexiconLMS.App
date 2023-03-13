@@ -8,7 +8,7 @@
 <PageTitle>People</PageTitle>
 
 
-<AuthorizeView>
+@*<AuthorizeView>
     <Authorized>
         <p>@(@context.User.IsInRole("Admin") ? "Admin" : "Inte admin")</p>
         <p>@(@context.User.IsInRole("Student") ? "Student" : "Inte student")</p>
@@ -17,7 +17,7 @@
 
 <AuthorizeView Roles="Admin">
     <p>You have an 'Admin' role claim.</p>
-</AuthorizeView>
+</AuthorizeView>*@
 
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
 

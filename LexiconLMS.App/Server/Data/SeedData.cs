@@ -107,14 +107,8 @@ namespace LexiconLMS.App.Server.Data
 
         public static List<ActivityType> GenerateActivityTypes()
         {
-            string[] activityTypes = { "Lecture", "E-learning", "Practice session", "Assignment" };
-
-            var faker = new Faker<Activity>()
-               .RuleFor(a => a.Title, (f, a) => f.Company.CompanyName())
-               .RuleFor(a => a.Description, (f, a) => f.Lorem.Paragraphs(5))
-               .RuleFor(a => a.StartTime, f => DateTime.Now)
-               .RuleFor(a => a.EndTime, f => DateTime.Now.AddHours(8))
-               .RuleFor(a => a.ActivityType, f => new ActivityType { Type = f.PickRandom(activityTypes) });
+            activityTypes = new List<ActivityType>();
+            string[] types = { "Lecture", "E-learning", "Practice session", "Assignment" };
 
             for (int i = 0; i < types.Length; i++)
             {
