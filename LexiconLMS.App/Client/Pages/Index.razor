@@ -93,7 +93,7 @@
     {
         SelectedModule = ModuleItems.FirstOrDefault(m => m.Id == id);
         ActivityItems = SelectedModule.Activities.OrderBy(a=>a.StartTime).ToList();
-       //JSRuntime.("scrollIntoView", "section-activities");
+        await JsRuntime.InvokeVoidAsync("setSelected", $"card-{SelectedModule.Title}");
         await JsRuntime.InvokeVoidAsync("scrollIntoView", "section-activities");
     }
 

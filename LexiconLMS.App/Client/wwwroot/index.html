@@ -43,21 +43,40 @@
             // Get the button:
             let mybutton = document.getElementById("upBtn");
         });
-            // When the user scrolls down 20px from the top of the document, show the button
-            window.onscroll = function () { scrollFunction() };
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function () { scrollFunction() };
 
-            function scrollFunction() {
-                if (document.body.scrollTop > 40 || document.documentElement.scrollTop > 40) {
-                    document.getElementById("upBtn").style.display = "block";
-                } else {
-                    document.getElementById("upBtn").style.display = "none";
-                }
+        function scrollFunction() {
+            if (document.body.scrollTop > 40 || document.documentElement.scrollTop > 40) {
+                document.getElementById("upBtn").style.display = "block";
+            } else {
+                document.getElementById("upBtn").style.display = "none";
             }
+        }
 
-            // When the user clicks on the button, scroll to the top of the document
-            function topFunction() {
-                document.body.scrollTop = 0; // For Safari
-                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        }
+
+    </script>
+    <script type="text/javascript" defer>
+            function setSelected(elementId) {
+                var elem = document.getElementById(elementId);
+                if (elem) {
+                    //elem.setAttribute('aria-selected', false); //If attribute is true, and false needed
+                    elem.setAttribute('aria-selected', true); //If attribute is false, and true needed
+
+                    var sib = elem.parentNode.parentNode.firstChild;
+                    console.log(sib)
+                    for (; sib; sib = sib.nextSibling) {
+                        if (sib.childNodes[1].nodeType === 1 && sib.childNodes[1] !== elem) {
+                            sib.childNodes[1].setAttribute('aria-selected', 'false');
+                        }
+                    }
+                }
+
             }
 
     </script>
