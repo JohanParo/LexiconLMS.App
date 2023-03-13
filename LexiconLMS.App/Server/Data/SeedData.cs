@@ -108,7 +108,7 @@ namespace LexiconLMS.App.Server.Data
         public static List<ActivityType> GenerateActivityTypes()
         {
             activityTypes = new List<ActivityType>();
-            string[] types = { "Lecture", "E-learning", "Practice session", "Assignment" };
+            string[] types = { "Lecture", "E-learning", "Practice session", "Assignment", "Misc" };
 
             for (int i = 0; i < types.Length; i++)
             {
