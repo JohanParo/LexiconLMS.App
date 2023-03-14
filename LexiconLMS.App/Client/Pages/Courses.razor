@@ -57,13 +57,7 @@
         </div>
     </div>
 }
-@if (showAlert)
-{
-    <div class="myAlert-bottom alert alert-success">
-       @* <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>*@
-        <strong>Success!</strong> Indicates a successful or positive action.
-    </div>
-}
+
 
 <AlertComponent />
 @code {
@@ -97,11 +91,10 @@
             }
         }
         showModal = false;
-        //showAlert = true;
+
         AlertService.addMessage(new Alert(messageString, Alerts.Success));
     }
 
-    bool showAlert = false;
 
 
     bool showModal = false;
