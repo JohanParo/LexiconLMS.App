@@ -44,7 +44,7 @@
 
                 <!-- Modal body -->
                 <div class="modal-body">
-                    <CreateCourseForm Course="@SelectedCourse" SaveEvent="OnSaved"></CreateCourseForm>
+                    <CreateCourseForm Course="@SelectedCourse" SaveEvent="OnSaved" CancelEvent="OnCanceled"></CreateCourseForm>
                 </div>
 
 @*                <!-- Modal footer -->
@@ -94,6 +94,17 @@
         showModal = false;
 
         AlertService.addMessage(new Alert(messageString, Alerts.Success));
+    }
+
+    async Task OnCanceled(CourseDto course)
+    {
+
+        var courseInList = CourseList.FirstOrDefault(c => c.Id == course.Id);
+        if (courseInList != null)
+        {
+            courseInList = course;              
+        }
+        showModal = false;
     }
 
 
