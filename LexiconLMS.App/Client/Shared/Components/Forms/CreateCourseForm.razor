@@ -1,9 +1,7 @@
 ﻿@using LexiconLMS.App.Client.Services;
 
-<EditForm EditContext="editContext">
-    
-    <h3>Add course</h3>
-
+<EditForm EditContext="editContext">    
+  
     <div class="form-group mb-3">
         <label>Title</label>
         <InputText id="title" class="form-control" @bind-Value="Course.Title" placeholder="Enter title"></InputText>
@@ -40,6 +38,10 @@
         <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
     </div>
 
+    <div class="input-group-append input-group-lg">
+        <button type="button" id="cancel" class="btn btn-danger" @onclick="async () => await OnCancel()">Cancel</button>
+    </div>
+
 </EditForm>
 
 
@@ -54,11 +56,13 @@
     [Parameter]
     public EventCallback<CourseDto> SaveEvent  { get; set; }
 
+    [Parameter]
+    public EventCallback<CourseDto> CancelEvent { get; set; }
+
     CourseDto tempCourse { get; set; } = new();
 
     protected override void OnInitialized()
     {
-
         tempCourse.Title = Course.Title;
         tempCourse.Description = Course.Description;
         tempCourse.StartTime = Course.StartTime;
@@ -66,6 +70,7 @@
         tempCourse.Id = Course.Id;
 
         editContext = new EditContext(tempCourse);
+        //editContext = new EditContext(Course);
     }
 
     protected override void OnParametersSet()
@@ -81,11 +86,11 @@
             throw new ArgumentNullException(nameof(Course));
         }
 
-        Course.Title = tempCourse.Title;
-        Course.Description=tempCourse.Description;
-        Course.StartTime = tempCourse.StartTime;
-        Course.EndTime = tempCourse.EndTime;
-        Course.Id = tempCourse.Id;
+        //Course.Title = tempCourse.Title;
+        //Course.Description=tempCourse.Description;
+        //Course.StartTime = tempCourse.StartTime;
+        //Course.EndTime = tempCourse.EndTime;
+        //Course.Id = tempCourse.Id;
 
         if (Course.Id == 0)
         {
@@ -99,6 +104,17 @@
             //if isEdited = true - statusmessage
             await SaveEvent.InvokeAsync(Course);
         }
+    }
+
+
+    public async Task OnCancel()
+    {
+        Course.Title = tempCourse.Title;
+        Course.Description=tempCourse.Description;
+        Course.StartTime = tempCourse.StartTime;
+        Course.EndTime = tempCourse.EndTime;
+        Course.Id = tempCourse.Id;
+        await CancelEvent.InvokeAsync(Course);
     }
    
 
