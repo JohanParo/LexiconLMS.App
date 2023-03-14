@@ -54,19 +54,38 @@
     [Parameter]
     public EventCallback<CourseDto> SaveEvent  { get; set; }
 
+    CourseDto tempCourse { get; set; } = new();
 
     protected override void OnInitialized()
     {
-        editContext = new EditContext(Course);        
-    }   
 
+        tempCourse.Title = Course.Title;
+        tempCourse.Description = Course.Description;
+        tempCourse.StartTime = Course.StartTime;
+        tempCourse.EndTime = Course.EndTime;
+        tempCourse.Id = Course.Id;
+
+        editContext = new EditContext(tempCourse);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+    }
 
     public async Task OnSave()
     {
         if (Course is null)
         {
             throw new ArgumentNullException(nameof(Course));
-        }  
+        }
+
+        Course.Title = tempCourse.Title;
+        Course.Description=tempCourse.Description;
+        Course.StartTime = tempCourse.StartTime;
+        Course.EndTime = tempCourse.EndTime;
+        Course.Id = tempCourse.Id;
 
         if (Course.Id == 0)
         {
