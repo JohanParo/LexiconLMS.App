@@ -20,6 +20,7 @@ namespace LexiconLMS.App.Server
 
 		public int ModuleId { get; set; }
 		public int ActivityTypeId { get; set; }
-	}
+        public bool Published { get; set; } = true;
+    }
 
 }

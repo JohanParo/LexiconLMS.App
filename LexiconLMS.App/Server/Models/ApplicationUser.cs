@@ -15,6 +15,7 @@ namespace LexiconLMS.App.Server.Models
         public string LastName { get; set; } = string.Empty;
         public int? CourseId { get; set; }
         public string Avatar { get; set; }
+        public bool Published { get; set; } = true;
 
         //public  Course? Course { get; set; }
     }
