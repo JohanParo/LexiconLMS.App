@@ -64,6 +64,7 @@
     private List<CourseDto> CourseList { get; set; } = new();
     private List<string> TableHeaderList { get; set; } = new();
     CourseDto? SelectedCourse { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         CourseList = (await lsmClient.GetAsync<CourseDto>("api/courses")).ToList();

@@ -7,31 +7,19 @@
 
 @page "/"
 @attribute [Authorize]
-@*<AuthorizeView Roles="Admin">
-    <EditForm EditContext="editContext">
-    <InputSelect @bind-Value=selectItemId class="form-control">
-        @foreach (CourseDto course in courses)
-        {
-            <option value="@course.Id">@course.Title</option>
-        }
-    </InputSelect>
-</EditForm>
-    <PageTitle>@Course.Title</PageTitle>
-</AuthorizeView>*@
+
 <PageTitle>@Course.Title</PageTitle>
 
-@*<AuthorizeView>
-    <Authorized>*@
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
 
-<BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="true" Cols="4" Id="section-modules">
+<BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="false" Cols="4" Id="section-modules">
     <GroupHeader>My Modules</GroupHeader>
     <CardTemplate Context="item">
         <CardModule CardClick="OnModuleSelect" item="item" Muted="true"></CardModule>
     </CardTemplate>
 </BlockGroupTemplate>
 
-<BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="true" Cols="1" Id="section-activities" Links="true">
+<BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
     <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
     <LinkTemplate>
         <div><a href="#" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
@@ -40,15 +28,31 @@
         <CardModule item="item" Shadow="true" Muted="false" Time="true"></CardModule>
     </CardTemplate>
 </BlockGroupTemplate>
-@*    </Authorized>
-    <NotAuthorized>
-        <p>Not logged in...</p>
-    </NotAuthorized>
-</AuthorizeView>*@
+
+@*
+    section start for testing ModalComponent
+*@
+<a class="btn btn-warning" @onclick="() => OpenDialog(Course.Id,Course.Description)">
+    Delete
+</a>
+
+@if (DialogIsOpen)
+{
+    <ModalComponent Caption="Delete an author"
+                Message="@message"
+                OnClose="@OnDialogClose"
+                Type="ModalComponent.Category.DeleteNot">
+    </ModalComponent>
+}
+
+@*
+    section end for testing ModalComponent
+*@
+
 
 @*<CreateCourseForm Course="Course"></CreateCourseForm>*@
 @*<CreateCourseForm Course="Test"></CreateCourseForm>*@
-@*<CreateCourseForm></CreateCourseForm>*@ 
+@*<CreateCourseForm></CreateCourseForm>*@
 
 @*<CreateModuleForm></CreateModuleForm>*@
 @*<CreateModuleForm Course="Course"></CreateModuleForm>*@
@@ -59,25 +63,40 @@
 @*<CreateActivityForm></CreateActivityForm>*@
 
 @code {
+
+    /// <summary>
+    /// start section for testing modalComponent
+    /// </summary>
+    private int idAuthor;
+    private string message;
+    private bool DialogIsOpen = false;
+
+    private void OpenDialog(int id, string title)
+    {
+        DialogIsOpen = true;
+        idAuthor = id;
+        message = "Do you want to delete the course \""
+                  + title + "\"?";
+    }
+    private async Task OnDialogClose(bool isOk)
+    {
+        if (isOk)
+        {
+            //await authorService.Delete(idAuthor);
+            //authors = await authorService.ListAll((curPage - 1) *
+            //pageSize, pageSize, sortColumnName, sortDir, searchTerm);
+        }
+        DialogIsOpen = false;
+    }
+
+    /// <summary>
+    /// end section test ModalComponent
+    /// </summary>
+
     private CourseDto Course { get; set; } = new();
     private ModuleDto SelectedModule { get; set; } = new();
     private List<ModuleDto> ModuleItems { get; set; } = new();
     private List<ActivityDto> ActivityItems { get; set; } = new();
-
-    //private EditContext editContext = default!;
-    //protected override void OnInitialized()
-    //{
-    //    editContext = new EditContext(Course);
-    //    editContext.OnFieldChanged += EditContext_OnFieldChanged;
-    //}
-
-    //    private void EditContext_OnFieldChanged(object sender, FieldChangedEventArgs e)
-    //{
-    //    var getSel = Courses.FirstOrDefault(p => p.Id == selectItemId);
-    //    if (getSel != null)
-    //        selectedItem = getSel;
-    //    StateHasChanged();
-    //}
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,15 +121,15 @@
                 Course = (await lsmClient.GetByIdAsync<CourseDto>(userCourseIdInt.ToString(), "api/courses"));
             }
         }
-       
-        if(string.IsNullOrEmpty(Course.Title))
+
+        if (string.IsNullOrEmpty(Course.Title))
         {
             Course = (await lsmClient.GetByIdAsync<CourseDto>("1", "api/courses"));
         }
 
         ModuleItems = Course.Modules;
         SelectedModule = ModuleItems.FirstOrDefault();
-       
+
         ActivityItems = SelectedModule.Activities.OrderBy(a => a.StartTime).ToList();
     }
 
@@ -127,7 +146,7 @@
     private async Task OnModuleSelect(int id)
     {
         SelectedModule = ModuleItems.FirstOrDefault(m => m.Id == id);
-        ActivityItems = SelectedModule.Activities.OrderBy(a=>a.StartTime).ToList();
+        ActivityItems = SelectedModule.Activities.OrderBy(a => a.StartTime).ToList();
         await JsRuntime.InvokeVoidAsync("setSelected", $"card-{SelectedModule.Title}");
         await JsRuntime.InvokeVoidAsync("scrollIntoView", "section-activities");
     }

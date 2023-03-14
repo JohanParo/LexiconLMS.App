@@ -3,15 +3,18 @@
     <div class="accordion-item">
         @if (Collapsable)
         {
+
             <h4 class="accordion-header" id=@($"accordionHeading-{RanId}")>
                 <button class="accordion-button h4" type="button" data-bs-toggle="collapse" data-bs-target=@($"#accordionCollapse-{RanId}") aria-expanded="true" aria-controls=@($"accordionCollapse-{RanId}")>
                     @GroupHeader
                 </button>
             </h4>
+            <div class="text-end"><button class="btn btn-primary btn-sm me-4 text-end">New</button></div>
         }
         else
         {
-            <h4 class="border-bottom p-4">@GroupHeader</h4>
+            <h4 class="border-bottom p-4">@GroupHeader<button class="btn btn-primary btn-sm ms-4">New</button></h4>
+            
         }
         <div id=@($"accordionCollapse-{RanId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RanId}") data-bs-parent=@($"#accordionModules-{RanId}")>
             <div class="accordion-body">
