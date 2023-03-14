@@ -1,10 +1,13 @@
 ﻿@page "/courses"
+@using LexiconLMS.App.Client.Models;
 @using LexiconLMS.App.Client.Services;
 @using Microsoft.AspNetCore.Authorization;
 @inject LMSClient lsmClient;
+@inject AlertService AlertService
+
 @attribute [Authorize]
 
-<button class="btn" @onclick="() => ModalShow(0)">New</button>
+<button class="btn btn-primary" @onclick="() => ModalShow(0)">New</button>
 <BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
     <GroupHeader>Courses</GroupHeader>
     <TableTemplate Context="item">
@@ -24,6 +27,8 @@
     </TableTemplate>
 
 </BlockGroupTemplate>
+
+
 
 @if (showModal)
 {
@@ -52,7 +57,15 @@
         </div>
     </div>
 }
+@if (showAlert)
+{
+    <div class="myAlert-bottom alert alert-success">
+       @* <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>*@
+        <strong>Success!</strong> Indicates a successful or positive action.
+    </div>
+}
 
+<AlertComponent />
 @code {
     private List<CourseDto> CourseList { get; set; } = new();
     private List<string> TableHeaderList { get; set; } = new();
@@ -68,18 +81,27 @@
     async Task OnSaved(CourseDto course)
     {
         var courseInList = CourseList.FirstOrDefault(c => c.Id == course.Id);
+        string messageString = string.Empty;
 
         if (courseInList==null)
         {
             CourseList.Add(course);
+            messageString = $"Successfully added {course.Title}";
         }
         else
         {
-            if (courseInList != null) courseInList = course;
+            if (courseInList != null)
+            {
+                courseInList = course;
+                messageString = $"Successfully updated {course.Title}";
+            }
         }
         showModal = false;
+        //showAlert = true;
+        AlertService.addMessage(new Alert(messageString, Alerts.Success));
     }
 
+    bool showAlert = false;
 
 
     bool showModal = false;
@@ -88,7 +110,6 @@
     void ModalCancel() => showModal = false;
     void ModalOk()
     {
-        Console.WriteLine("Modal ok");
         showModal = false;
     }
     void ModalShow(int id)

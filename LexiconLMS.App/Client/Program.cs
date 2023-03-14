@@ -28,7 +28,9 @@ namespace LexiconLMS.App.Client
 
             builder.Services.AddApiAuthorization();
 
-			await builder.Build().RunAsync();
+            builder.Services.AddSingleton<AlertService>();
+
+            await builder.Build().RunAsync();
 		}
 	}
 }

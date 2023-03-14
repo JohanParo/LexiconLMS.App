@@ -1,0 +1,31 @@
+﻿@using LexiconLMS.App.Client.Models;
+@using LexiconLMS.App.Client.Services;
+@inject AlertService AlertService
+
+<div class="alert-service">
+    @for (int c = 0; c < AlertService.messages.Count; c++)
+    {
+        <div class="alert @getAlertClass(AlertService.messages[c])" role="alert">
+            @AlertService.messages[c].message
+        </div>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("AlertComponent:Initializied");
+        AlertService.RefreshRequested += Refresh;
+    }
+
+    private String getAlertClass(IAlert alert)
+    {
+        return String.Format("alert-{0}", alert.alert.ToString().ToLower());
+    }
+
+    private void Refresh()
+    {
+        Console.WriteLine("AlertComponent:refreshing");
+        StateHasChanged();
+    }
+}
