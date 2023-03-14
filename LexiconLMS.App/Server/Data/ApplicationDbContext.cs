@@ -18,6 +18,5 @@ namespace LexiconLMS.App.Server.Data
 		public DbSet<ActivityType> ActivityType { get; set; } = default!;
 		public DbSet<Module> Module { get; set; } = default!;
 		public DbSet<Document> Document { get; set; } = default!;
-		public DbSet<DocumentType> DocumentType { get; set; } = default!;
 	}
 }

@@ -1,4 +1,5 @@
 ﻿@using LexiconLMS.App.Client.Services;
+@using LexiconLMS.App.Shared;
 
 <EditForm EditContext="editContext">
 
@@ -59,16 +60,17 @@
     <div class="form-group mb-3">
         <label for="endTime">End date</label>
         <InputDate id="endTime" class="form-control" @bind-Value="Activity.EndTime" placeholder="Enter end date"></InputDate>
-    </div>    
+    </div>      
 
     @*  <div class="form-check form-switch mb-3">
     <label for="isPublished" class="form-check-label">Publish now</label>
     <InputCheckbox id="publish" class="form-check-input" @bind-Value="@Course.IsPublished"></InputCheckbox>
     </div>  *@
 
-    @* <div class="form-group mb-3">
-    <label for="file">Upload file</label>
-    <InputFile class="form-control-file" id="file"></InputFile>
+    @*<div class="form-group mb-3">
+        <p>@msg</p>
+        <label for="file">Upload up to @SharedVariable.maxAllowedFiles files</label>
+        <InputFile class="form-control-file" id="file" OnChange="@OnInputFileChange" multiple accept=".doc, .docx, image/*, .txt, .pdf"></InputFile>
     </div>*@
     @* Add OnChange="OnInputFileChange" or bind-value?*@
 

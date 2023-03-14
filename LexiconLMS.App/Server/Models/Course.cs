@@ -16,5 +16,6 @@ namespace LexiconLMS.App.Server.Models
         public DateTime EndTime { get; set; }
         public List<Module> Modules { get; set; }
         public List<ApplicationUser> Users { get; set; }
+        public List<Document>? Documents { get; set; }
     }
 }

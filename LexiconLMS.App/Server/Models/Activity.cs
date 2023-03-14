@@ -11,7 +11,6 @@ namespace LexiconLMS.App.Server
 	public class Activity
 	{
 		public int Id { get; set; }
-
 		public string Title { get; set; } = string.Empty;
         public ActivityType ActivityType { get; set; }
 		public string Description { get; set; } = string.Empty;
@@ -20,6 +19,7 @@ namespace LexiconLMS.App.Server
 
 		public int ModuleId { get; set; }
 		public int ActivityTypeId { get; set; }
-	}
+        public List<Document>? Documents { get; set; }
+    }
 
 }

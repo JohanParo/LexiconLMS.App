@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.SymbolStore;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace LexiconLMS.App.Server.Models
+namespace LexiconLMS.App.Client.DTOs
 {
-    public class Document
+    public class DocumentDto
     {
         [Key]
         public int Id { get; set; }
-        //public int? CMAID { get; set; }
         public string Title { get; set; }
-        //public DocumentType DocumentType { get; set; }
         public string? Description { get; set; }
         public DateTime ShowTime { get; set; }
         public string? FileName { get; set; }
@@ -23,7 +15,6 @@ namespace LexiconLMS.App.Server.Models
         public int ErrorCode { get; set; }
         public string? FileType { get; set; }
         public bool Uploaded { get; set; }
-        //public string DocumentFile { get; set; }
         [Required]
         public int UserId { get; set; }
 
