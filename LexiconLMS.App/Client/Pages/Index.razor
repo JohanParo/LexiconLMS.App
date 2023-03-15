@@ -11,6 +11,12 @@
 <PageTitle>@Course.Title</PageTitle>
 
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
+<a class="btn btn-primary" @onclick="@(() => OpenDialog(0,"New"))">
+    New
+</a>
+<a class="btn btn-primary" @onclick="@(() => OpenDialog(Course.Id,"Update"))">
+    Update
+</a>
 <button class="btn btn-primary mb-3" @onclick="() => ModalShow(0,1)">New module</button>
 <BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="false" Cols="4" Id="section-modules">
     <GroupHeader>My Modules</GroupHeader>
@@ -33,17 +39,19 @@
 @*
     section start for testing ModalComponent
 *@
-<a class="btn btn-warning" @onclick="() => OpenDialog(Course.Id,Course.Description)">
-    Delete
-</a>
+
 
 @if (DialogIsOpen)
 {
-    <ModalComponent Caption="Delete an author"
-                Message="@message"
+    <ModalTemplate Caption="@caption"
                 OnClose="@OnDialogClose"
-                Type="ModalComponent.Category.DeleteNot">
-    </ModalComponent>
+               Type="@modalType">
+        <FormTemplate>
+          @*  <CreateModuleForm Module="@SelectedModule"></CreateModuleForm>*@
+            <TestForm @ref="editForm" Item="@tempItem">
+            </TestForm>
+        </FormTemplate>
+    </ModalTemplate>
 }
 
 @*
@@ -51,18 +59,20 @@
 *@
 
 
-@*<CreateCourseForm Course="Course"></CreateCourseForm>*@
-@*<CreateCourseForm Course="Test"></CreateCourseForm>*@
-@*<CreateCourseForm></CreateCourseForm>*@
+@code {
 
-@*<CreateModuleForm></CreateModuleForm>*@
-@*<CreateModuleForm Course="Course"></CreateModuleForm>*@
-@*<CreateModuleForm Module="SelectedModule"></CreateModuleForm>*@
+    private CourseDto Course { get; set; } = new();
+    private ModuleDto SelectedModule { get; set; } = new();
+    private List<ModuleDto> ModuleItems { get; set; } = new();
+    private List<ActivityDto> ActivityItems { get; set; } = new();
 
-@*<CreateActivityForm Module="SelectedModule"></CreateActivityForm>*@
-@*<CreateActivityForm Activity="Activity"></CreateActivityForm>*@
-@*<CreateActivityForm></CreateActivityForm>*@
+    /// <summary>
+    /// section for testing modalComponent
+    /// </summary>
+    ///
 
+    //reference to the editform and it's members
+    private TestForm? editForm;
 
 @*Added from Courses.razor:*@
 @if (showModal)
@@ -90,24 +100,52 @@
 
 @code {
 
-    /// <summary>
-    /// start section for testing modalComponent
-    /// </summary>
-    private int idAuthor;
-    private string message;
+    private int idCourse;
+    private string test = "Update module";
+    private string caption = string.Empty;
     private bool DialogIsOpen = false;
+    private ModalTemplate.Category modalType;
+
+    private ModuleDto tempItem = new ModuleDto();
 
     private void OpenDialog(int id, string title)
     {
         DialogIsOpen = true;
-        idAuthor = id;
-        message = "Do you want to delete the course \""
-                  + title + "\"?";
+
+        //change depending on parameters to OpenDialog?
+        if (id != 0)
+        {
+            tempItem = new ModuleDto()
+                {
+                    Title = SelectedModule.Title,
+                    Description = SelectedModule.Description,
+                    StartTime = SelectedModule.StartTime,
+                    EndTime = SelectedModule.EndTime,
+                    Id = SelectedModule.Id,
+
+                    //IEntity doesn't have these...
+                    CourseId = SelectedModule.CourseId,
+                    Activities = SelectedModule.Activities
+                };
+        }
+
+        caption = title;
+        modalType = ModalTemplate.Category.SaveNot;
     }
     private async Task OnDialogClose(bool isOk)
     {
         if (isOk)
         {
+            await editForm.OnSave();
+            //how to differentiate here?
+
+
+            SelectedModule.Title = tempItem.Title;
+            SelectedModule.Description = tempItem.Description;
+            SelectedModule.StartTime = tempItem.StartTime;
+            SelectedModule.EndTime = tempItem.EndTime;
+            SelectedModule.Id = tempItem.Id;
+
             //await authorService.Delete(idAuthor);
             //authors = await authorService.ListAll((curPage - 1) *
             //pageSize, pageSize, sortColumnName, sortDir, searchTerm);
@@ -119,13 +157,13 @@
     /// end section test ModalComponent
     /// </summary>
 
-    private CourseDto Course { get; set; } = new();
-    private ModuleDto SelectedModule { get; set; } = new();
-    private List<ModuleDto> ModuleItems { get; set; } = new();
-    private List<ActivityDto> ActivityItems { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
+        //create an empty item of type ModuleDto to not have it empty
+        tempItem = new ModuleDto();
+
+
         var userCourseIdStr = (await authStateProvider.GetAuthenticationStateAsync()).User.FindFirst("CourseId")?.Value;
         var userCourseIdInt = 0;
         if (!string.IsNullOrEmpty(userCourseIdStr))
@@ -273,3 +311,14 @@
 
 
 
+    @*<CreateCourseForm Course="Course"></CreateCourseForm>*@
+@*<CreateCourseForm Course="Test"></CreateCourseForm>*@
+@*<CreateCourseForm></CreateCourseForm>*@
+
+@*<CreateModuleForm></CreateModuleForm>*@
+@*<CreateModuleForm Course="Course"></CreateModuleForm>*@
+@*<CreateModuleForm Module="SelectedModule"></CreateModuleForm>*@
+
+@*<CreateActivityForm Module="SelectedModule"></CreateActivityForm>*@
+@*<CreateActivityForm Activity="Activity"></CreateActivityForm>*@
+@*<CreateActivityForm></CreateActivityForm>*@
