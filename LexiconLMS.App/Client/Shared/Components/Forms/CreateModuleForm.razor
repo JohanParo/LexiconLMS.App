@@ -3,9 +3,7 @@
 
 <EditForm EditContext="editContext">
 
-    <h3>Add module</h3>
-
-    <div class="form-group mb-3">
+@*    <div class="form-group mb-3">
         <label>Select course</label>
         <InputSelect class="form-control" @bind-Value="Module.CourseId">
             <option>Select course</option>
@@ -14,7 +12,7 @@
                 <option value="@item.Id">@item.Title</option>
             }
         </InputSelect>
-    </div>
+    </div>*@
 
     <div class="form-group mb-3">
         <label>Title</label>
@@ -50,35 +48,59 @@
     <div class="input-group-append input-group-lg">
         <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
     </div>
+
+    <div class="input-group-append input-group-lg">
+        <button type="button" id="cancel" class="btn btn-danger" @onclick="async () => await OnCancel()">Cancel</button>
+    </div>
+
 </EditForm>
 
 
 @code {
 
+    //[Parameter]
+    //public CourseDto Course { get; set; } = new();
+
     [Parameter]
-    public CourseDto Course { get; set; } = new();
+    public int CourseId { get; set; } = new();
 
     [Parameter]
     public ModuleDto Module { get; set; } = new();
+
     private List<CourseDto> Courses { get; set; } = new();
     private EditContext editContext = default!;
+
+    [Parameter]
+    public EventCallback<ModuleDto> SaveEvent { get; set; }
+
+    [Parameter]
+    public EventCallback<ModuleDto> CancelEvent { get; set; }
+
+    ModuleDto tempModule { get; set; } = new();
 
     [Inject]
     public LMSClient lmsClient { get; set; } = default!;
 
+    //protected override void OnInitialized()
+    //{
+    //    editContext = new EditContext(Module);             
+    //}
 
     protected override void OnInitialized()
     {
-        editContext = new EditContext(Module);
-             
+        tempModule.Title = Module.Title;
+        tempModule.Description = Module.Description;
+        tempModule.StartTime = Module.StartTime;
+        tempModule.EndTime = Module.EndTime;
+        tempModule.Id = Module.Id;
+
+        editContext = new EditContext(tempModule);       
     }
 
     protected async override Task OnInitializedAsync()
-    {
-        
+    {        
         Courses = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList();
     }
-
 
 
     public async Task OnSave()
@@ -89,13 +111,26 @@
         }
 
         if (Module.Id == 0)
-        {          
-            var newCourse = await lmsClient.PostAsync(Module, "api/modules");
+        {
+            Module.CourseId = CourseId;       
+            var newModule = await lmsClient.PostAsync(Module, "api/modules");
+            await SaveEvent.InvokeAsync(newModule);
         }
         else
         {
             var isEdited = await lmsClient.PutAsync(Module, "api/modules");
+            await SaveEvent.InvokeAsync(Module);
         }
+
     }
+        public async Task OnCancel()
+        {
+            Module.Title = tempModule.Title;
+            Module.Description = tempModule.Description;
+            Module.StartTime = tempModule.StartTime;
+            Module.EndTime = tempModule.EndTime;
+            Module.Id = tempModule.Id;
+            await CancelEvent.InvokeAsync(Module);
+        }
 
 }

@@ -1,9 +1,7 @@
 ﻿@using LexiconLMS.App.Client.Services;
 
 <EditForm EditContext="editContext">
-
-    <h3>Add activity</h3>
-
+       
     <div class="form-group mb-3">
         <label for="title">Title</label>
         <InputText id="title" class="form-control" @bind-Value="Activity.Title" placeholder="Enter title"></InputText>
@@ -20,7 +18,7 @@
     </InputSelect>
     </div> 
 
-    <div class="form-group mb-3">
+ @*   <div class="form-group mb-3">
         <label>Course</label>
         <InputSelect 
          Value="Course.Id" 
@@ -33,9 +31,9 @@
                 <option value="@item.Id">@item.Title</option>
             }
         </InputSelect>
-    </div>
+    </div>*@
 
-    <div class="form-group mb-3">
+   @* <div class="form-group mb-3">
         <label>Module</label>
         <InputSelect class="form-select" @bind-Value="Activity.ModuleId">
             <option selected>-- Select module --</option>           
@@ -44,7 +42,7 @@
                 <option value="@item.Id">@item.Title</option>
             }
         </InputSelect>
-    </div> 
+    </div> *@
 
     <div class="form-group mb-3">
         <label for="description">Description</label>
@@ -75,32 +73,62 @@
     <div class="input-group-append input-group-lg">
         <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
     </div>
+
+    <div class="input-group-append input-group-lg">
+        <button type="button" id="cancel" class="btn btn-danger" @onclick="async () => await OnCancel()">Cancel</button>
+    </div>
+
 </EditForm>
 
 @code {
 
     [Parameter]
-    public ActivityDto Activity { get; set; } = new (); 
+    public ActivityDto Activity { get; set; } = new ();
+
+    [Parameter]
+    public int ModuleId { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<ActivityDto> SaveEvent { get; set; }
+
+    [Parameter]
+    public EventCallback<ActivityDto> CancelEvent { get; set; }
 
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
     private CourseDto Course { get; set; } = new ();
     private List<CourseDto> Courses { get; set; } = new();
     private List<ModuleDto> Modules { get; set; } = new();
+    public ActivityDto tempActivity { get; set; } = new();
     private EditContext editContext = default!;
+
 
     [Inject]
     public LMSClient lmsClient { get; set; } = default!;
 
 
+    //protected override void OnInitialized()
+    //{
+    //    if (Activity.StartTime == DateTime.MinValue)
+    //    {
+    //        Activity.StartTime = DateTime.Now;
+    //    }
+
+    //    editContext = new EditContext(Activity);
+    //}
+
+
     protected override void OnInitialized()
     {
-        if (Activity.StartTime == DateTime.MinValue)
-        {
-            Activity.StartTime = DateTime.Now;
-        }
-        
-        editContext = new EditContext(Activity);
+        tempActivity.Title = Activity.Title;
+        tempActivity.Description = Activity.Description;
+        tempActivity.StartTime = Activity.StartTime;
+        tempActivity.EndTime = Activity.EndTime;
+        tempActivity.Id = Activity.Id;
+
+        editContext = new EditContext(tempActivity);
     }
+
+
 
     protected async override Task OnInitializedAsync()
     {
@@ -108,12 +136,12 @@
         ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
     }
 
-    public async Task CourseHasChangedAsync(int id)
-    {
-        Course.Id = id;
-        Modules = (await lmsClient.GetAsync<ModuleDto>("api/modules")).Where(m => m.CourseId.Equals(id)).ToList();
-        StateHasChanged();
-    }        
+    //public async Task CourseHasChangedAsync(int id)
+    //{
+    //    Course.Id = id;
+    //    Modules = (await lmsClient.GetAsync<ModuleDto>("api/modules")).Where(m => m.CourseId.Equals(id)).ToList();
+    //    StateHasChanged();
+    //}        
 
     public async Task OnSave()
     {
@@ -123,13 +151,31 @@
         }
 
         if (Activity.Id == 0)
-        {           
-            var newActivity = await lmsClient.PostAsync(Activity, "api/activities");            
+        {
+            Activity.ModuleId = ModuleId; ;
+            var newActivity = await lmsClient.PostAsync(Activity, "api/activities");     
+            await SaveEvent.InvokeAsync(newActivity);
         }
         else
         {
             var isEdited = await lmsClient.PutAsync(Activity, "api/activities");
+            await SaveEvent.InvokeAsync(Activity);
         }
     }
+
+ 
+    public async Task OnCancel()
+    {
+        Activity.Title = tempActivity.Title;
+        Activity.Description = tempActivity.Description;
+        Activity.StartTime = tempActivity.StartTime;
+        Activity.EndTime = tempActivity.EndTime;
+        Activity.Id = tempActivity.Id;
+        await CancelEvent.InvokeAsync(Activity);
+    }
+
+
+
+
 
 }

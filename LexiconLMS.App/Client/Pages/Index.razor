@@ -11,7 +11,7 @@
 <PageTitle>@Course.Title</PageTitle>
 
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
-
+<button class="btn btn-primary mb-3" @onclick="() => ModalShow(0,1)">New module</button>
 <BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="false" Cols="4" Id="section-modules">
     <GroupHeader>My Modules</GroupHeader>
     <CardTemplate Context="item">
@@ -19,6 +19,7 @@
     </CardTemplate>
 </BlockGroupTemplate>
 
+<button class="btn btn-primary mb-3" @onclick="() => ModalShow(0,2)">New activity</button>
 <BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
     <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
     <LinkTemplate>
@@ -61,6 +62,31 @@
 @*<CreateActivityForm Module="SelectedModule"></CreateActivityForm>*@
 @*<CreateActivityForm Activity="Activity"></CreateActivityForm>*@
 @*<CreateActivityForm></CreateActivityForm>*@
+
+
+@*Added from Courses.razor:*@
+@if (showModal)
+{
+    <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">       
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    @if (@modalType == 0)
+                    {
+                        <CreateModuleForm CourseId="@Course.Id" SaveEvent="OnSaved" CancelEvent="OnCanceled"></CreateModuleForm>
+                    }
+                    @if (@modalType == 1)
+                    {
+                    <CreateActivityForm ModuleId="@SelectedModule.Id" SaveEvent="OnSaved" CancelEvent="OnCanceled"></CreateActivityForm>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
 
 @code {
 
@@ -154,6 +180,92 @@
     private async Task OnActivitySelect(string id)
     {
         await JsRuntime.InvokeVoidAsync("scrollIntoView", $"card-{id}");
+    }
+
+
+
+    // Added from Courses.razor
+    // Create modules
+
+    async Task OnSaved(ModuleDto module)
+    {
+        var moduleInList = ModuleItems.FirstOrDefault(c => c.Id == module.Id);
+        string messageString = string.Empty;
+
+        if (moduleInList == null)
+        {
+            ModuleItems.Add(module);
+            messageString = $"Successfully added {module.Title}";
+        }
+        else
+        {
+            if (moduleInList != null)
+            {
+                moduleInList = module;
+                messageString = $"Successfully updated {module.Title}";
+            }
+        }
+        showModal = false;
+
+        //AlertService.addMessage(new Alert(messageString, Alerts.Success));
+    }
+
+    async Task OnCanceled(ModuleDto module)
+    {
+
+        var moduleInList = ModuleItems.FirstOrDefault(c => c.Id == module.Id);
+        if (moduleInList != null)
+        {
+            moduleInList = module;
+        }
+        showModal = false;
+    }
+
+    // Create activity
+    async Task OnSaved(ActivityDto activity)
+    {
+        var activityInList = ActivityItems.FirstOrDefault(c => c.Id == activity.Id);
+        string messageString = string.Empty;
+
+        if (activityInList == null)
+        {
+            ActivityItems.Add(activity);
+            messageString = $"Successfully added {activity.Title}";
+        }
+        else
+        {
+            if (activityInList != null)
+            {
+                activityInList = activity;
+                messageString = $"Successfully updated {activity.Title}";
+            }
+        }
+        showModal = false;
+
+        //AlertService.addMessage(new Alert(messageString, Alerts.Success));
+    }
+
+    async Task OnCanceled(ActivityDto activity)
+    {
+
+        var activityInList = ActivityItems.FirstOrDefault(c => c.Id == activity.Id);
+        if (activityInList != null)
+        {
+            activityInList = activity;
+        }
+        showModal = false;
+    }
+
+
+
+    bool showModal = false;
+    int modalType;
+
+   private void ModalShow(int id, int type)
+    {
+        //Course = CourseList.FirstOrDefault(c => c.Id == id, new());
+        int modalType = type;
+        showModal = true;
     }
 
 
