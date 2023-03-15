@@ -1,32 +1,32 @@
 ﻿@typeparam TItem
-        @if (Collapsable)
-        {
-<div class="accordion mb-4" id="@Id">
-    <div class="accordion-item">
-
-
+@typeparam TItem
+@if (Collapsable)
+{
+    <div class="accordion mb-4" id="@Id">
+        <div class="accordion-item">
             <h4 class="accordion-header" id=@($"accordionHeading-{RandomId}")>
                 <button class="accordion-button h4" type="button" data-bs-toggle="collapse" data-bs-target=@($"#accordionCollapse-{RandomId}") aria-expanded="true" aria-controls=@($"accordionCollapse-{RandomId}")>
                     @GroupHeader
                 </button>
             </h4>
             <div class="text-end"><button class="btn btn-primary btn-sm me-4 text-end">New</button></div>
-        }
-        else
-        {
-            <h4 class="border-bottom p-4">
-                @GroupHeader<button class="btn btn-primary btn-sm ms-4">New</button>
-            </h4>
-
-        }
-        <div id=@($"accordionCollapse-{RandomId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RandomId}") data-bs-parent=@($"#accordionModules-{RandomId}")>
-            <div class="accordion-body">
-                @RenderContent()
-                
+            <div id=@($"accordionCollapse-{RandomId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RandomId}") data-bs-parent=@($"#accordionModules-{RandomId}")>
+                <div class="accordion-body">
+                    @RenderContent()
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
+else
+{
+    <div class="mb-4">
+        <h4 class="border-bottom p-4">
+            @GroupHeader<button class="btn btn-primary btn-sm ms-4">New</button>
+        </h4>
+        @RenderContent()
+    </div>
+}
 
 @code {
     [Parameter] public bool Collapsable { get; set; }
