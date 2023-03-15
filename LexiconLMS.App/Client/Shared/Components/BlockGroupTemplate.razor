@@ -1,11 +1,12 @@
 ﻿@typeparam TItem
-<div class="accordion mb-4" id="@Id">
-    <div class="accordion-item">
         @if (Collapsable)
         {
+<div class="accordion mb-4" id="@Id">
+    <div class="accordion-item">
 
-            <h4 class="accordion-header" id=@($"accordionHeading-{RanId}")>
-                <button class="accordion-button h4" type="button" data-bs-toggle="collapse" data-bs-target=@($"#accordionCollapse-{RanId}") aria-expanded="true" aria-controls=@($"accordionCollapse-{RanId}")>
+
+            <h4 class="accordion-header" id=@($"accordionHeading-{RandomId}")>
+                <button class="accordion-button h4" type="button" data-bs-toggle="collapse" data-bs-target=@($"#accordionCollapse-{RandomId}") aria-expanded="true" aria-controls=@($"accordionCollapse-{RandomId}")>
                     @GroupHeader
                 </button>
             </h4>
@@ -13,109 +14,84 @@
         }
         else
         {
-            <h4 class="border-bottom p-4">@GroupHeader<button class="btn btn-primary btn-sm ms-4">New</button></h4>
-            
+            <h4 class="border-bottom p-4">
+                @GroupHeader<button class="btn btn-primary btn-sm ms-4">New</button>
+            </h4>
+
         }
-        <div id=@($"accordionCollapse-{RanId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RanId}") data-bs-parent=@($"#accordionModules-{RanId}")>
+        <div id=@($"accordionCollapse-{RandomId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RandomId}") data-bs-parent=@($"#accordionModules-{RandomId}")>
             <div class="accordion-body">
-                <div class="row px-4 pb-4">
-
-                    @if (CardTemplate is not null)
-                    {
-                        @if (Links)
-                        {
-                            <div class="col-lg-2 gap-1 ps-0 pe-4 small">
-
-                                @foreach (var item in Items)
-                                {
-                                    @LinkTemplate(item)
-                                }
-
-                            </div>
-                            <div class="col">
-                                @foreach (var item in Items)
-                                {
-                                    <div class="col-lg-@(12/Cols) mb-4">
-                                        @CardTemplate(item)
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            @foreach (var item in Items)
-                            {
-                                <div class="col-lg-@(12/Cols) g-4">
-                                    @CardTemplate(item)
-                                </div>
-                            }
-                        }
-
-                    }
-                    @if (TableTemplate is not null)
-                    {
-                        <table class="table table-sm align-middle table-hover">
-                            <thead>
-                                <tr>
-                                    @if (TableHeaders is not null)
-                                    {
-                                        @foreach (var h in TableHeaders)
-                                        {
-                                            <th scope="col">@h</th>
-                                        }
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Items)
-                                {
-                                    @TableTemplate(item)
-                                }
-                            </tbody>
-                        </table>
-                    }
-                </div>
+                @RenderContent()
+                
             </div>
         </div>
     </div>
 </div>
 
 @code {
-    [Parameter]
-    public bool Collapsable { get; set; }
+    [Parameter] public bool Collapsable { get; set; }
+    [Parameter] public bool Links { get; set; }
+    [Parameter] public string Id { get; set; }
+    [Parameter] public int Cols { get; set; } = 4;
+    [Parameter] public RenderFragment? GroupHeader { get; set; }
+    [Parameter] public RenderFragment<TItem>? CardTemplate { get; set; }
+    [Parameter] public RenderFragment<TItem>? TableTemplate { get; set; }
+    [Parameter] public RenderFragment<TItem>? LinkTemplate { get; set; }
+    [Parameter] public List<string>? TableHeaders { get; set; }
+    [Parameter] public IReadOnlyList<TItem> Items { get; set; }
 
-    [Parameter]
-    public bool Links { get; set; }
-
-    [Parameter]
-    public string Id { get; set; }
-
-    [Parameter]
-    public int Cols { get; set; } = 4;
-
-    [Parameter]
-    public RenderFragment? GroupHeader { get; set; }
-
-    [Parameter]
-    public RenderFragment<TItem>? CardTemplate { get; set; }
-
-    [Parameter]
-    public RenderFragment<TItem>? TableTemplate { get; set; }
-
-    [Parameter]
-    public RenderFragment<TItem>? LinkTemplate { get; set; }
-
-    [Parameter]
-    public List<string>? TableHeaders { get; set; }
-
-    [Parameter]
-    public IReadOnlyList<TItem> Items { get; set; }
-
-    Random random = new Random();
-    string RanId { get; set; }
+    private Random random = new Random();
+    private string RandomId;
 
     protected override void OnInitialized()
     {
-        RanId = String.Format("{0:X4}", random.Next(1000));
+        RandomId = String.Format("{0:X4}", random.Next(1000));
     }
+    private RenderFragment RenderContent() => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "row px-4 pb-4");
+        if (CardTemplate is not null)
+        {
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", "row px-4 pb-4");
+
+            if (Links)
+            {
+                builder.OpenElement(2, "div");
+                builder.AddAttribute(3, "class", "col-lg-2 gap-1 ps-0 pe-4 small");
+
+                foreach (var item in Items)
+                {
+                    builder.AddContent(4, LinkTemplate(item));
+                }
+
+                builder.CloseElement(); // close col-lg-2
+                builder.OpenElement(5, "div");
+                builder.AddAttribute(6, "class", "col");
+
+                foreach (var item in Items)
+                {
+                    builder.OpenElement(7, "div");
+                    builder.AddAttribute(8, "class", $"col-lg-{12 / Cols} mb-4");
+                    builder.AddContent(9, CardTemplate(item));
+                    builder.CloseElement(); // close col-lg-{12/Cols}
+                }
+
+                builder.CloseElement(); // close col
+            }
+            else
+            {
+                foreach (var item in Items)
+                {
+                    builder.OpenElement(10, "div");
+                    builder.AddAttribute(11, "class", $"col-lg-{12 / Cols} g-4");
+                    builder.AddContent(12, CardTemplate(item));
+                    builder.CloseElement(); // close col-lg-{12/Cols}
+                }
+            }
+
+            builder.CloseElement(); // close row
+        }
+    };
 }
