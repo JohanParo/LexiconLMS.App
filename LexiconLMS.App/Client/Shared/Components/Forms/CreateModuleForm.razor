@@ -2,9 +2,6 @@
 
 
 <EditForm EditContext="editContext">
-
-    <h3>Add module</h3>
-
     <div class="form-group mb-3">
         <label>Select course</label>
         <InputSelect class="form-control" @bind-Value="Module.CourseId">
@@ -60,6 +57,7 @@
 
     [Parameter]
     public ModuleDto Module { get; set; } = new();
+
     private List<CourseDto> Courses { get; set; } = new();
     private EditContext editContext = default!;
 
