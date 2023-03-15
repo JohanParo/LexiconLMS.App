@@ -11,13 +11,13 @@
 <PageTitle>@Course.Title</PageTitle>
 
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
-<a class="btn btn-primary" @onclick="@(() => OpenDialog(0,"New"))">
+@*<a class="btn btn-primary" @onclick="@(() => OpenDialog(0,"New"))">
     New
-</a>
-<a class="btn btn-primary" @onclick="@(() => OpenDialog(Course.Id,"Update"))">
+</a>*@
+@*<a class="btn btn-primary" @onclick="@(() => OpenDialog(Course.Id,"Update"))">
     Update
-</a>
-<button class="btn btn-primary mb-3" @onclick="() => ModalShow(0,1)">New module</button>
+</a>*@
+<button class="btn btn-primary mb-3" @onclick="() => ModalShow(0)">New module</button>
 <BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="false" Cols="4" Id="section-modules">
     <GroupHeader>My Modules</GroupHeader>
     <CardTemplate Context="item">
@@ -25,7 +25,7 @@
     </CardTemplate>
 </BlockGroupTemplate>
 
-<button class="btn btn-primary mb-3" @onclick="() => ModalShow(0,2)">New activity</button>
+<button class="btn btn-primary mb-3" @onclick="() => ModalShow(0)">New activity</button>
 <BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
     <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
     <LinkTemplate>
@@ -57,22 +57,7 @@
 @*
     section end for testing ModalComponent
 *@
-
-
-@code {
-
-    private CourseDto Course { get; set; } = new();
-    private ModuleDto SelectedModule { get; set; } = new();
-    private List<ModuleDto> ModuleItems { get; set; } = new();
-    private List<ActivityDto> ActivityItems { get; set; } = new();
-
-    /// <summary>
-    /// section for testing modalComponent
-    /// </summary>
-    ///
-
-    //reference to the editform and it's members
-    private TestForm? editForm;
+   
 
 @*Added from Courses.razor:*@
 @if (showModal)
@@ -82,15 +67,9 @@
             <div class="modal-content">       
 
                 <!-- Modal body -->
-                <div class="modal-body">
-                    @if (@modalType == 0)
-                    {
-                        <CreateModuleForm CourseId="@Course.Id" SaveEvent="OnSaved" CancelEvent="OnCanceled"></CreateModuleForm>
-                    }
-                    @if (@modalType == 1)
-                    {
-                    <CreateActivityForm ModuleId="@SelectedModule.Id" SaveEvent="OnSaved" CancelEvent="OnCanceled"></CreateActivityForm>
-                    }
+                <div class="modal-body">                    
+                      @* <CreateModuleForm CourseId="@Course.Id" SaveEvent="OnSaved" CancelEvent="OnCanceled"></CreateModuleForm>*@                       
+                        <CreateActivityForm ModuleId="@SelectedModule.Id" SaveEvent="OnSaved" CancelEvent="OnCanceled"></CreateActivityForm>
                 </div>
 
             </div>
@@ -107,6 +86,20 @@
     private ModalTemplate.Category modalType;
 
     private ModuleDto tempItem = new ModuleDto();
+
+
+    private CourseDto Course { get; set; } = new();
+    private ModuleDto SelectedModule { get; set; } = new();
+    private List<ModuleDto> ModuleItems { get; set; } = new();
+    private List<ActivityDto> ActivityItems { get; set; } = new();
+
+    /// <summary>
+    /// section for testing modalComponent
+    /// </summary>
+    ///
+
+    //reference to the editform and it's members
+    private TestForm? editForm;
 
     private void OpenDialog(int id, string title)
     {
@@ -220,8 +213,6 @@
         await JsRuntime.InvokeVoidAsync("scrollIntoView", $"card-{id}");
     }
 
-
-
     // Added from Courses.razor
     // Create modules
 
@@ -250,7 +241,6 @@
 
     async Task OnCanceled(ModuleDto module)
     {
-
         var moduleInList = ModuleItems.FirstOrDefault(c => c.Id == module.Id);
         if (moduleInList != null)
         {
@@ -267,7 +257,9 @@
 
         if (activityInList == null)
         {
+            SelectedModule.Activities.Add(activity);   
             ActivityItems.Add(activity);
+            ActivityItems = SelectedModule.Activities.OrderBy(a => a.StartTime).ToList();
             messageString = $"Successfully added {activity.Title}";
         }
         else
@@ -294,15 +286,12 @@
         showModal = false;
     }
 
+    bool showModal = false;   
 
-
-    bool showModal = false;
-    int modalType;
-
-   private void ModalShow(int id, int type)
+   private void ModalShow(int id)
     {
-        //Course = CourseList.FirstOrDefault(c => c.Id == id, new());
-        int modalType = type;
+        //Course = CourseList.FirstOrDefault(c => c.Id == id, new());       
+       
         showModal = true;
     }
 
@@ -311,14 +300,3 @@
 
 
 
-    @*<CreateCourseForm Course="Course"></CreateCourseForm>*@
-@*<CreateCourseForm Course="Test"></CreateCourseForm>*@
-@*<CreateCourseForm></CreateCourseForm>*@
-
-@*<CreateModuleForm></CreateModuleForm>*@
-@*<CreateModuleForm Course="Course"></CreateModuleForm>*@
-@*<CreateModuleForm Module="SelectedModule"></CreateModuleForm>*@
-
-@*<CreateActivityForm Module="SelectedModule"></CreateActivityForm>*@
-@*<CreateActivityForm Activity="Activity"></CreateActivityForm>*@
-@*<CreateActivityForm></CreateActivityForm>*@

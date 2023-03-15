@@ -132,7 +132,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        Courses = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList();
+       // Courses = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList();
         ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
     }
 
