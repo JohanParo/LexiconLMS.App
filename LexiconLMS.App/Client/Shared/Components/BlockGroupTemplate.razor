@@ -8,7 +8,11 @@
                     @GroupHeader
                 </button>
             </h4>
-            <div class="text-end"><button class="btn btn-primary btn-sm me-4 text-end">New</button></div>
+            <div class="text-end">
+
+                
+              @*  <button class="btn btn-primary btn-sm me-4 text-end">New</button>*@
+            </div>
             <div id=@($"accordionCollapse-{RandomId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RandomId}") data-bs-parent=@($"#accordionModules-{RandomId}")>
                 <div class="accordion-body">
                     @RenderContent()
@@ -21,21 +25,29 @@ else
 {
     <div class="mb-4 border rounded" id="@Id">
         <h4 class="border-bottom p-4">
-            @GroupHeader<button class="btn btn-primary btn-sm ms-4">New</button>
+
+            @GroupHeader
+            @if (NewButton is not null)
+            {
+                @NewButton
+            }
         </h4>
         @RenderContent()
     </div>
 }
 
 @code {
+
     [Parameter] public bool Collapsable { get; set; }
     [Parameter] public bool Links { get; set; }
     [Parameter] public string Id { get; set; }
     [Parameter] public int Cols { get; set; } = 4;
     [Parameter] public RenderFragment? GroupHeader { get; set; }
+    [Parameter] public RenderFragment? NewButton { get; set; }
     [Parameter] public RenderFragment<TItem>? CardTemplate { get; set; }
     [Parameter] public RenderFragment<TItem>? TableTemplate { get; set; }
     [Parameter] public RenderFragment<TItem>? LinkTemplate { get; set; }
+
     [Parameter] public List<string>? TableHeaders { get; set; }
     [Parameter] public IReadOnlyList<TItem> Items { get; set; }
 
@@ -46,7 +58,6 @@ else
     {
         RandomId = String.Format("{0:X4}", random.Next(1000));
     }
-
     private RenderFragment RenderContent() => builder =>
     {
         builder.OpenElement(0, "div");

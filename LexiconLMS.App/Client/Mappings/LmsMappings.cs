@@ -10,6 +10,9 @@ namespace LexiconLMS.App.Client.Mappings
             CreateMap<ModuleDto, ModuleDto>();
             CreateMap<CourseDto, CourseDto>();
             CreateMap<ActivityDto, ActivityDto>();
+            CreateMap(typeof(ModuleDto), typeof(ModuleDto));
+            CreateMap(typeof(CourseDto), typeof(CourseDto));
+            CreateMap(typeof(ActivityDto), typeof(ActivityDto));
         }
     }
 }
