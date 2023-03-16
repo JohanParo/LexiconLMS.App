@@ -158,32 +158,75 @@
 
         selectedItem = (IEntityDto)selectedListItem;
     }
-    private void castModuleBack(int id)
+    private async Task castModuleBack(int id)
     {
-        //set the selected to the edited one and update activities
-        var editedItem = ModuleItems.FirstOrDefault(m => m.Id == id);
+        ////set the selected to the edited one and update activities
+        //var editedItem = ModuleItems.FirstOrDefault(m => m.Id == id);
 
-        if (editedItem is null)
-        {
-            editedItem = new ModuleDto();
-            ModuleItems.Add(editedItem);
-        }
-        var fromForm = (ModuleDto)editForm.Item;
+        //if (editedItem is null)
+        //{
+        //    editedItem = new ModuleDto();
+        //    ModuleItems.Add(editedItem);
+        //}
+        //var fromForm = (ModuleDto)editForm.Item;
 
-        if (fromForm is null)
-        {
-            throw new ArgumentNullException(nameof(fromForm));
-        }
-        //--- make not found insert new thing...
+        //if (fromForm is null)
+        //{
+        //    throw new ArgumentNullException(nameof(fromForm));
+        //}
+        ////--- make not found insert new thing...
 
-        editedItem.Title = fromForm.Title;
-        editedItem.Description = fromForm.Description;
-        editedItem.StartTime = fromForm.StartTime;
-        editedItem.EndTime = fromForm.EndTime;
-        editedItem.Id = fromForm.Id;
+        //editedItem.Title = fromForm.Title;
+        //editedItem.Description = fromForm.Description;
+        //editedItem.StartTime = fromForm.StartTime;
+        //editedItem.EndTime = fromForm.EndTime;
+        //editedItem.Id = fromForm.Id;
+
         //--- make not found insert new thing...
 
         //editedItem = (ModuleDto)editForm.Item;
+
+
+        if (editForm is null)
+        {
+            throw new ArgumentNullException(nameof(editForm));
+        }
+
+        var formItem = (ModuleDto)editForm.Item;
+
+        if (formItem is null)
+        {
+            throw new ArgumentNullException(nameof(formItem));
+        }
+
+        //set the selected to the edited one and update activities
+        var editedItem = ModuleItems.FirstOrDefault(m => m.Id == id);
+
+        //--- make not found insert new thing...
+        if (editedItem is null)
+        {
+            editedItem = new ModuleDto();
+            editedItem = mapper.ModuleMap(formItem);
+            var newModule = await lmsClient.PostAsync(editedItem, "api/modules");
+
+            //----------if newCourse = null - statusmessage----------
+            //----AlertComponent-------
+
+            ModuleItems.Add(newModule);
+            StateHasChanged();
+            //messageString = $"Successfully added {newModule.Title}";
+            //AlertService.addMessage(new Alert(messageString, Alerts.Success));
+        }
+        else
+        {
+            editedItem = mapper.ModuleMap(formItem);
+            editedItem.CourseId = Course.Id;
+            var isEdited = await lmsClient.PutAsync(editedItem, "api/modules");            
+            ModuleItems = (await lmsClient.GetAsync<ModuleDto>("api/modules")).Where(m => m.CourseId.Equals(Course.Id)).ToList(); // To directly see the updated item in list
+            StateHasChanged();
+        }
+
+
     }
     private void castCourse(int id)
     {
