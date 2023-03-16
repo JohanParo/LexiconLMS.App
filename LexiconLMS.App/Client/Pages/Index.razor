@@ -11,16 +11,16 @@
 <PageTitle>@Course.Title</PageTitle>
 
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
-<a class="btn btn-primary" @onclick="@(() => OpenDialog(0,"New"))">
+@*<a class="btn btn-primary" @onclick="@(() => OpenDialog(0))">
     New
 </a>
-<a class="btn btn-primary" @onclick="@(() => OpenDialog(Course.Id,"Update"))">
+<a class="btn btn-primary" @onclick="@(() => OpenDialog(Course.Id))">
     Update
 </a>
 <BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="false" Cols="4" Id="section-modules">
     <GroupHeader>My Modules</GroupHeader>
     <CardTemplate Context="item">
-        <CardModule CardClick="OnModuleSelect" item="item" Muted="true"></CardModule>
+        <CardModule CardClick="OnModuleSelect" EditClick="OpenDialog" item="item" Muted="true"></CardModule>
     </CardTemplate>
 </BlockGroupTemplate>
 
@@ -32,7 +32,7 @@
     <CardTemplate Context="item">
         <CardModule item="item" Shadow="true" Muted="false" Time="true"></CardModule>
     </CardTemplate>
-</BlockGroupTemplate>
+</BlockGroupTemplate>*@
 
 @*
     section start for testing ModalComponent
@@ -80,28 +80,30 @@
 
     private ModuleDto tempItem = new ModuleDto();
 
-    private void OpenDialog(int id, string title)
+    private void OpenDialog(int id)
     {
         DialogIsOpen = true;
 
         //change depending on parameters to OpenDialog?
         if (id != 0)
         {
+            var listItem = ModuleItems.FirstOrDefault(m => m.Id == id);
+
             tempItem = new ModuleDto()
                 {
-                    Title = SelectedModule.Title,
-                    Description = SelectedModule.Description,
-                    StartTime = SelectedModule.StartTime,
-                    EndTime = SelectedModule.EndTime,
-                    Id = SelectedModule.Id,
+                    Title = listItem.Title,
+                    Description = listItem.Description,
+                    StartTime = listItem.StartTime,
+                    EndTime = listItem.EndTime,
+                    Id = listItem.Id,
 
                     //IEntity doesn't have these...
-                    CourseId = SelectedModule.CourseId,
-                    Activities = SelectedModule.Activities
+                    CourseId = listItem.CourseId,
+                    Activities = listItem.Activities
                 };
         }
 
-        caption = title;
+        caption = "title";
         modalType = ModalTemplate.Category.SaveNot;
     }
     private async Task OnDialogClose(bool isOk)
@@ -111,12 +113,16 @@
             await editForm.OnSave();
             //how to differentiate here?
 
+            //set the selected to the edited one and update activities
+            SelectedModule = ModuleItems.FirstOrDefault(m => m.Id == tempItem.Id);
+            UpdateActivitiesList();
 
             SelectedModule.Title = tempItem.Title;
             SelectedModule.Description = tempItem.Description;
             SelectedModule.StartTime = tempItem.StartTime;
             SelectedModule.EndTime = tempItem.EndTime;
             SelectedModule.Id = tempItem.Id;
+
 
             //await authorService.Delete(idAuthor);
             //authors = await authorService.ListAll((curPage - 1) *
@@ -129,6 +135,10 @@
     /// end section test ModalComponent
     /// </summary>
 
+    private void UpdateActivitiesList()
+    {
+        ActivityItems = SelectedModule.Activities.OrderBy(a => a.StartTime).ToList();
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -182,7 +192,9 @@
     private async Task OnModuleSelect(int id)
     {
         SelectedModule = ModuleItems.FirstOrDefault(m => m.Id == id);
-        ActivityItems = SelectedModule.Activities.OrderBy(a => a.StartTime).ToList();
+
+        UpdateActivitiesList();
+
         await JsRuntime.InvokeVoidAsync("setSelected", $"card-{SelectedModule.Title}");
         await JsRuntime.InvokeVoidAsync("scrollIntoView", "section-activities");
     }

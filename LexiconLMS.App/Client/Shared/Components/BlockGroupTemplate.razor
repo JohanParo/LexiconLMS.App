@@ -1,5 +1,4 @@
 ﻿@typeparam TItem
-@typeparam TItem
 @if (Collapsable)
 {
     <div class="accordion mb-4" id="@Id">
@@ -20,7 +19,7 @@
 }
 else
 {
-    <div class="mb-4">
+    <div class="mb-4 border rounded" id="@Id">
         <h4 class="border-bottom p-4">
             @GroupHeader<button class="btn btn-primary btn-sm ms-4">New</button>
         </h4>
@@ -47,6 +46,7 @@ else
     {
         RandomId = String.Format("{0:X4}", random.Next(1000));
     }
+
     private RenderFragment RenderContent() => builder =>
     {
         builder.OpenElement(0, "div");
@@ -82,16 +82,49 @@ else
             }
             else
             {
-                foreach (var item in Items)
-                {
-                    builder.OpenElement(10, "div");
-                    builder.AddAttribute(11, "class", $"col-lg-{12 / Cols} g-4");
-                    builder.AddContent(12, CardTemplate(item));
-                    builder.CloseElement(); // close col-lg-{12/Cols}
-                }
+
+                    foreach (var item in Items)
+                    {
+                        builder.OpenElement(10, "div");
+                        builder.AddAttribute(11, "class", $"col-lg-{12 / Cols} g-4");
+                        builder.AddContent(12, CardTemplate(item));
+                        builder.CloseElement(); // close col-lg-{12/Cols}
+                    }
+
+
             }
 
             builder.CloseElement(); // close row
         }
+        Console.WriteLine(TableTemplate);
+        if (TableTemplate is not null)
+
+        {
+            builder.OpenElement(10, "table");
+            builder.AddAttribute(11, "class", "table table-sm align-middle table-hover");
+            builder.OpenElement(12, "thead");
+            builder.OpenElement(13, "tr");
+
+            foreach (var item in TableHeaders)
+            {
+                builder.OpenElement(14, "th");
+                builder.AddAttribute(15, "scope", "col");
+                builder.AddContent(16, item);
+                builder.CloseElement();
+            }
+            builder.CloseElement(); //tr
+            builder.CloseElement(); //thead
+
+            builder.OpenElement(17, "tbody");
+            foreach (var item in Items)
+            {
+                builder.AddContent(18, TableTemplate(item));
+            }
+
+            builder.CloseElement(); //tbody
+            builder.CloseElement(); //table
+
+        }
+        builder.CloseElement(); // close row
     };
 }

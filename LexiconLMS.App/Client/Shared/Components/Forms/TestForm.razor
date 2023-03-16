@@ -1,17 +1,36 @@
 ﻿@using LexiconLMS.App.Client.Services;
 
 <EditForm EditContext="editContext">
+    @if (Item.GetType().Name == "ActivityDto")
+    {
+        var Activity = new ActivityDto();
+        Activity = (ActivityDto)Item;
 
-@*    <div class="form-group mb-3">
-        <label>Select course</label>
-    <InputSelect class="form-control" @bind-Value="Item.CourseId">
-            <option>Select course</option>
-            @foreach (var item in Courses)
-            {
-                <option value="@item.Id">@item.Title</option>
-            }
-        </InputSelect>
-    </div>*@
+        <div class="form-group mb-3">
+            <label>Select module</label>
+            <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
+            </InputNumber>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Select type</label>
+            <InputNumber class="form-control" @bind-Value="Activity.ActivityTypeId">
+            </InputNumber>
+        </div>
+    }
+
+    @if (Item.GetType().Name == "ModuleDto")
+    {
+        var castedItem = new ModuleDto();
+        castedItem = (ModuleDto)Item;
+
+        <div class="form-group mb-3">
+            <label>Select course</label>
+            <InputNumber class="form-control" @bind-Value="castedItem.CourseId">
+            </InputNumber>
+        </div>
+    }
+
     <div class="form-group mb-3">
         <label>Title</label>
         <InputText id="title" class="form-control" @bind-Value="Item.Title" placeholder="Enter title"></InputText>
