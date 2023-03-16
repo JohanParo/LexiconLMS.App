@@ -9,6 +9,7 @@
 @inject LMSClient lmsClient;
 @inject MapperService mapper;
 @inject IMapper _mapper;
+@inject AlertService AlertService
 
 @page "/merged"
 @attribute [Authorize]
@@ -16,6 +17,8 @@
 <PageTitle>@Course.Title</PageTitle>
 
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
+
+<AlertComponent />
 
 <BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
     <GroupHeader>Courses</GroupHeader>
@@ -88,7 +91,7 @@
     </ModalTemplate>
 }
 
-<AlertComponent />
+
 @code {
 
 
@@ -228,6 +231,10 @@
         }
         var fromForm = (ModuleDto)editForm.Item;
 
+        if (fromForm is null)
+        {
+            throw new ArgumentNullException(nameof(fromForm));
+        }
         //--- make not found insert new thing...
 
         editedItem.Title = fromForm.Title;
@@ -260,6 +267,8 @@
 
     private async Task castCourseBack(int id)
     {
+        string messageString = string.Empty;
+
         if (editForm is null)
         {
             throw new ArgumentNullException(nameof(editForm));
@@ -287,11 +296,29 @@
 
             CourseList.Add(newCourse);
             StateHasChanged();
+            messageString = $"Successfully added {newCourse.Title}";
+            AlertService.addMessage(new Alert(messageString, Alerts.Danger));
         }
         else
         {
             editedItem = mapper.CourseMap(formItem);
+            var isEdited = await lmsClient.PutAsync(editedItem, "api/courses");
+            CourseList = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList(); // To directly see the updated item in list
+            StateHasChanged();
+           
+            if (isEdited)
+            {
+                messageString = $"Successfully updated {editedItem.Title}";    
+                AlertService.addMessage(new Alert(messageString, Alerts.Success));
+            }
+            else
+            {
+                messageString = $"The update failed";
+                AlertService.addMessage(new Alert(messageString, Alerts.Danger));
+            }
 
+            //StateHasChanged();
+            
             //putasync
 
             //editedItem.Title = editForm.Item.Title;
@@ -300,6 +327,7 @@
             //editedItem.EndTime = editForm.Item.EndTime;
             //editedItem.Id = editForm.Item.Id;
         }
+        
         
     }
 
