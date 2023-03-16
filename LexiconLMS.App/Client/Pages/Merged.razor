@@ -84,7 +84,6 @@
                OnClose="@OnDialogClose"
                Type="@modalType">
         <FormTemplate>
-            @*  <CreateModuleForm Module="@SelectedModule"></CreateModuleForm>*@
             <TestForm @ref="editForm" Item="@selectedItem">
             </TestForm>
         </FormTemplate>
@@ -127,7 +126,8 @@
         @switch (type)
         {
             case ModalType.Course:
-                castCourse(parameters.Id);
+                CastItem(parameters.Id, CourseList);
+                //castCourse(parameters.Id);
                 break;
             case ModalType.Module:
                 CastItem(parameters.Id, ModuleItems);
@@ -159,43 +159,66 @@
 
 
     public async Task SaveItem<T>(int id, string endpoint, List<T> itemList) where T : IEntityDto, new()
-{
-    if (editForm is null)
     {
-        throw new ArgumentNullException(nameof(editForm));
+        string messageString = string.Empty;
+
+        if (editForm is null)
+        {
+            throw new ArgumentNullException(nameof(editForm));
+        }
+
+        var formItem = (T)editForm.Item;
+
+        if (formItem is null)
+        {
+            throw new ArgumentNullException(nameof(formItem));
+        }
+
+        //set the selected to the edited one and update activities
+        var editedItem = itemList.FirstOrDefault(m => m.Id == id);
+
+        //--- make not found insert new thing...
+        if (editedItem is null)
+        {
+            editedItem = new T();
+            editedItem = _mapper.Map<T>(formItem);
+            var newItem = await lmsClient.PostAsync(editedItem, endpoint);
+
+            //----------if newItem = null ?? ----------
+            messageString = $"Successfully added {newItem.Title}";
+
+            AlertService.addMessage(new Alert(messageString, Alerts.Success));
+
+            itemList.Add(newItem);
+            StateHasChanged();
+        }
+        else
+        {
+            editedItem = _mapper.Map<T>(formItem);
+
+            //putasync
+            var isEdited = await lmsClient.PutAsync(editedItem, endpoint);
+
+            if (isEdited)
+            {
+                messageString = $"Successfully updated {editedItem.Title}";
+                AlertService.addMessage(new Alert(messageString, Alerts.Success));
+
+                //get list again for courses, not sure why it doesn't update
+                if (editedItem.GetType().Name == "CourseDto")
+                {
+                    CourseList = (await lmsClient.GetAsync<CourseDto>(endpoint)).ToList(); // To directly see the updated item in list
+                }
+            }
+            else
+            {
+                messageString = $"The update failed";
+                AlertService.addMessage(new Alert(messageString, Alerts.Danger));
+            }
+
+            StateHasChanged();
+        }
     }
-
-    var formItem = (T)editForm.Item;
-
-    if (formItem is null)
-    {
-        throw new ArgumentNullException(nameof(formItem));
-    }
-
-    //set the selected to the edited one and update activities
-    var editedItem = itemList.FirstOrDefault(m => m.Id == id);
-
-    //--- make not found insert new thing...
-    if (editedItem is null)
-    {
-        editedItem = new T();
-        editedItem = _mapper.Map<T>(formItem);
-        var newItem = await lmsClient.PostAsync(editedItem, endpoint);
-
-        //----------if newItem = null - statusmessage----------
-        //----AlertComponent-------
-
-        itemList.Add(newItem);
-        StateHasChanged();
-    }
-    else
-    {
-        editedItem = _mapper.Map<T>(formItem);
-
-        //putasync
-        var updatedItem = await lmsClient.PutAsync(editedItem, endpoint + "/" + id);
-    }
-}
 
 
     private void castModule(int id)
@@ -214,7 +237,7 @@
             //selectedListItem.CourseId = temp.CourseId;
             //selectedListItem.Activities = temp.Activities;
 
-            selectedListItem=mapper.ModuleMap(temp);
+            selectedListItem = mapper.ModuleMap(temp);
         }
 
         selectedItem = (IEntityDto)selectedListItem;
@@ -305,10 +328,10 @@
             var isEdited = await lmsClient.PutAsync(editedItem, "api/courses");
             CourseList = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList(); // To directly see the updated item in list
             StateHasChanged();
-           
+
             if (isEdited)
             {
-                messageString = $"Successfully updated {editedItem.Title}";    
+                messageString = $"Successfully updated {editedItem.Title}";
                 AlertService.addMessage(new Alert(messageString, Alerts.Success));
             }
             else
@@ -318,7 +341,7 @@
             }
 
             //StateHasChanged();
-            
+
             //putasync
 
             //editedItem.Title = editForm.Item.Title;
@@ -327,8 +350,8 @@
             //editedItem.EndTime = editForm.Item.EndTime;
             //editedItem.Id = editForm.Item.Id;
         }
-        
-        
+
+
     }
 
     private void castActivity(int id)
@@ -399,10 +422,12 @@
                     await SaveItem<CourseDto>(editForm.Item.Id, "api/courses", CourseList);
                     break;
                 case "ModuleDto":
-                    castModuleBack(editForm.Item.Id);
+                    await SaveItem<ModuleDto>(editForm.Item.Id, "api/modules", ModuleItems);
+                    //castModuleBack(editForm.Item.Id);
                     break;
                 case "ActivityDto":
-                    castActivityBack(editForm.Item.Id);
+                    await SaveItem<ActivityDto>(editForm.Item.Id, "api/activities", ActivityItems);
+                    //castActivityBack(editForm.Item.Id);
                     break;
             }
 
