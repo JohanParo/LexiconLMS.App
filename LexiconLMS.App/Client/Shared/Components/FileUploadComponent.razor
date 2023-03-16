@@ -1,6 +1,160 @@
-﻿<h3>FileUpload</h3>
+﻿@using System.Linq
+@using System.Net.Http.Headers
+@using LexiconLMS.App.Client.Services;
+@using Microsoft.Extensions.Logging
+@using System.Text.Json;
+@inject HttpClient Http
+@inject ILogger<FileUploadComponent> Logger
 
+<h3>FileUpload</h3>
+
+<p>
+    <label>
+        Upload up to @SharedVariable.maxAllowedFiles files<br />
+        @msg<br />
+        <InputFile OnChange="@OnInputFileChange" multiple accept=".doc, .docx, image/*, .txt, .pdf" />
+    </label>
+</p>
+
+@if (files.Count > 0)
+{
+    <div class="card">
+        <div class="card-body">
+            <ul>
+                @foreach (var file in files)
+                {
+                    <li>
+                        File: @file.Name
+                        <br>
+                        @if (FileUpload(uploadResults, file.Name, Logger,
+                       out var result))
+                        {
+                            <span>
+                                Stored File Name: @result.StoredFileName
+                                <br />
+                                Content type: @result.FileType
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                There was an error uploading the file
+                                (Error: @result.ErrorCode).
+                            </span>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
 
 @code{
+    private string msg;
+    private List<File> files = new();
+    private List<DocumentDto> uploadResults = new();
+    private bool shouldRender;
 
+    [Inject]
+    public LMSClient lmsClient { get; set; } = default!;
+
+
+    protected override void OnInitialized()
+    {
+        msg = "Maximum size accepted: {" + SharedVariable.maxFileSize / 1024 / 1024 + "} MB";
+    }
+
+    protected override bool ShouldRender() => shouldRender;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+
+        shouldRender = false;
+        var upload = false;
+        using var content = new MultipartFormDataContent();
+
+        foreach (var file in e.GetMultipleFiles(SharedVariable.maxAllowedFiles))
+        {
+            if (uploadResults.SingleOrDefault(
+                f => f.FileName == file.Name) is null)
+            {
+                try
+                {
+                    files.Add(new() { Name = file.Name });
+
+                    var fileContent =
+                        new StreamContent(file.OpenReadStream(SharedVariable.maxFileSize));
+
+                    fileContent.Headers.ContentType =
+                        new MediaTypeHeaderValue(file.ContentType);
+
+                    content.Add(
+                        content: fileContent,
+                        name: "\"files\"",
+                        fileName: file.Name);
+
+                    upload = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogInformation(
+                        "{FileName} not uploaded (Err: 6): {Message}",
+                        file.Name, ex.Message);
+
+                    uploadResults.Add(
+                        new()
+                            {
+                                FileName = file.Name,
+                                ErrorCode = 6,
+                                Uploaded = false
+                            });
+                }
+            }
+        }
+
+        if (upload)
+        {
+            //var response1 = await lmsClient.PostAsync("/Documents", content);
+            //var response = await Http.PostAsync("api/Documents", content);
+            var request = new HttpRequestMessage(HttpMethod.Post, "api/Documents");
+
+            var c = JsonSerializer.Serialize(content);
+
+            request.Content = new StringContent(c);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
+
+            var response = await Http.SendAsync(request);
+            //var response = await Http.PostAsync("api/Documents", content);
+
+            var newUploadResults = await response.Content
+                .ReadFromJsonAsync<IList<DocumentDto>>();
+
+            if (newUploadResults is not null)
+            {
+                uploadResults = uploadResults.Concat(newUploadResults).ToList();
+            }
+        }
+
+        shouldRender = true;
+    }
+
+    private static bool FileUpload(IList<DocumentDto> uploadResults,
+        string? fileName, ILogger<FileUploadComponent> logger, out DocumentDto result)
+    {
+        
+        result = uploadResults.SingleOrDefault(f => f.FileName == fileName) ?? new();
+
+        if (!result.Uploaded)
+        {
+            logger.LogInformation("{FileName} not uploaded (Err: 5)", fileName);
+            result.ErrorCode = 5;
+        }
+
+        return result.Uploaded;
+    }
+
+    private class File
+    {
+        public string? Name { get; set; }
+    }
 }

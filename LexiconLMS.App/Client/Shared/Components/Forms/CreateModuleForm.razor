@@ -1,6 +1,5 @@
 ﻿@using LexiconLMS.App.Client.Services;
 
-
 <EditForm EditContext="editContext">
 
     <h3>Add module</h3>
@@ -41,10 +40,9 @@
     <InputCheckbox id="publish" class="form-check-input" @bind-Value="@Course.IsPublished"></InputCheckbox>
     </div>  *@
 
-    @* <div class="form-group mb-3">
-    <label>Upload file</label>
-    <InputFile class="form-control-file" id="file"></InputFile>
-    </div>*@
+    <div class="form-group mb-3">
+        <FileUploadComponent></FileUploadComponent>
+    </div>
     @* Add OnChange="OnInputFileChange" or bind-value?*@
 
     <div class="input-group-append input-group-lg">

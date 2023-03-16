@@ -1,4 +1,4 @@
-﻿namespace LexiconLMS.App.Shared
+﻿namespace LexiconLMS.App.Client
 {
     public static class SharedVariable
     {
