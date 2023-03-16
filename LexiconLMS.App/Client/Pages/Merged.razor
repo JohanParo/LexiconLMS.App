@@ -2,12 +2,13 @@
 @using LexiconLMS.App.Client.Models;
 @using Microsoft.AspNetCore.Authorization;
 @using LexiconLMS.App.Client.Services;
+@using System.Diagnostics;
 
 @inject AuthenticationStateProvider authStateProvider;
 @inject IJSRuntime JsRuntime
 @inject LMSClient lmsClient;
 @inject MapperService mapper;
-@*@inject IMapper _mapper;*@
+@inject IMapper _mapper;
 @inject AlertService AlertService
 
 @page "/merged"
@@ -17,15 +18,11 @@
 
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
 
-@*
-    from courses
-*@
 <AlertComponent />
-
-<button class="btn btn-primary" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course})">New Course</button>
 
 <BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
     <GroupHeader>Courses</GroupHeader>
+    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course})">New Course</button></NewButton>
     <TableTemplate Context="item">
         <tr>
             <th scope="row">@item.Id</th>
@@ -33,6 +30,7 @@
             <td><span class="fw-bold">@item.Title</span></td>
             <td>@item.StartTime</td>
             <td>@item.EndTime</td>
+            <td>@item.Modules.Count</td>
             <td class="text-end">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     @*   <button class="btn btn-primary btn-sm" @onclick="() => ModalShow(item.Id)">Select</button>*@
@@ -58,6 +56,7 @@
 </a>*@
 <BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="false" Cols="4" Id="section-modules">
     <GroupHeader>My Modules</GroupHeader>
+    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Module})">New Module</button></NewButton>
     <CardTemplate Context="item">
         <CardModule CardClick="OnModuleSelect" EditClick="OpenDialog" item="item" Muted="true"></CardModule>
     </CardTemplate>
@@ -65,6 +64,7 @@
 
 <BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
     <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
+    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Activity})">New Activity</button></NewButton>
     <LinkTemplate>
         <div><a href="#" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
     </LinkTemplate>
@@ -94,10 +94,12 @@
 
 @code {
 
+
+
     //private readonly IMapper mapper;
 
     private List<CourseDto> CourseList { get; set; } = new();
-    public List<string> TableHeaderList = new() { "#", "Status", "Title", "Start Time", "End Time", "" };
+    public List<string> TableHeaderList = new() { "#", "Status", "Title", "Start Time", "End Time", "# Modules", "" };
 
     private CourseDto Course { get; set; } = new();
     private ModuleDto SelectedModule { get; set; } = new();
@@ -115,6 +117,8 @@
 
     private IEntityDto selectedItem;
 
+
+
     private void OpenDialog(ModalForm parameters)
     {
         var type = parameters.Type;
@@ -126,16 +130,73 @@
                 castCourse(parameters.Id);
                 break;
             case ModalType.Module:
-                castModule(parameters.Id);
+                CastItem(parameters.Id, ModuleItems);
+                //castModule(parameters.Id);
                 break;
             case ModalType.Activity:
-                castActivity(parameters.Id);
+                //castActivity(parameters.Id);
+                CastItem(parameters.Id, ActivityItems);
                 break;
         }
 
         caption = parameters.Title;
         modalType = ModalTemplate.Category.SaveNot;
     }
+
+    private void CastItem<T>(int id, List<T> itemList) where T : IEntityDto, new()
+    {
+        T selectedListItem = new T();
+
+        if (id > 0)
+        {
+            var temp = itemList.FirstOrDefault(m => m.Id == id);
+
+            selectedListItem = _mapper.Map<T>(temp);
+        }
+
+        selectedItem = (IEntityDto)selectedListItem;
+    }
+
+
+    public async Task SaveItem<T>(int id, string endpoint, List<T> itemList) where T : IEntityDto, new()
+{
+    if (editForm is null)
+    {
+        throw new ArgumentNullException(nameof(editForm));
+    }
+
+    var formItem = (T)editForm.Item;
+
+    if (formItem is null)
+    {
+        throw new ArgumentNullException(nameof(formItem));
+    }
+
+    //set the selected to the edited one and update activities
+    var editedItem = itemList.FirstOrDefault(m => m.Id == id);
+
+    //--- make not found insert new thing...
+    if (editedItem is null)
+    {
+        editedItem = new T();
+        editedItem = _mapper.Map<T>(formItem);
+        var newItem = await lmsClient.PostAsync(editedItem, endpoint);
+
+        //----------if newItem = null - statusmessage----------
+        //----AlertComponent-------
+
+        itemList.Add(newItem);
+        StateHasChanged();
+    }
+    else
+    {
+        editedItem = _mapper.Map<T>(formItem);
+
+        //putasync
+        var updatedItem = await lmsClient.PutAsync(editedItem, endpoint + "/" + id);
+    }
+}
+
 
     private void castModule(int id)
     {
@@ -377,7 +438,8 @@
             @switch (type)
             {
                 case "CourseDto":
-                    castCourseBack(editForm.Item.Id);
+                    //castCourseBack(editForm.Item.Id);
+                    await SaveItem<CourseDto>(editForm.Item.Id, "api/courses", CourseList);
                     break;
                 case "ModuleDto":
                     castModuleBack(editForm.Item.Id);
