@@ -208,7 +208,15 @@
                 if (editedItem.GetType().Name == "CourseDto")
                 {
                     CourseList = (await lmsClient.GetAsync<CourseDto>(endpoint)).ToList(); // To directly see the updated item in list
+                } else if (editedItem.GetType().Name == "ModuleDto"){
+                    ModuleItems = (await lmsClient.GetAsync<ModuleDto>(endpoint)).Where(m => m.CourseId.Equals(Course.Id)).ToList(); // To directly see the updated item in list
                 }
+                else if (editedItem.GetType().Name == "ActivityDto")
+                {
+                    ActivityItems = (await lmsClient.GetAsync<ActivityDto>(endpoint)).Where(m => m.ModuleId.Equals(SelectedModule.Id)).OrderBy(a => a.StartTime).ToList(); // To directly see the updated item in list
+                }
+
+                
             }
             else
             {
