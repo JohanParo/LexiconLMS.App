@@ -6,6 +6,7 @@ namespace LexiconLMS.App.Client.DTOs
     {
         int Id { get; set; }
         [Required]
+        [StringLength(100, MinimumLength = 2)]
         string Title { get; set; } 
         string Description { get; set; }
         [Required]
