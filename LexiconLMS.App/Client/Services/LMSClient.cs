@@ -19,7 +19,7 @@ namespace LexiconLMS.App.Client.Services
             return await httpClient.GetFromJsonAsync<IEnumerable<T>>(uri);
         }
 
-        public async Task<T?> GetByIdAsync<T>(string id, string uri)
+        public async Task<T?> GetByIdAsync<T>(int id, string uri)
         {
             return await httpClient.GetFromJsonAsync<T>($"{uri}/{id}");
         }

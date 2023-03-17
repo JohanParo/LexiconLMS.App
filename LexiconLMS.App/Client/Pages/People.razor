@@ -40,7 +40,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Course = (await lsmClient.GetByIdAsync<CourseDto>("1", "api/courses"));
+        Course = (await lsmClient.GetByIdAsync<CourseDto>(1, "api/courses"));
         UserItems = Course.Users;
     }
 

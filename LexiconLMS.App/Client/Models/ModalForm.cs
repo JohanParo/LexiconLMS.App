@@ -1,10 +1,14 @@
-﻿namespace LexiconLMS.App.Client.Models
+﻿using LexiconLMS.App.Client.DTOs;
+
+namespace LexiconLMS.App.Client.Models
 {
     public class ModalForm
     {
         public int Id { get; set; }
         public string Title { get; set; } = "Update this one...";
         public ModalType Type { get; set; }
+
+
     }
 
     public enum ModalType

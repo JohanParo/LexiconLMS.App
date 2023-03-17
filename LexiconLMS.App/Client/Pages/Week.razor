@@ -46,9 +46,6 @@
 </div>
 
 
-
-
-
 @code {
     private CourseDto Course { get; set; } = new();
     private ModuleDto SelectedModule { get; set; } = new();
@@ -59,7 +56,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Course = (await lsmClient.GetByIdAsync<CourseDto>("1", "api/courses"));
+        Course = (await lsmClient.GetByIdAsync<CourseDto>(1, "api/courses"));
         ModuleItems = Course.Modules;
         SelectedModule = ModuleItems.FirstOrDefault();
         ActivityItems = SelectedModule.Activities;

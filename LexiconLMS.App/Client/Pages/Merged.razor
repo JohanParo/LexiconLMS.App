@@ -528,13 +528,13 @@
 
             if (userCourseIdInt > 0)
             {
-                Course = (await lmsClient.GetByIdAsync<CourseDto>(userCourseIdInt.ToString(), "api/courses"));
+                Course = (await lmsClient.GetByIdAsync<CourseDto>(userCourseIdInt, "api/courses"));
             }
         }
 
         if (string.IsNullOrEmpty(Course.Title))
         {
-            Course = (await lmsClient.GetByIdAsync<CourseDto>("1", "api/courses"));
+            Course = (await lmsClient.GetByIdAsync<CourseDto>(1, "api/courses"));
         }
 
         ModuleItems = Course.Modules;
