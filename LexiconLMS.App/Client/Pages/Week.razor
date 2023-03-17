@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Authorization;
 @using LexiconLMS.App.Client.Services;
 
-@inject LMSClient lsmClient;
+@inject LMSClient lmsClient;
 
 @attribute [Authorize]
 <h3>Week view</h3>
@@ -30,6 +30,9 @@
                                     <p class="my-0 flex-fw text-xs text-primary op-8" id="day-1-item-1">
                                         <a href="@item.Id" class="stretched-link">@item.Title</a>
                                     </p>
+                                    <p class="my-0 text-dark flex-fw text-sm ">
+                                        <span class="text-inverse op-8">@item.ActivityTypeId</span>
+                                    </p>                                   
                                     <p class="my-0 flex-fw text-xs text-dark op-8" id="day-1-item-1">
                                         @ExtensionsUtils.TrimString(item.Description,100)
                                     </p>
@@ -39,11 +42,14 @@
                         }
                     </ul>
                 </div>
+
             }
         }
 
     </div>
 </div>
+               <button class="btn btn-primary btn-sm" @onclick="() => PreviousWeek()">Back</button>
+               <button class="btn btn-primary btn-sm" @onclick="() => NextWeek()">Next</button>
 
 
 @code {
@@ -51,26 +57,57 @@
     private ModuleDto SelectedModule { get; set; } = new();
     private List<ModuleDto> ModuleItems { get; set; } = new();
     private List<ActivityDto> ActivityItems { get; set; } = new();
+    private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
+   
+
 
     private List<List<ActivityDto>> DailyActivitites { get; set; } = new List<List<ActivityDto>>();
+    private DateTime FirstDate { get; set; } = DateTime.Now.AddHours(0);
+
+
 
     protected override async Task OnInitializedAsync()
     {
-        Course = (await lsmClient.GetByIdAsync<CourseDto>(1, "api/courses"));
+        Course = (await lmsClient.GetByIdAsync<CourseDto>(1, "api/courses"));
         ModuleItems = Course.Modules;
         SelectedModule = ModuleItems.FirstOrDefault();
         ActivityItems = SelectedModule.Activities;
+        ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
 
+    
         DailyActivitites = ActivityItems
-        .OrderBy(a => a.StartTime)
-        .GroupBy(p => p.StartTime.Date)
-        .Select(g => g.ToList())
-        .Take(5).ToList();
+       .Where(a => (a.StartTime.Date >= FirstDate.Date))
+       .OrderBy(a => a.StartTime)
+       .GroupBy(p => p.StartTime.Date)
+       .Select(g => g.ToList())
+       .Take(5).ToList();
 
-        Console.WriteLine(DailyActivitites.FirstOrDefault());
-        Console.WriteLine(DailyActivitites.FirstOrDefault().FirstOrDefault().Title);
+        //Console.WriteLine(DailyActivitites.FirstOrDefault());
+        //Console.WriteLine(DailyActivitites.FirstOrDefault().FirstOrDefault().Title);
+
     }
 
+    public async Task NextWeek()
+    {
+        FirstDate = FirstDate.AddDays(5);
+        DailyActivitites = ActivityItems
+     .Where(a => (a.StartTime.Date >= FirstDate.Date))
+     .OrderBy(a => a.StartTime)
+     .GroupBy(p => p.StartTime.Date)
+     .Select(g => g.ToList())
+     .Take(5).ToList();
+    }
+
+    public async Task PreviousWeek()
+    {
+        FirstDate = FirstDate.AddDays(-5);
+        DailyActivitites = ActivityItems
+     .Where(a => (a.StartTime.Date >= FirstDate.Date))
+     .OrderBy(a => a.StartTime)
+     .GroupBy(p => p.StartTime.Date)
+     .Select(g => g.ToList())
+     .Take(5).ToList();
+    }
 
 }
 
