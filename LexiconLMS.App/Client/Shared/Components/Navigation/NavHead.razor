@@ -28,12 +28,12 @@
 @*                <form class="d-flex gap-2">
                     
                     <AuthorizeView Roles="Admin">
-                        <select class="form-select" @onchange="DoStuff" aria-label="Create new">
+                        <select class="form-select" aria-label="Create new" @onchange="HandleOptionChange">
                             <option selected>Create</option>
                             <option value="1">User</option>
                             <option value="2">Course</option>
                             <option value="3">Module</option>
-                            <option value="3">Activity</option>
+                            <option value="4">Activity</option>
                         </select>
 
                     </AuthorizeView>
@@ -54,22 +54,59 @@
                                 <li><a class="dropdown-item" @onclick="BeginLogOut">Log out</a></li>
                             </ul>
                         </div>
+                        
                     </Authorized>
                     <NotAuthorized>
                         <div class="px-4 auth"><LoginDisplay /></div>
                     </NotAuthorized>
+
                 </AuthorizeView>
             </div>
+            @if (showForm == "Activity")
+                {
+                    <CreateActivityForm></CreateActivityForm>
+                }
+                else if (showForm == "Module")
+                {
+                    <CreateModuleForm></CreateModuleForm>
+                }
+                else if (showForm == "Course")
+                {
+                    <CreateCourseForm></CreateCourseForm>
+                }
         </div>
     </nav>
 </header>
 
 <button onclick="topFunction()" style="display:none;" id="upBtn">Up</button>
+
 @code {
     [Parameter]
     public string? Title { get; set; }
 
+    private string showForm = "";
+    private void HandleOptionChange(ChangeEventArgs e)
+    {
+        if (e.Value.ToString() == "4")
+        {
+            showForm = "Activity";
+        }
+        else if (e.Value.ToString() == "3")
+        {
+            showForm = "Module";
+        }
+        else if (e.Value.ToString() == "2")
+        {
+            showForm = "Course";
+        }
+        else
+        {
+            showForm = "";
+        }
+        
+    }
 
+    
     private void BeginLogOut()
     {
         Navigation.NavigateToLogout("authentication/logout");
