@@ -20,7 +20,6 @@ namespace LexiconLMS.App.Server.Models
         [Required]
         [StringLength(100, MinimumLength = 1)]
         public string LastName { get; set; } = string.Empty;
-        [Required]
         public int? CourseId { get; set; }
         public string Avatar { get; set; }
         public bool Published { get; set; } = true;
