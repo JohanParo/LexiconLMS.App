@@ -1,0 +1,564 @@
+﻿@using AutoMapper;
+@using LexiconLMS.App.Client.Models;
+@using Microsoft.AspNetCore.Authorization;
+@using LexiconLMS.App.Client.Services;
+@using System.Diagnostics;
+
+@inject AuthenticationStateProvider authStateProvider;
+@inject IJSRuntime JsRuntime
+@inject LMSClient lmsClient;
+@inject MapperService mapper;
+@inject IMapper _mapper;
+@inject AlertService AlertService
+
+@page "/merged"
+@attribute [Authorize]
+
+<PageTitle>@Course.Title</PageTitle>
+
+<h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
+
+<AlertComponent />
+
+<BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
+    <GroupHeader>Courses</GroupHeader>
+    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course})">New Course</button></NewButton>
+    <TableTemplate Context="item">
+        <tr>
+            <th scope="row">@item.Id</th>
+            <td><span class="badge bg-success">Published</span></td>
+            <td><span class="fw-bold">@item.Title</span></td>
+            <td>@item.StartTime</td>
+            <td>@item.EndTime</td>
+            <td>@item.Modules.Count</td>
+            <td class="text-end">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    @*   <button class="btn btn-primary btn-sm" @onclick="() => ModalShow(item.Id)">Select</button>*@
+                    <button class="btn btn-primary btn-sm" @onclick="() => OpenDialog(new ModalForm(){Id=item.Id,Type=ModalType.Course})">Edit</button>
+                    @*<button class="btn btn-danger btn-sm" @onclick="() => ModalShow(item.Id)">Delete</button>*@
+                </div>
+            </td>
+        </tr>
+    </TableTemplate>
+
+</BlockGroupTemplate>
+@*
+    end from courses
+*@
+
+
+
+@*<a class="btn btn-primary" @onclick="@(() => OpenDialog(0))">
+    New
+</a>*@
+@*<a class="btn btn-primary" @onclick="@(() => OpenDialog(Course.Id))">
+    Update
+</a>*@
+<BlockGroupTemplate Items="ModuleItems" Context="item" Collapsable="false" Cols="4" Id="section-modules">
+    <GroupHeader>My Modules</GroupHeader>
+    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Module})">New Module</button></NewButton>
+    <CardTemplate Context="item">
+        <CardModule CardClick="OnModuleSelect" EditClick="OpenDialog" item="item" Muted="true"></CardModule>
+    </CardTemplate>
+</BlockGroupTemplate>
+
+<BlockGroupTemplate Items="ActivityItems" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
+    <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
+    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Activity})">New Activity</button></NewButton>
+    <LinkTemplate>
+        <div><a href="#" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
+    </LinkTemplate>
+    <CardTemplate Context="item">
+        <CardModule EditClick="OpenDialog" item="item" Shadow="true" Muted="false" Time="true"></CardModule>
+    </CardTemplate>
+</BlockGroupTemplate>
+
+@*
+    section start for testing ModalComponent
+*@
+
+
+@if (DialogIsOpen)
+{
+    <ModalTemplate Caption="@caption"
+               OnClose="@OnDialogClose"
+               Type="@modalType">
+        <FormTemplate>
+            <TestForm @ref="editForm" Item="@selectedItem">
+            </TestForm>
+        </FormTemplate>
+    </ModalTemplate>
+}
+
+
+@code {
+
+
+
+    //private readonly IMapper mapper;
+
+    private List<CourseDto> CourseList { get; set; } = new();
+    public List<string> TableHeaderList = new() { "#", "Status", "Title", "Start Time", "End Time", "# Modules", "" };
+
+    private CourseDto Course { get; set; } = new();
+    private ModuleDto SelectedModule { get; set; } = new();
+    private List<ModuleDto> ModuleItems { get; set; } = new();
+    private List<ActivityDto> ActivityItems { get; set; } = new();
+
+    //reference to the editform and it's members
+    private TestForm? editForm;
+
+    private int idCourse;
+    private string test = "Update module";
+    private string caption = string.Empty;
+    private bool DialogIsOpen = false;
+    private ModalTemplate.Category modalType;
+
+    private IEntityDto selectedItem;
+
+
+
+    private void OpenDialog(ModalForm parameters)
+    {
+        var type = parameters.Type;
+        DialogIsOpen = true;
+
+        @switch (type)
+        {
+            case ModalType.Course:
+                CastItem(parameters.Id, CourseList);
+                //castCourse(parameters.Id);
+                break;
+            case ModalType.Module:
+                CastItem(parameters.Id, ModuleItems);
+                //castModule(parameters.Id);
+                break;
+            case ModalType.Activity:
+                //castActivity(parameters.Id);
+                CastItem(parameters.Id, ActivityItems);
+                break;
+        }
+
+        caption = parameters.Title;
+        modalType = ModalTemplate.Category.SaveNot;
+    }
+
+    private void CastItem<T>(int id, List<T> itemList) where T : IEntityDto, new()
+    {
+        T selectedListItem = new T();
+
+        if (id > 0)
+        {
+            var temp = itemList.FirstOrDefault(m => m.Id == id);
+
+            selectedListItem = _mapper.Map<T>(temp);
+        }
+
+        selectedItem = (IEntityDto)selectedListItem;
+    }
+
+
+    public async Task SaveItem<T>(int id, string endpoint, List<T> itemList) where T : IEntityDto, new()
+    {
+        string messageString = string.Empty;
+
+        if (editForm is null)
+        {
+            throw new ArgumentNullException(nameof(editForm));
+        }
+
+        var formItem = (T)editForm.Item;
+
+        if (formItem is null)
+        {
+            throw new ArgumentNullException(nameof(formItem));
+        }
+
+        //set the selected to the edited one and update activities
+        var editedItem = itemList.FirstOrDefault(m => m.Id == id);
+
+        //--- make not found insert new thing...
+        if (editedItem is null)
+        {
+            editedItem = new T();
+            editedItem = _mapper.Map<T>(formItem);
+            var newItem = await lmsClient.PostAsync(editedItem, endpoint);
+
+            //----------if newItem = null ?? ----------
+            messageString = $"Successfully added {newItem.Title}";
+
+            AlertService.addMessage(new Alert(messageString, Alerts.Success));
+
+            itemList.Add(newItem);
+            StateHasChanged();
+        }
+        else
+        {
+            editedItem = _mapper.Map<T>(formItem);
+
+            //putasync
+            var isEdited = await lmsClient.PutAsync(editedItem, endpoint);
+
+            if (isEdited)
+            {
+                messageString = $"Successfully updated {editedItem.Title}";
+                AlertService.addMessage(new Alert(messageString, Alerts.Success));
+
+                //get list again for courses, not sure why it doesn't update
+                if (editedItem.GetType().Name == "CourseDto")
+                {
+                    CourseList = (await lmsClient.GetAsync<CourseDto>(endpoint)).ToList(); // To directly see the updated item in list
+                } else if (editedItem.GetType().Name == "ModuleDto"){
+                    ModuleItems = (await lmsClient.GetAsync<ModuleDto>(endpoint)).Where(m => m.CourseId.Equals(Course.Id)).ToList(); // To directly see the updated item in list
+                }
+                else if (editedItem.GetType().Name == "ActivityDto")
+                {
+                    ActivityItems = (await lmsClient.GetAsync<ActivityDto>(endpoint)).Where(m => m.ModuleId.Equals(SelectedModule.Id)).OrderBy(a => a.StartTime).ToList(); // To directly see the updated item in list
+                }
+
+                
+            }
+            else
+            {
+                messageString = $"The update failed";
+                AlertService.addMessage(new Alert(messageString, Alerts.Danger));
+            }
+
+            StateHasChanged();
+        }
+    }
+
+
+    private void castModule(int id)
+    {
+        ModuleDto selectedListItem = new ModuleDto();
+        //make an empty object if zero
+        if (id > 0)
+        {
+            var temp = ModuleItems.FirstOrDefault(m => m.Id == id);
+
+            //selectedListItem.Title = temp.Title;
+            //selectedListItem.Description = temp.Description;
+            //selectedListItem.StartTime = temp.StartTime;
+            //selectedListItem.EndTime = temp.EndTime;
+            //selectedListItem.Id = temp.Id;
+            //selectedListItem.CourseId = temp.CourseId;
+            //selectedListItem.Activities = temp.Activities;
+
+            selectedListItem = mapper.ModuleMap(temp);
+        }
+
+        selectedItem = (IEntityDto)selectedListItem;
+    }
+    private async Task castModuleBack(int id)
+    {
+        ////set the selected to the edited one and update activities
+        //var editedItem = ModuleItems.FirstOrDefault(m => m.Id == id);
+
+        //if (editedItem is null)
+        //{
+        //    editedItem = new ModuleDto();
+        //    ModuleItems.Add(editedItem);
+        //}
+        //var fromForm = (ModuleDto)editForm.Item;
+
+        //if (fromForm is null)
+        //{
+        //    throw new ArgumentNullException(nameof(fromForm));
+        //}
+        ////--- make not found insert new thing...
+
+        //editedItem.Title = fromForm.Title;
+        //editedItem.Description = fromForm.Description;
+        //editedItem.StartTime = fromForm.StartTime;
+        //editedItem.EndTime = fromForm.EndTime;
+        //editedItem.Id = fromForm.Id;
+
+        //--- make not found insert new thing...
+
+        //editedItem = (ModuleDto)editForm.Item;
+
+
+        if (editForm is null)
+        {
+            throw new ArgumentNullException(nameof(editForm));
+        }
+
+        var formItem = (ModuleDto)editForm.Item;
+
+        if (formItem is null)
+        {
+            throw new ArgumentNullException(nameof(formItem));
+        }
+
+        //set the selected to the edited one and update activities
+        var editedItem = ModuleItems.FirstOrDefault(m => m.Id == id);
+
+        //--- make not found insert new thing...
+        if (editedItem is null)
+        {
+            editedItem = new ModuleDto();
+            editedItem = mapper.ModuleMap(formItem);
+            var newModule = await lmsClient.PostAsync(editedItem, "api/modules");
+
+            //----------if newCourse = null - statusmessage----------
+            //----AlertComponent-------
+
+            ModuleItems.Add(newModule);
+            StateHasChanged();
+            //messageString = $"Successfully added {newModule.Title}";
+            //AlertService.addMessage(new Alert(messageString, Alerts.Success));
+        }
+        else
+        {
+            editedItem = mapper.ModuleMap(formItem);
+            editedItem.CourseId = Course.Id;
+            var isEdited = await lmsClient.PutAsync(editedItem, "api/modules");            
+            ModuleItems = (await lmsClient.GetAsync<ModuleDto>("api/modules")).Where(m => m.CourseId.Equals(Course.Id)).ToList(); // To directly see the updated item in list
+            StateHasChanged();
+        }
+
+
+    }
+    private void castCourse(int id)
+    {
+        CourseDto selectedListItem = new CourseDto();
+        //make an empty object if zero
+        if (id > 0)
+        {
+            var temp = CourseList.FirstOrDefault(m => m.Id == id);
+
+            //selectedListItem.Title = temp.Title;
+            //selectedListItem.Description = temp.Description;
+            //selectedListItem.StartTime = temp.StartTime;
+            //selectedListItem.EndTime = temp.EndTime;
+            //selectedListItem.Id = temp.Id;
+            selectedListItem = mapper.CourseMap(temp);
+        }
+
+        selectedItem = (IEntityDto)selectedListItem;
+    }
+
+    private async Task castCourseBack(int id)
+    {
+        string messageString = string.Empty;
+
+        if (editForm is null)
+        {
+            throw new ArgumentNullException(nameof(editForm));
+        }
+
+        var formItem = (CourseDto)editForm.Item;
+
+        if (formItem is null)
+        {
+            throw new ArgumentNullException(nameof(formItem));
+        }
+
+        //set the selected to the edited one and update activities
+        var editedItem = CourseList.FirstOrDefault(m => m.Id == id);
+
+        //--- make not found insert new thing...
+        if (editedItem is null)
+        {
+            editedItem = new CourseDto();
+            editedItem = mapper.CourseMap(formItem);
+            var newCourse = await lmsClient.PostAsync(editedItem, "api/courses");
+
+            //----------if newCourse = null - statusmessage----------
+            //----AlertComponent-------
+
+            CourseList.Add(newCourse);
+            StateHasChanged();
+            messageString = $"Successfully added {newCourse.Title}";
+            AlertService.addMessage(new Alert(messageString, Alerts.Danger));
+        }
+        else
+        {
+            editedItem = mapper.CourseMap(formItem);
+            var isEdited = await lmsClient.PutAsync(editedItem, "api/courses");
+            CourseList = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList(); // To directly see the updated item in list
+            StateHasChanged();
+
+            if (isEdited)
+            {
+                messageString = $"Successfully updated {editedItem.Title}";
+                AlertService.addMessage(new Alert(messageString, Alerts.Success));
+            }
+            else
+            {
+                messageString = $"The update failed";
+                AlertService.addMessage(new Alert(messageString, Alerts.Danger));
+            }
+
+            //StateHasChanged();
+
+            //putasync
+
+            //editedItem.Title = editForm.Item.Title;
+            //editedItem.Description = editForm.Item.Description;
+            //editedItem.StartTime = editForm.Item.StartTime;
+            //editedItem.EndTime = editForm.Item.EndTime;
+            //editedItem.Id = editForm.Item.Id;
+        }
+
+
+    }
+
+    private void castActivity(int id)
+    {
+        ActivityDto selectedListItem = new ActivityDto();
+        //make an empty object if zero
+        if (id > 0)
+        {
+            var temp = ActivityItems.FirstOrDefault(m => m.Id == id);
+
+            //selectedListItem.Title = temp.Title;
+            //selectedListItem.Description = temp.Description;
+            //selectedListItem.StartTime = temp.StartTime;
+            //selectedListItem.EndTime = temp.EndTime;
+            //selectedListItem.Id = temp.Id;
+            //selectedListItem.ModuleId = temp.ModuleId;
+            //selectedListItem.ActivityTypeId = temp.ActivityTypeId;
+
+            selectedListItem = mapper.ActivityMap(temp);
+        }
+
+        selectedItem = (IEntityDto)selectedListItem;
+    }
+
+    private void castActivityBack(int id)
+    {
+        // --- change this to use the result from database instead to get new id
+
+        //set the selected to the edited one and update activities
+        var editedItem = ActivityItems.FirstOrDefault(m => m.Id == id);
+
+        if (editedItem is null)
+        {
+            editedItem = new ActivityDto();
+            ActivityItems.Add(editedItem);
+        }
+        var fromForm = (ActivityDto)editForm.Item;
+
+        //--- make not found insert new thing...
+        editedItem.Title = fromForm.Title;
+        editedItem.Description = fromForm.Description;
+        editedItem.StartTime = fromForm.StartTime;
+        editedItem.EndTime = fromForm.EndTime;
+        editedItem.Id = fromForm.Id;
+        editedItem.ActivityTypeId = fromForm.ActivityTypeId;
+
+        //needed?
+        StateHasChanged();
+    }
+
+    private async Task OnDialogClose(bool isOk)
+    {
+        if (isOk)
+        {
+            //how to differentiate here?
+
+            if (editForm is null)
+            {
+                throw new ArgumentNullException(nameof(editForm));
+            }
+
+            var type = editForm.Item.GetType().Name;
+
+            @switch (type)
+            {
+                case "CourseDto":
+                    //castCourseBack(editForm.Item.Id);
+                    await SaveItem<CourseDto>(editForm.Item.Id, "api/courses", CourseList);
+                    break;
+                case "ModuleDto":
+                    await SaveItem<ModuleDto>(editForm.Item.Id, "api/modules", ModuleItems);
+                    //castModuleBack(editForm.Item.Id);
+                    break;
+                case "ActivityDto":
+                    await SaveItem<ActivityDto>(editForm.Item.Id, "api/activities", ActivityItems);
+                    //castActivityBack(editForm.Item.Id);
+                    break;
+            }
+
+            //send call to save in form if needed
+            //await editForm.OnSave();
+
+            //Save to database here  or in form?
+
+        }
+        DialogIsOpen = false;
+    }
+
+    /// <summary>
+    /// end section test ModalComponent
+    /// </summary>
+
+    private void UpdateActivitiesList()
+    {
+        ActivityItems = SelectedModule.Activities.OrderBy(a => a.StartTime).ToList();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        //from courses
+        CourseList = (await lmsClient.GetAsync<CourseDto>("api/courses")).ToList();
+
+        //create an empty item of type ModuleDto to not have it empty
+        //tempItem = new ModuleDto();
+
+
+        var userCourseIdStr = (await authStateProvider.GetAuthenticationStateAsync()).User.FindFirst("CourseId")?.Value;
+        var userCourseIdInt = 0;
+        if (!string.IsNullOrEmpty(userCourseIdStr))
+        {
+            try
+            {
+                userCourseIdInt = Int32.Parse(userCourseIdStr);
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"Unable to parse '{userCourseIdStr}'");
+            }
+
+            //need to fix all int/str things here!
+
+
+            if (userCourseIdInt > 0)
+            {
+                Course = (await lmsClient.GetByIdAsync<CourseDto>(userCourseIdInt, "api/courses"));
+            }
+        }
+
+        if (string.IsNullOrEmpty(Course.Title))
+        {
+            Course = (await lmsClient.GetByIdAsync<CourseDto>(1, "api/courses"));
+        }
+
+        ModuleItems = Course.Modules;
+        SelectedModule = ModuleItems.FirstOrDefault();
+
+        UpdateActivitiesList();
+    }
+
+
+    private async Task OnModuleSelect(int id)
+    {
+        SelectedModule = ModuleItems.FirstOrDefault(m => m.Id == id);
+
+        UpdateActivitiesList();
+
+        await JsRuntime.InvokeVoidAsync("setSelected", $"card-{SelectedModule.Title}");
+        await JsRuntime.InvokeVoidAsync("scrollIntoView", "section-activities");
+    }
+
+    private async Task OnActivitySelect(string id)
+    {
+        await JsRuntime.InvokeVoidAsync("scrollIntoView", $"card-{id}");
+    }
+
+
+}
+

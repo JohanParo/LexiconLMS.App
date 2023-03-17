@@ -1,0 +1,117 @@
+﻿@using LexiconLMS.App.Client.Services;
+
+<EditForm EditContext="editContext">
+    @if (Item.GetType().Name == "ActivityDto")
+    {
+        var Activity = new ActivityDto();
+        Activity = (ActivityDto)Item;
+        Activity.ModuleId = Parent.Id;
+@*        <div class="form-group mb-3">
+            <label>Select module</label>
+            <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
+            </InputNumber>
+        </div>*@
+
+      @*  <div class="form-group mb-3">
+            <label>Select type</label>
+            <InputNumber class="form-control" @bind-Value="Activity.ActivityTypeId">
+            </InputNumber>
+        </div>*@
+
+        <div class="form-group mb-3">
+            <label>Activity type</label>
+            <InputSelect class="form-select" @bind-Value="Activity.ActivityTypeId">
+                <option selected>-- Select activity type --</option>
+                @foreach (var item in ActivityTypes)
+                {
+                    <option value="@item.Id">@item.Type</option>
+                }
+            </InputSelect>
+        </div>
+
+    }
+
+    @if (Item.GetType().Name == "ModuleDto")
+    {
+        var castedItem = new ModuleDto();
+        castedItem = (ModuleDto)Item;
+        castedItem.CourseId = Parent.Id;
+
+     @*   <div class="form-group mb-3">
+            <label>Select course</label>
+            <InputNumber class="form-control" @bind-Value="castedItem.CourseId">
+            </InputNumber>
+        </div>*@
+    }
+
+    <div class="form-group mb-3">
+        <label>Title</label>
+        <InputText id="title" class="form-control" @bind-Value="Item.Title" placeholder="Enter title"></InputText>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="Item.Description" placeholder="Enter description"></InputTextArea>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Start date</label>
+        <InputDate class="form-control" @bind-Value="Item.StartTime" placeholder="Enter start date"></InputDate>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>End date</label>
+        <InputDate id="endTime" class="form-control" @bind-Value="Item.EndTime" placeholder="Enter end date"></InputDate>
+    </div>
+
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public IEntityDto Item { get; set; }
+    private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
+
+    [Inject]
+    public LMSClient lmsClient { get; set; } = default!;
+    [Parameter]
+    public IEntityDto Parent { get; set; }
+
+    private EditContext editContext = default!;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if(Item is not null)
+        {       
+            editContext = new EditContext(Item);
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {       
+        ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
+    }
+
+    public async Task OnSave()
+    {
+        if (Item is null)
+        {
+            throw new ArgumentNullException(nameof(Item));
+        }
+
+        if (Item.Id == 0)
+        {
+            //set EditContext again to new Item here?
+            //var newCourse = await lmsClient.PostAsync(Course, "api/courses");
+            Console.WriteLine($"save new {Item.Title}");
+        }
+        else
+        {
+            //set EditContext again to new Item here?
+            Console.WriteLine($"update {Item.Title}");
+        }
+    }
+}
+

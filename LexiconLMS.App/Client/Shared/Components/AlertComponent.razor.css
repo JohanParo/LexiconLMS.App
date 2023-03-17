@@ -1,0 +1,27 @@
+﻿.alert-service {
+    position: absolute;
+    top: 4rem;
+    right: 2rem;
+}
+
+/*    .alert-service span {
+        display: block;
+        width: 20rem;
+        line-height: 2.2rem;
+        text-align: right;
+        padding: 0.8rem;
+        margin: 0.4em;
+    }*/
+
+
+/*.alert {
+    color: #fff;
+    border-style: solid;
+    border-width: 0 1px 4px 1px
+}
+
+.alert-primary {
+    background-color: #158CBA;
+    border-color: #127ba3
+}
+*/

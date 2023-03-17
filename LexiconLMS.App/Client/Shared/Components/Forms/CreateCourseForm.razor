@@ -1,9 +1,7 @@
 ﻿@using LexiconLMS.App.Client.Services;
 
-<EditForm EditContext="editContext">
-    
-    <h3>Add course</h3>
-
+<EditForm EditContext="editContext">    
+  
     <div class="form-group mb-3">
         <label>Title</label>
         <InputText id="title" class="form-control" @bind-Value="Course.Title" placeholder="Enter title"></InputText>
@@ -39,6 +37,11 @@
     <div class="input-group-append input-group-lg">
         <button type="submit" id="save" class="btn btn-success" @onclick="async () => await OnSave()">Save</button>
     </div>
+
+    <div class="input-group-append input-group-lg">
+        <button type="button" id="cancel" class="btn btn-danger" @onclick="async () => await OnCancel()">Cancel</button>
+    </div>
+
 </EditForm>
 
 
@@ -50,28 +53,68 @@
     [Inject]
     public LMSClient lmsClient { get; set; } = default!;
 
+    [Parameter]
+    public EventCallback<CourseDto> SaveEvent  { get; set; }
+
+    [Parameter]
+    public EventCallback<CourseDto> CancelEvent { get; set; }
+
+    CourseDto tempCourse { get; set; } = new();
 
     protected override void OnInitialized()
     {
-        editContext = new EditContext(Course);        
-    }   
+        tempCourse.Title = Course.Title;
+        tempCourse.Description = Course.Description;
+        tempCourse.StartTime = Course.StartTime;
+        tempCourse.EndTime = Course.EndTime;
+        tempCourse.Id = Course.Id;
 
+        editContext = new EditContext(tempCourse);
+        //editContext = new EditContext(Course);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+    }
 
     public async Task OnSave()
     {
         if (Course is null)
         {
             throw new ArgumentNullException(nameof(Course));
-        }  
+        }
+
+        //Course.Title = tempCourse.Title;
+        //Course.Description=tempCourse.Description;
+        //Course.StartTime = tempCourse.StartTime;
+        //Course.EndTime = tempCourse.EndTime;
+        //Course.Id = tempCourse.Id;
 
         if (Course.Id == 0)
         {
             var newCourse = await lmsClient.PostAsync(Course, "api/courses");
+            //if newCourse = null - statusmessage
+            await SaveEvent.InvokeAsync(newCourse);
         }
         else
         {
-            var isEdited = await lmsClient.PutAsync(Course, "api/courses");            
+            var isEdited = await lmsClient.PutAsync(Course, "api/courses");  
+            //if isEdited = true - statusmessage
+            await SaveEvent.InvokeAsync(Course);
         }
+    }
+
+
+    public async Task OnCancel()
+    {
+        Course.Title = tempCourse.Title;
+        Course.Description=tempCourse.Description;
+        Course.StartTime = tempCourse.StartTime;
+        Course.EndTime = tempCourse.EndTime;
+        Course.Id = tempCourse.Id;
+        await CancelEvent.InvokeAsync(Course);
     }
    
 

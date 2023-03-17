@@ -1,5 +1,6 @@
 using LexiconLMS.App.Client;
 using LexiconLMS.App.Client.DTOs;
+using LexiconLMS.App.Client.Mappings;
 using LexiconLMS.App.Client.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -26,9 +27,15 @@ namespace LexiconLMS.App.Client
             // Supply HttpClient instances that include access tokens when making requests to the server project
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("LexiconLMS.App.ServerAPI"));
 
+            builder.Services.AddAutoMapper(typeof(LmsMappings));
+
+			builder.Services.AddSingleton<MapperService>();
+
             builder.Services.AddApiAuthorization();
 
-			await builder.Build().RunAsync();
+            builder.Services.AddSingleton<AlertService>();
+
+            await builder.Build().RunAsync();
 		}
 	}
 }

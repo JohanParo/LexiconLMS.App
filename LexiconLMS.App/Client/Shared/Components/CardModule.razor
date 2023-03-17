@@ -1,14 +1,19 @@
-﻿<div class="card h-100 @(Shadow?"shadow":"")" id="card-@item.Title">
-    <svg class="bd-placeholder-img card-img-top" width="100%" height="6" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="@color"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em"></text></svg>
-    <div class="card-body">
-        <h5 class="card-title"><a href="#" @onclick="() => OnClick(item.Id)" @onclick:stopPropagation="true" class="stretched-link text-decoration-none text-reset">@item.Title</a></h5>
+﻿@using LexiconLMS.App.Client.Models;
+@using Microsoft.AspNetCore.Authorization;
+
+<div class="card h-100 @(Shadow?"shadow":"") @(Muted?"opacity-75":"")" id="card-@item.Title">
+    <svg class="bd-placeholder-img card-img-top opacity-75" width="100%" height="6" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="@color"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em"></text></svg>
+    <div class="card-body" style="position:relative;">
+        <h5 class="card-title"><a @onclick="() => OnClick(item.Id)" class="stretched-link text-decoration-none text-reset" style="cursor:pointer;">@item.Title</a></h5>
+        <small class="text-muted">@item.StartTime.ToString(dateString) - @item.EndTime.ToString(dateString)</small>
         <p>
             @ExtensionsUtils.TrimString(@item.Description,200)
         </p>
     </div>
-    <div class="card-footer text-center">
-        <small class="text-muted">@item.StartTime.ToString(dateString) - @item.EndTime.ToString(dateString)</small>
-    </div>
+    <AuthorizeView Roles="Admin">
+            <button class="btn btn-primary btn-sm" @onclick="() => OnEditClick(item.Id)">Edit</button>
+    </AuthorizeView>
+
 </div>
 
 @code {
@@ -19,19 +24,46 @@
     public bool? Time { get; set; }
 
     [Parameter]
+    public bool Muted { get; set; }
+
+    [Parameter]
     public IEntityDto item { get; set; }
 
     [Parameter]
     public EventCallback<int> CardClick { get; set; }
 
-    string dateString = "yy-MM-dd";
+    [Parameter]
+    public EventCallback<ModalForm> EditClick { get; set; }
 
     public async Task OnClick(int id)
     {
         await CardClick.InvokeAsync(id);
+    }
+
+    public async Task OnEditClick(int id)
+    {
+        var clickParams = new ModalForm();
+
+        clickParams.Id = id;
+
+        if (item.GetType().Name == "ModuleDto")
+        {
+            clickParams.Type = ModalType.Module;
+        }
+        else if (item.GetType().Name == "ActivityDto")
+        {
+            clickParams.Type = ModalType.Activity;
+        }
+        else
+        {
+            clickParams.Type = ModalType.Course;
+        }
+
+        await EditClick.InvokeAsync(clickParams);
 
     }
 
+    string dateString = "yy-MM-dd";
     Random random = new Random();
     string color { get; set; } = "#868e96";
     protected override void OnInitialized()

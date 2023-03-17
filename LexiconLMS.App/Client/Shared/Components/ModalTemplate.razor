@@ -1,0 +1,87 @@
+﻿<div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">@Caption</h4>
+                <button type="button" class="close" @onclick="@ModalCancel">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+@*                <p>@Message</p>*@
+                @FormTemplate
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                @switch (Type)
+                {
+                    case Category.Okay:
+                        <button type="button" class="btn btn-primary"
+                        @onclick=@ModalOk>
+                            OK
+                        </button>
+                        break;
+                    case Category.SaveNot:
+                        <button type="button" class="btn btn-primary"
+                        @onclick=@ModalOk>
+                            Save
+                        </button>
+                        <button type="button" class="btn btn-warning"
+                        @onclick="@ModalCancel">
+                            Don't Save
+                        </button>
+                        break;
+                    case Category.UpdateNot:
+                        <button type="button" class="btn btn-danger"
+                        @onclick=@ModalOk>
+                            Update
+                        </button>
+                        <button type="button" class="btn btn-warning"
+                        @onclick="@ModalCancel">
+                            Don't Update
+                        </button>
+                        break;
+                    case Category.DeleteNot:
+                        <button type="button" class="btn btn-danger"
+                        @onclick=@ModalOk>
+                            Delete
+                        </button>
+                        <button type="button" class="btn btn-warning"
+                        @onclick="@ModalCancel">
+                            Don't Delete
+                        </button>
+                        break;
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Caption { get; set; }
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    [Parameter] public Category Type { get; set; }
+
+    [Parameter]
+    public RenderFragment? FormTemplate { get; set; }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+    private Task ModalOk()
+    {
+        return OnClose.InvokeAsync(true);
+    }
+    public enum Category
+    {
+        Okay,
+        SaveNot,
+        UpdateNot,
+        DeleteNot
+    }
+}

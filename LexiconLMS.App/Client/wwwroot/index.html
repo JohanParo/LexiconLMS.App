@@ -67,12 +67,15 @@
                 if (elem) {
                     //elem.setAttribute('aria-selected', false); //If attribute is true, and false needed
                     elem.setAttribute('aria-selected', true); //If attribute is false, and true needed
-
+                    elem.classList.add("border-3", "border-top-0");
+                    elem.classList.replace("opacity-75", "opacity-100");
                     var sib = elem.parentNode.parentNode.firstChild;
                     console.log(sib)
                     for (; sib; sib = sib.nextSibling) {
                         if (sib.childNodes[1].nodeType === 1 && sib.childNodes[1] !== elem) {
                             sib.childNodes[1].setAttribute('aria-selected', 'false');
+                            sib.childNodes[1].classList.remove("border-3", "border-top-0");
+                            sib.childNodes[1].classList.replace("opacity-100", "opacity-75");
                         }
                     }
                 }
