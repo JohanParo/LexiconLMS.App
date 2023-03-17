@@ -12,10 +12,21 @@
             </InputNumber>
         </div>*@
 
-        <div class="form-group mb-3">
+      @*  <div class="form-group mb-3">
             <label>Select type</label>
             <InputNumber class="form-control" @bind-Value="Activity.ActivityTypeId">
             </InputNumber>
+        </div>*@
+
+        <div class="form-group mb-3">
+            <label>Activity type</label>
+            <InputSelect class="form-select" @bind-Value="Activity.ActivityTypeId">
+                <option selected>-- Select activity type --</option>
+                @foreach (var item in ActivityTypes)
+                {
+                    <option value="@item.Id">@item.Type</option>
+                }
+            </InputSelect>
         </div>
 
     }
@@ -59,7 +70,10 @@
 @code {
     [Parameter]
     public IEntityDto Item { get; set; }
+    private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
 
+    [Inject]
+    public LMSClient lmsClient { get; set; } = default!;
     [Parameter]
     public IEntityDto Parent { get; set; }
 
@@ -70,9 +84,14 @@
         base.OnInitialized();
 
         if(Item is not null)
-        {
+        {       
             editContext = new EditContext(Item);
         }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {       
+        ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
     }
 
     public async Task OnSave()
