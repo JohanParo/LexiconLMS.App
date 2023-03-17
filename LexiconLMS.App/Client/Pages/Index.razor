@@ -7,8 +7,7 @@
 @inject AuthenticationStateProvider authStateProvider;
 @inject IJSRuntime JsRuntime
 @inject LMSClient lmsClient;
-@inject MapperService mapper;
-@inject IMapper _mapper;
+@inject IMapper mapper;
 @inject AlertService AlertService
 
 @page "/"
@@ -45,7 +44,7 @@
 
 @* block for module cards *@
 <BlockGroupTemplate Items="ModuleList" Context="item" Collapsable="false" Cols="4" Id="section-modules">
-    <GroupHeader>My Modules</GroupHeader>
+    <GroupHeader>Modules for @SelectedCourse.Title</GroupHeader>
     <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Type=ModalType.Module})">New Module</button></NewButton>
     <CardTemplate Context="item">
         <CardModule CardClick="OnModuleSelect" EditClick="OpenDialog" item="item" Muted="true"></CardModule>
@@ -82,16 +81,38 @@
 
 @code {
     //the lists of items
-    private List<ModuleDto> ModuleList { get; set; } = new();
-    private List<ActivityDto> ActivityList { get; set; } = new();
     private List<CourseDto> CourseList { get; set; } = new();
+    private List<ModuleDto> ModuleList {
+
+        get { 
+            if (SelectedCourse == null || SelectedCourse.Id == 0)
+            {
+                SelectedCourse = CourseList.FirstOrDefault() ?? new();
+            }
+            return CourseList.FirstOrDefault(c => c.Id == SelectedCourse?.Id, new()).Modules ?? new(); 
+        }
+        set { ModuleList = value; }
+    }
+    private List<ActivityDto> ActivityList
+    {
+        get { 
+            if (SelectedModule.Id == 0)
+            {
+                SelectedModule = ModuleList.FirstOrDefault() ?? new();
+            }
+            return ModuleList.FirstOrDefault(m => m.Id == SelectedModule?.Id, new()).Activities ?? new(); 
+        }
+        set { ActivityList = value; }
+    }
+
 
     //to keep track of selected objects
     private CourseDto? SelectedCourse { get; set; } = new();
-    private ModuleDto SelectedModule { get; set; } = new();
+    private ModuleDto? SelectedModule { get; set; } = new();
 
     //to use with the form
-    private IEntityDto selectedItem;
+    //Copy of dto
+    private IEntityDto? selectedItem;
     private IEntityDto? selectedItemParent;
 
     //reference to the editform and it's members
@@ -108,10 +129,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-
         await UpdateCourseList();
+        await GetUserCourse();
+    }
 
-
+    //get the correct course for the logged in user
+    private async Task GetUserCourse()
+    {
         //get the course for the logged in user, since it's a string try to parse
         var userCourseIdStr = (await authStateProvider.GetAuthenticationStateAsync()).User.FindFirst("CourseId")?.Value;
         var userCourseIdInt = 0;
@@ -132,8 +156,8 @@
                 await SelectCourse(userCourseIdInt);
             }
         }
-
     }
+
 
     //form modal
     private void OpenDialog(ModalForm parameters)
@@ -160,7 +184,7 @@
         modalType = ModalTemplate.Category.SaveNot;
     }
 
-    //on modal close check if cancel is clicked or not, then call save method
+    //on modal close - check if cancel is clicked or not, then call save method
     private async Task OnDialogClose(bool isOk)
     {
         if (isOk)
@@ -203,7 +227,8 @@
         if (id > 0)
         {
             var temp = itemList.FirstOrDefault(m => m.Id == id);
-            selectedListItem = _mapper.Map<T>(temp);
+            selectedListItem = mapper.Map<T>(temp);
+            var same = temp.Equals(selectedListItem);
         }
 
         //set as selected item
@@ -234,7 +259,7 @@
         if (editedItem is null)
         {
             editedItem = new T();
-            editedItem = _mapper.Map<T>(formItem);
+            editedItem = mapper.Map<T>(formItem);
             var newItem = await lmsClient.PostAsync(editedItem, endpoint);
 
             //----------if newItem = null ?? ----------
@@ -247,30 +272,33 @@
         }
         else
         {
-            editedItem = _mapper.Map<T>(formItem);
-
             //putasync
-            var isEdited = await lmsClient.PutAsync(editedItem, endpoint);
+            var isEdited = await lmsClient.PutAsync(formItem, endpoint);
 
             if (isEdited)
             {
-                messageString = $"Successfully updated {editedItem.Title}";
+                messageString = $"Successfully updated {formItem.Title}";
                 AlertService.addMessage(new Alert(messageString, Alerts.Success));
 
+                var index = itemList.IndexOf(itemList.First(a => a.Id == formItem.Id));
+
                 //get list again for courses, not sure why it doesn't update
-                if (editedItem.GetType().Name == "CourseDto")
+                if (formItem is CourseDto cdto)
                 {
-                    await UpdateCourseList();
+                    CourseList[index] = cdto;
+                    //await UpdateCourseList();
                     //CourseList = (await lmsClient.GetAsync<CourseDto>(endpoint)).ToList(); // To directly see the updated item in list
                 }
-                else if (editedItem.GetType().Name == "ModuleDto")
+                else if (formItem is ModuleDto mdto)
                 {
                     //await UpdateModuleList();
-                    ModuleList = (await lmsClient.GetAsync<ModuleDto>(endpoint)).Where(m => m.CourseId.Equals(SelectedCourse.Id)).ToList(); // To directly see the updated item in list
+                    //ModuleList = (await lmsClient.GetAsync<ModuleDto>(endpoint)).Where(m => m.CourseId.Equals(SelectedCourse.Id)).ToList(); // To directly see the updated item in list
+                    ModuleList[index] = mdto;
                 }
-                else if (editedItem.GetType().Name == "ActivityDto")
+                else if (formItem is ActivityDto dto)
                 {
-                    UpdateActivitiesList();
+                    ActivityList[index] = dto;
+                    //UpdateActivitiesList();
                     //ActivityItems = (await lmsClient.GetAsync<ActivityDto>(endpoint)).Where(m => m.ModuleId.Equals(SelectedModule.Id)).OrderBy(a => a.StartTime).ToList(); // To directly see the updated item in list
                 }
             }
@@ -284,15 +312,13 @@
         }
     }
 
-
-
     private async Task UpdateCourseList()
     {
         //from courses
         var courses = await lmsClient.GetAsync<CourseDto>("api/courses");
         if (courses == null)
         {
-            Console.WriteLine($"Unable to get courses");
+            Console.WriteLine($"Unable to get any courses");
             CourseList = new();
         }
         else
@@ -311,17 +337,17 @@
             await SelectCourse(1);
         }
 
-        ModuleList = SelectedCourse!.Modules;
+       // ModuleList = SelectedCourse!.Modules;
 
         if (ModuleList.Count == 0)
         {
             SelectedModule = new();
-            ActivityList = new();
+            //ActivityList = new();
         }
         else
         {
             SelectedModule = ModuleList.FirstOrDefault();
-            UpdateActivitiesList();
+            //UpdateActivitiesList();
         }
         StateHasChanged();
 
@@ -329,9 +355,11 @@
 
     private void UpdateActivitiesList()
     {
-        if (SelectedModule != null && SelectedModule.Activities!=null)
+        //if (SelectedModule != null && SelectedModule.Activities != null)
+        if (SelectedModule != null)
         {
-            ActivityList = SelectedModule.Activities.OrderBy(a => a.StartTime).OrderBy(a => a.StartTime).ToList();
+            //ActivityList = ModuleList.FirstOrDefault(m => m.Id == SelectedModule?.Id, new()).Activities ?? new();
+            //ActivityList = SelectedModule.Activities.OrderBy(a => a.StartTime).OrderBy(a => a.StartTime).ToList();
         }
         StateHasChanged();
     }
@@ -350,7 +378,7 @@
         }
 
         await UpdateModuleList();
-        UpdateActivitiesList();
+        //UpdateActivitiesList();
         StateHasChanged();
     }
 
@@ -359,7 +387,7 @@
     {
         SelectedModule = ModuleList.FirstOrDefault(m => m.Id == id);
 
-        UpdateActivitiesList();
+        //UpdateActivitiesList();
 
         await JsRuntime.InvokeVoidAsync("setSelected", $"card-{SelectedModule.Title}");
         await JsRuntime.InvokeVoidAsync("scrollIntoView", "section-activities");

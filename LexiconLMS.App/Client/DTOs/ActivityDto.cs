@@ -17,5 +17,4 @@ namespace LexiconLMS.App.Client.DTOs
         public int ModuleId { get; set; }
         public int ActivityTypeId { get; set; }
     }
-
 }
