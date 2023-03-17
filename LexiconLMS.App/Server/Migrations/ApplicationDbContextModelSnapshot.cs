@@ -235,7 +235,6 @@ namespace LexiconLMS.App.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("CourseId")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -623,9 +622,7 @@ namespace LexiconLMS.App.Server.Migrations
                 {
                     b.HasOne("LexiconLMS.App.Server.Models.Course", null)
                         .WithMany("Users")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("LexiconLMS.App.Server.Models.Document", b =>

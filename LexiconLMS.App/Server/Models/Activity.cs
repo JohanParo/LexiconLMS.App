@@ -15,8 +15,7 @@ namespace LexiconLMS.App.Server
         [Required]
         [StringLength(100, MinimumLength = 2)]
         public string Title { get; set; } = string.Empty;
-		[Required]
-        public ActivityType ActivityType { get; set; }
+
 		public string Description { get; set; } = string.Empty;
         [Required]
         public DateTime StartTime { get; set; }
@@ -27,6 +26,8 @@ namespace LexiconLMS.App.Server
 		public int ModuleId { get; set; }
         [Required]
         public int ActivityTypeId { get; set; }
+
+        public ActivityType ActivityType { get; set; }
         public bool Published { get; set; } = true;
     }
 

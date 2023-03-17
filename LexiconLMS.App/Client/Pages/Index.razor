@@ -18,29 +18,31 @@
 <h1 class="text-end text-muted">@($"{SelectedCourse.Title} {SelectedCourse.StartTime.ToString("yy-MM-dd")} - {SelectedCourse.EndTime.ToString("yy-MM-dd")}")</h1>
 
 <AlertComponent />
+<AuthorizeView Roles="Admin">
 
-@* block for courses table *@
-<BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
-    <GroupHeader>Courses</GroupHeader>
-    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course})">New Course</button></NewButton>
-    <TableTemplate Context="item">
-        <tr>
-            <th scope="row">@item.Id</th>
-            <td><span class="badge bg-success">Published</span></td>
-            <td><span class="fw-bold">@item.Title</span></td>
-            <td>@item.StartTime</td>
-            <td>@item.EndTime</td>
-            <td>@item.Modules.Count</td>
-            <td class="text-end">
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button class="btn btn-primary btn-sm" @onclick="() => SelectCourse(item.Id)">Select</button>
-                    <button class="btn btn-primary btn-sm" @onclick="() => OpenDialog(new ModalForm(){Id=item.Id,Type=ModalType.Course})">Edit</button>
-                    @*<button class="btn btn-danger btn-sm" @onclick="() => ModalShow(item.Id)">Delete</button>*@
-                </div>
-            </td>
-        </tr>
-    </TableTemplate>
-</BlockGroupTemplate>
+    @* block for courses table *@
+    <BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
+        <GroupHeader>Courses</GroupHeader>
+        <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course})">New Course</button></NewButton>
+        <TableTemplate Context="item">
+            <tr>
+                <th scope="row">@item.Id</th>
+                <td><span class="badge bg-success">Published</span></td>
+                <td><span class="fw-bold">@item.Title</span></td>
+                <td>@item.StartTime</td>
+                <td>@item.EndTime</td>
+                <td>@item.Modules.Count</td>
+                <td class="text-end">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button class="btn btn-primary btn-sm" @onclick="() => SelectCourse(item.Id)">Select</button>
+                        <button class="btn btn-primary btn-sm" @onclick="() => OpenDialog(new ModalForm(){Id=item.Id,Type=ModalType.Course})">Edit</button>
+                        @*<button class="btn btn-danger btn-sm" @onclick="() => ModalShow(item.Id)">Delete</button>*@
+                    </div>
+                </td>
+            </tr>
+        </TableTemplate>
+    </BlockGroupTemplate>
+</AuthorizeView>
 
 @* block for module cards *@
 <BlockGroupTemplate Items="ModuleList" Context="item" Collapsable="false" Cols="4" Id="section-modules">
@@ -82,25 +84,28 @@
 @code {
     //the lists of items
     private List<CourseDto> CourseList { get; set; } = new();
-    private List<ModuleDto> ModuleList {
+    private List<ModuleDto> ModuleList
+    {
 
-        get { 
+        get
+        {
             if (SelectedCourse == null || SelectedCourse.Id == 0)
             {
                 SelectedCourse = CourseList.FirstOrDefault() ?? new();
             }
-            return CourseList.FirstOrDefault(c => c.Id == SelectedCourse?.Id, new()).Modules ?? new(); 
+            return CourseList.FirstOrDefault(c => c.Id == SelectedCourse?.Id, new()).Modules ?? new();
         }
         set { ModuleList = value; }
     }
     private List<ActivityDto> ActivityList
     {
-        get { 
+        get
+        {
             if (SelectedModule.Id == 0)
             {
                 SelectedModule = ModuleList.FirstOrDefault() ?? new();
             }
-            return ModuleList.FirstOrDefault(m => m.Id == SelectedModule?.Id, new()).Activities ?? new(); 
+            return ModuleList.FirstOrDefault(m => m.Id == SelectedModule?.Id, new()).Activities ?? new();
         }
         set { ActivityList = value; }
     }
@@ -263,12 +268,21 @@
             var newItem = await lmsClient.PostAsync(editedItem, endpoint);
 
             //----------if newItem = null ?? ----------
-            messageString = $"Successfully added {newItem.Title}";
+            if (newItem is null)
+            {
+                messageString = $"The post failed";
+                AlertService.addMessage(new Alert(messageString, Alerts.Danger));
+            }
+            else
+            {
+                messageString = $"Successfully added {newItem.Title}";
 
-            AlertService.addMessage(new Alert(messageString, Alerts.Success));
+                AlertService.addMessage(new Alert(messageString, Alerts.Success));
 
-            itemList.Add(newItem);
-            StateHasChanged();
+                itemList.Add(newItem);
+                StateHasChanged();
+            }
+
         }
         else
         {
@@ -337,7 +351,7 @@
             await SelectCourse(1);
         }
 
-       // ModuleList = SelectedCourse!.Modules;
+        // ModuleList = SelectedCourse!.Modules;
 
         if (ModuleList.Count == 0)
         {
