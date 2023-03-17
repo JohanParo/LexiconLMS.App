@@ -170,7 +170,6 @@ namespace LexiconLMS.App.Server.Data
                 FirstName = adminFirstName,
                 LastName = adminLastName,
                 Avatar = adminAvatar
-                                
             };
 
             var result = await userManager.CreateAsync(admin, password);
