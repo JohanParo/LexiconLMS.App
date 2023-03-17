@@ -62,18 +62,18 @@
 
                 </AuthorizeView>
             </div>
-                            @if (showForm == "Activity")
-                                {
-                                    <CreateActivityForm></CreateActivityForm>
-                                }
-                                else if (showForm == "Module")
-                                {
-                                    <CreateModuleForm></CreateModuleForm>
-                                }
-                                else if (showForm == "Course")
-                                {
-                                    <CreateCourseForm></CreateCourseForm>
-                                }
+            @if (showForm == "Activity")
+                {
+                    <CreateActivityForm></CreateActivityForm>
+                }
+                else if (showForm == "Module")
+                {
+                    <CreateModuleForm></CreateModuleForm>
+                }
+                else if (showForm == "Course")
+                {
+                    <CreateCourseForm></CreateCourseForm>
+                }
         </div>
     </nav>
 </header>
@@ -103,6 +103,7 @@
         {
             showForm = "";
         }
+        
     }
 
     

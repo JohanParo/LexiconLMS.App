@@ -15,7 +15,7 @@
     using System.Reflection.Metadata;
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/Filesave")]
     public class FilesaveController : ControllerBase
     {
         private String[] allowedExtensions = { ".doc", ".docx", ".jpg", ".gif", ".png", ".bmp", ".txt", ".pdf" };
@@ -35,7 +35,7 @@
 
         [HttpPost]
         public async Task<ActionResult<IList<UploadResult>>> PostFile(
-            [FromBody] IEnumerable<IFormFile> files)
+            [FromForm] IEnumerable<IFormFile> files)
         {
             var filesProcessed = 0;
             var resourcePath = new Uri($"{Request.Scheme}://{Request.Host}/");
