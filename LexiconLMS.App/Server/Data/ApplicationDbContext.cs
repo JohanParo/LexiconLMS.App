@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityServer.EntityFramework.Options;
 using LexiconLMS.App.Server.Models;
+using LexiconLMS.App.Shared;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -19,5 +20,6 @@ namespace LexiconLMS.App.Server.Data
 		public DbSet<Module> Module { get; set; } = default!;
 		public DbSet<Document> Document { get; set; } = default!;
 		public DbSet<DocumentType> DocumentType { get; set; } = default!;
-	}
+        public DbSet<UploadResult> UploadResults { get; set; }
+    }
 }

@@ -66,7 +66,8 @@ namespace LexiconLMS.App.Server.Data
             var faker = new Faker<Course>()
                 .RuleFor(c => c.Title, f => f.PickRandom(courseTitles))
                 .RuleFor(c => c.Description, f => f.Lorem.Sentence())
-                .RuleFor(c => c.StartTime, f => DateTime.Now.AddDays(f.Random.Int(-100,100)))
+                //.RuleFor(c => c.StartTime, f => DateTime.Now.AddDays(f.Random.Int(-100,100)))
+                .RuleFor(c => c.StartTime, f => f.Date.Recent())
                 .RuleFor(c => c.EndTime, (f,c) => c.StartTime.AddMonths(11))
                 .RuleFor(c => c.Modules, (f,c) => GenerateModules(8, c.StartTime))  
                 ;
@@ -96,11 +97,12 @@ namespace LexiconLMS.App.Server.Data
         {
             int j = 0;
             var faker = new Faker<Activity>()
-               .RuleFor(a => a.Title, f => f.Company.CompanyName())
-               .RuleFor(a => a.Description, f => f.Lorem.Paragraphs(5))
-               .RuleFor(a => a.StartTime, f => moduleStart.AddDays(j++))
-               .RuleFor(a => a.EndTime, (f,a) => a.StartTime.AddDays(1))
-               .RuleFor(a => a.ActivityType, f => f.PickRandom(activityTypes));
+
+            .RuleFor(a => a.Title, f => f.Company.CompanyName())
+            .RuleFor(a => a.Description, f => f.Lorem.Paragraphs(5))
+            .RuleFor(a => a.StartTime, f => moduleStart.Date.AddHours(9).AddDays(j++))  
+            .RuleFor(a => a.EndTime, (f, a) => a.StartTime.AddHours(8))
+            .RuleFor(a => a.ActivityType, f => f.PickRandom(activityTypes));
 
             return faker.Generate(numberOfActivities);
         }
@@ -170,7 +172,6 @@ namespace LexiconLMS.App.Server.Data
                 FirstName = adminFirstName,
                 LastName = adminLastName,
                 Avatar = adminAvatar
-                                
             };
 
             var result = await userManager.CreateAsync(admin, password);

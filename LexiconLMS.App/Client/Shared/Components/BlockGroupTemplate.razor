@@ -9,9 +9,12 @@
                 </button>
             </h4>
             <div class="text-end">
-
-                
-              @*  <button class="btn btn-primary btn-sm me-4 text-end">New</button>*@
+                <AuthorizeView Roles="Admin">
+                    @if (NewButton is not null)
+                    {
+                        @NewButton
+                    }
+                </AuthorizeView>
             </div>
             <div id=@($"accordionCollapse-{RandomId}") class="accordion-collapse collapse show" aria-labelledby=@($"accordionHeading-{RandomId}") data-bs-parent=@($"#accordionModules-{RandomId}")>
                 <div class="accordion-body">
@@ -25,12 +28,13 @@ else
 {
     <div class="mb-4 border rounded" id="@Id">
         <h4 class="border-bottom p-4">
-
             @GroupHeader
-            @if (NewButton is not null)
-            {
-                @NewButton
-            }
+            <AuthorizeView Roles="Admin">
+                @if (NewButton is not null)
+                {
+                    @NewButton
+                }
+            </AuthorizeView>
         </h4>
         @RenderContent()
     </div>
@@ -94,13 +98,13 @@ else
             else
             {
 
-                    foreach (var item in Items)
-                    {
-                        builder.OpenElement(10, "div");
-                        builder.AddAttribute(11, "class", $"col-lg-{12 / Cols} g-4");
-                        builder.AddContent(12, CardTemplate(item));
-                        builder.CloseElement(); // close col-lg-{12/Cols}
-                    }
+                foreach (var item in Items)
+                {
+                    builder.OpenElement(10, "div");
+                    builder.AddAttribute(11, "class", $"col-lg-{12 / Cols} g-4");
+                    builder.AddContent(12, CardTemplate(item));
+                    builder.CloseElement(); // close col-lg-{12/Cols}
+                }
 
 
             }

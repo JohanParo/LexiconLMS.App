@@ -29,7 +29,7 @@ namespace LexiconLMS.App.Server.Controllers
           {
               return NotFound();
           }
-            return await _context.Course.Include(c=>c.Modules).ToListAsync();
+            return await _context.Course.Include(c => c.Modules).ThenInclude(m => m.Activities).ToListAsync();
         }
 
         // GET: api/Courses/5
