@@ -86,22 +86,23 @@ namespace LexiconLMS.App.Server.Data
                 .RuleFor(m => m.Description, f => f.Lorem.Sentence(5))
                 .RuleFor(m => m.StartTime, f => courseStart.AddMonths(j++))
                 .RuleFor(m => m.EndTime, (f,m) => m.StartTime.AddMonths(1).AddDays(-1))
-                .RuleFor(m => m.Activities, (f,m) => GenerateActivities(10, m.StartTime))                  
+                .RuleFor(m => m.Activities, (f,m) => GenerateActivities(40, m.StartTime))                  
                 ;
            
             return faker.Generate(numberOfModules);
         }
-           
 
         private static List<Activity> GenerateActivities(int numberOfActivities, DateTime moduleStart)
         {
+            int i = 0;
             int j = 0;
+
             var faker = new Faker<Activity>()
 
             .RuleFor(a => a.Title, f => f.Company.CompanyName())
             .RuleFor(a => a.Description, f => f.Lorem.Paragraphs(5))
-            .RuleFor(a => a.StartTime, f => moduleStart.Date.AddHours(9).AddDays(j++))  
-            .RuleFor(a => a.EndTime, (f, a) => a.StartTime.AddHours(8))
+            .RuleFor(a => a.StartTime, f => moduleStart.Date.AddHours(9 + (4 * (i++ % 2))).AddDays((i + (j++ % 2)) / 2))
+            .RuleFor(a => a.EndTime, (f, a) => a.StartTime.AddHours(3 + ((i - 1) % 2)))
             .RuleFor(a => a.ActivityType, f => f.PickRandom(activityTypes));
 
             return faker.Generate(numberOfActivities);
