@@ -4,9 +4,31 @@
 @using LexiconLMS.App.Client.Services;
 
 @inject LMSClient lmsClient;
+@inject AuthenticationStateProvider authStateProvider;
 
 @attribute [Authorize]
-<h3>Week view</h3>
+
+<h1 class="text-end text-muted">@($"{SelectedCourse.Title} {SelectedCourse.StartTime.ToString("yy-MM-dd")} - {SelectedCourse.EndTime.ToString("yy-MM-dd")}")</h1>
+
+<h3>Upcoming activities</h3>
+
+@if (daysToSkip==0)
+{
+    <button class="btn btn-primary btn-sm disabled" @onclick="() => GetDailyActivities(-5)">Back</button>
+}
+else
+{
+    <button class="btn btn-primary btn-sm" @onclick="() => GetDailyActivities(-5)">Back</button>
+}
+
+@if (DailyActivitites.Count<5)
+{
+<button class="btn btn-primary btn-sm disabled" @onclick="() => GetDailyActivities(5)">Next</button>    
+}
+else
+{
+<button class="btn btn-primary btn-sm" @onclick="() => GetDailyActivities(5)">Next</button>
+}
 
 
 <div class="container py-7">
@@ -27,16 +49,16 @@
                                     <p class="my-0 text-dark flex-fw text-sm ">
                                         <span class="text-inverse op-8">@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</span>
                                     </p>
-                                    <p class="my-0 flex-fw text-xs text-primary op-8" id="day-1-item-1">
-                                        <a href="@item.Id" class="stretched-link">@item.Title</a>
-                                    </p>
-                                    <p class="my-0 text-dark flex-fw text-sm ">
-                                        <span class="text-inverse op-8">@item.ActivityTypeId</span>
-                                    </p>                                   
+                                   
+                                    <p class="my-0 flex-fw text-xs text-primary op-8" id="day-1-item-1">@item.Title </p>
+                                     
+                                    <h5 class="my-0 text-dark flex-fw text-sm ">
+                                        <span class="text-inverse op-8 font-weight-bold">@GetActivityType(item.ActivityTypeId)</span>
+                                    </h5>   
+
                                     <p class="my-0 flex-fw text-xs text-dark op-8" id="day-1-item-1">
                                         @ExtensionsUtils.TrimString(item.Description,100)
                                     </p>
-
                                 </li>
                             }
                         }
@@ -48,68 +70,100 @@
 
     </div>
 </div>
-               <button class="btn btn-primary btn-sm" @onclick="() => PreviousWeek()">Back</button>
-               <button class="btn btn-primary btn-sm" @onclick="() => NextWeek()">Next</button>
+
 
 
 @code {
-    private CourseDto Course { get; set; } = new();
-    private ModuleDto SelectedModule { get; set; } = new();
+    private CourseDto? SelectedCourse { get; set; } = new();     
     private List<ModuleDto> ModuleItems { get; set; } = new();
     private List<ActivityDto> ActivityItems { get; set; } = new();
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
-   
-
-
     private List<List<ActivityDto>> DailyActivitites { get; set; } = new List<List<ActivityDto>>();
     private DateTime FirstDate { get; set; } = DateTime.Now.AddHours(0);
-
+    private int daysToSkip { get; set; }
 
 
     protected override async Task OnInitializedAsync()
-    {
-        Course = (await lmsClient.GetByIdAsync<CourseDto>(1, "api/courses"));
-        ModuleItems = Course.Modules;
-        SelectedModule = ModuleItems.FirstOrDefault();
-        ActivityItems = SelectedModule.Activities;
+    {     
+
+        await GetUserCourse();
+        ModuleItems = SelectedCourse.Modules;
+
+        foreach (var module in ModuleItems)
+        {
+            ActivityItems.AddRange(module.Activities);
+        }
+
         ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
 
-    
-        DailyActivitites = ActivityItems
-       .Where(a => (a.StartTime.Date >= FirstDate.Date))
-       .OrderBy(a => a.StartTime)
-       .GroupBy(p => p.StartTime.Date)
-       .Select(g => g.ToList())
-       .Take(5).ToList();
-
-        //Console.WriteLine(DailyActivitites.FirstOrDefault());
-        //Console.WriteLine(DailyActivitites.FirstOrDefault().FirstOrDefault().Title);
+        GetDailyActivities(daysToSkip);  
 
     }
 
-    public async Task NextWeek()
+    public void GetDailyActivities(int change)
     {
-        FirstDate = FirstDate.AddDays(5);
+        daysToSkip = daysToSkip + change;       
         DailyActivitites = ActivityItems
-     .Where(a => (a.StartTime.Date >= FirstDate.Date))
-     .OrderBy(a => a.StartTime)
-     .GroupBy(p => p.StartTime.Date)
-     .Select(g => g.ToList())
-     .Take(5).ToList();
+        .Where(a => (a.StartTime.Date >= FirstDate.Date))
+        .OrderBy(a => a.StartTime)
+        .GroupBy(p => p.StartTime.Date)
+        .Select(g => g.ToList())
+        .Skip(daysToSkip)
+        .Take(5).ToList();
+
+        StateHasChanged();
     }
 
-    public async Task PreviousWeek()
+
+    private async Task GetUserCourse()
     {
-        FirstDate = FirstDate.AddDays(-5);
-        DailyActivitites = ActivityItems
-     .Where(a => (a.StartTime.Date >= FirstDate.Date))
-     .OrderBy(a => a.StartTime)
-     .GroupBy(p => p.StartTime.Date)
-     .Select(g => g.ToList())
-     .Take(5).ToList();
+        //get the course for the logged in user, since it's a string try to parse
+        var userCourseIdStr = (await authStateProvider.GetAuthenticationStateAsync()).User.FindFirst("CourseId")?.Value;
+        var userCourseIdInt = 0;
+
+        if (!string.IsNullOrEmpty(userCourseIdStr))
+        {
+            try
+            {
+                userCourseIdInt = Int32.Parse(userCourseIdStr);
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"Unable to parse '{userCourseIdStr}'");
+            }
+
+            if (userCourseIdInt > 0)
+            {
+                await SelectCourse(userCourseIdInt);
+            }
+        }
     }
+
+
+    private async Task SelectCourse(int id)
+    {
+        SelectedCourse = (await lmsClient.GetByIdAsync<CourseDto>(id, "api/courses"));
+        if (SelectedCourse is null)
+        {
+            SelectedCourse = new();
+        }
+        if (string.IsNullOrEmpty(SelectedCourse.Title))
+        {
+            await SelectCourse(1);            
+        }
+       
+        StateHasChanged();
+    }
+
+    public string GetActivityType(int id)
+    {
+        var type = ActivityTypes.FirstOrDefault(a => a.Id == id).Type;
+        return type;
+    }
+
 
 }
+
 
 
 
