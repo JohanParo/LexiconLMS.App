@@ -8,40 +8,28 @@
 
 @attribute [Authorize]
 
-<h1 class="text-end text-muted">@($"{SelectedCourse.Title} {SelectedCourse.StartTime.ToString("yy-MM-dd")} - {SelectedCourse.EndTime.ToString("yy-MM-dd")}")</h1>
+
+<h1 class="text-end text-muted">@($"{SelectedCourse?.Title} {SelectedCourse?.StartTime.ToString("yy-MM-dd")} - {SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</h1>
 
 <h3>Upcoming activities</h3>
 
-@if (daysToSkip==0)
-{
-    <button class="btn btn-primary btn-sm disabled" @onclick="() => GetDailyActivities(-5)">Back</button>
-}
-else
-{
-    <button class="btn btn-primary btn-sm" @onclick="() => GetDailyActivities(-5)">Back</button>
-}
-
-@if (DailyActivitites.Count<5)
-{
-<button class="btn btn-primary btn-sm disabled" @onclick="() => GetDailyActivities(5)">Next</button>    
-}
-else
-{
-<button class="btn btn-primary btn-sm" @onclick="() => GetDailyActivities(5)">Next</button>
-}
-
 
 <div class="container py-7">
+
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-primary btn-sm @(daysToSkip == 0 ? " disabled" : "")" @onclick="() => GetDailyActivities(-takeValue)"><span aria-hidden="true">&laquo;</span></button>
+      <button class="btn btn-primary btn-sm @(DailyActivitites.Count < 5 ? "disabled" : "")" @onclick="() => GetDailyActivities(takeValue)"><span aria-hidden="true">&raquo;</span></button>
+  </div>
     <!-- Days -->
     <div class="row">
         @foreach (var day in DailyActivitites)
         {
             @if (day is not null)
             {
-                <div class="col-lg-@(12/DailyActivitites.Count) mb-3" id="@day.FirstOrDefault().StartTime.ToString("dddd d/M")">
-                    <h4 class="mt-0 mb-3 text-dark op-8 font-weight-bold">@day.FirstOrDefault().StartTime.ToString("dddd d'/'M")</h4>
+                <div class="col-lg-@(12 / DailyActivitites?.Count ?? 1) mb-3" id="@day?.FirstOrDefault()?.StartTime.ToString("dddd d/M")">
+                    <h4 class="mt-0 mb-3 text-dark op-8 font-weight-bold">@($"{day?.FirstOrDefault()?.StartTime.ToString("dddd d'/'M")}")</h4>
                     <ul class="list-timeline list-timeline-primary">
-                        @foreach (var item in day)
+                        @foreach (var item in day!)
                         {
                             @if (item is not null)
                             {
@@ -52,9 +40,9 @@ else
 
                                     <p class="my-0 flex-fw text-xs text-primary op-8" id="day-1-item-1">@item.Title </p>
 
-                                    <h5 class="my-0 text-dark flex-fw text-sm ">
-                                        <span class="text-inverse op-8 font-weight-bold">@GetActivityType(item.ActivityTypeId)</span>
-                                    </h5>
+                                    <h class="my-0 text-dark flex-fw text-sm ">
+                                        <span class="text-inverse op-8"><i>@GetActivityType(item.ActivityTypeId)</i></span>
+                                    </h>
 
                                     <p class="my-0 flex-fw text-xs text-dark op-8" id="day-1-item-1">
                                         @ExtensionsUtils.TrimString(item.Description,100)
@@ -64,10 +52,8 @@ else
                         }
                     </ul>
                 </div>
-
             }
         }
-
     </div>
 </div>
 
@@ -76,43 +62,32 @@ else
 @code {
 
     private CourseDto? SelectedCourse { get; set; } = new();
-    private List<ModuleDto> ModuleItems { get; set; } = new();
     private List<ActivityDto> ActivityItems { get; set; } = new();
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
     private List<List<ActivityDto>> DailyActivitites { get; set; } = new List<List<ActivityDto>>();
-    private DateTime FirstDate { get; set; } = DateTime.Now.AddHours(0);
-    private int daysToSkip { get; set; }
-    private List<DateTime> Dates { get; set; } = new();
+    private DateTime FirstDate { get; set; } = DateTime.Now.AddHours(0);   
+    int daysToSkip { get; set; }
+    int takeValue = 5;
 
 
     protected override async Task OnInitializedAsync()
     {
 
         await GetUserCourse();
-        ModuleItems = SelectedCourse.Modules;
 
-        foreach (var module in ModuleItems)
+        if (SelectedCourse != null && SelectedCourse.Modules != null)
         {
-            ActivityItems.AddRange(module.Activities);
+            ActivityItems = SelectedCourse.Modules
+                .SelectMany(m => m.Activities)
+                .ToList();               
         }
+
 
         ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
 
         GetDailyActivities(daysToSkip);
 
     }
-
-    public void GetCalenderDates(DateTime start)
-    {
-        List<DateTime> Dates = new List<DateTime>();
-        var date = DateTime.Now;
-        for (int i = 0; i < 100; i++)
-        {
-            date.AddDays(i);
-            Dates.Add(date);
-        }
-    }
-
 
     public void GetDailyActivities(int change)
     {
