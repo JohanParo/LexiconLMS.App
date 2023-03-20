@@ -7,8 +7,8 @@ namespace LexiconLMS.App.Server.Models
     public class Module
     {
         public int Id { get; set; }
-        [Required]
-        [StringLength(100, MinimumLength = 2)]
+        [Required(ErrorMessage = "Title is required.")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "{0} must be between {2} and {1} characters")]
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         [Required]
