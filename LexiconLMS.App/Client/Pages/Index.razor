@@ -28,7 +28,21 @@ else
 {
 <PageTitle>@SelectedCourse?.Title</PageTitle>
 
-<h1 class="text-end text-muted">@($"{SelectedCourse?.Title} {SelectedCourse?.StartTime.ToString("yy-MM-dd")} - {SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</h1>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-end text-muted">
+                @SelectedCourse?.Title
+            </h1>
+            <span class="badge bg-primary text-wrap">
+                <span class="d-block">start: @($"{SelectedCourse?.StartTime.ToString("yy-MM-dd")}")</span>
+                <span class="d-block">end: @($"{SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</span>
+            </span>
+        </div>
+
+    </div>
+</div>
+
 
 <AlertComponent />
 <AuthorizeView Roles="Admin">
@@ -36,7 +50,7 @@ else
     @* block for courses table *@
     <BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
         <GroupHeader>Courses</GroupHeader>
-        <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course})">New Course</button></NewButton>
+        <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course, Title="New Course"})'>New Course</button></NewButton>
         <TableTemplate Context="item">
             <tr>
                 <th scope="row">@item.Id</th>
@@ -57,7 +71,7 @@ else
                 <td class="text-end">
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <button class="btn btn-primary btn-sm" @onclick="() => SelectCourse(item.Id)">Select</button>
-                        <button class="btn btn-primary btn-sm" @onclick="() => OpenDialog(new ModalForm(){Id=item.Id,Type=ModalType.Course})">Edit</button>
+                        <button class="btn btn-primary btn-sm" @onclick='() => OpenDialog(new ModalForm(){Id=item.Id,Type=ModalType.Course,Title="Edit Course"})'>Edit</button>
                         @*<button class="btn btn-danger btn-sm" @onclick="() => ModalShow(item.Id)">Delete</button>*@
                     </div>
                 </td>
@@ -69,7 +83,7 @@ else
 @* block for module cards *@
 <BlockGroupTemplate Items="ModuleList" Context="item" Collapsable="false" Cols="4" Id="section-modules">
     <GroupHeader>Modules for @SelectedCourse?.Title</GroupHeader>
-    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Type=ModalType.Module})">New Module</button></NewButton>
+    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Type=ModalType.Module,Title="New Module"})'>New Module</button></NewButton>
     <CardTemplate Context="item">
         <CardModule CardClick="OnModuleSelect" EditClick="OpenDialog" item="item" Muted="true"></CardModule>
     </CardTemplate>
@@ -79,7 +93,7 @@ else
 @* block for activity cards *@
 <BlockGroupTemplate Items="ActivityList" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
     <GroupHeader>My Activities for @SelectedModule?.Title</GroupHeader>
-    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Type=ModalType.Activity})">New Activity</button></NewButton>
+    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Type=ModalType.Activity,Title="New Activity"})'>New Activity</button></NewButton>
     <LinkTemplate>
         <div><a style="cursor:pointer;text-decoration:underline;" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
     </LinkTemplate>
@@ -96,8 +110,8 @@ else
                OnClose="@OnDialogClose"
                Type="@modalType">
         <FormTemplate>
-            <TestForm @ref="editForm" Item="@selectedItem" Parent="@selectedItemParent">
-            </TestForm>
+            <Forms @ref="editForm" Item="@selectedItem">
+            </Forms>
         </FormTemplate>
     </ModalTemplate>
 }
@@ -140,10 +154,9 @@ else
     //to use with the form
     //Copy of dto
     private IEntityDto? selectedItem;
-    private IEntityDto? selectedItemParent;
 
     //reference to the editform and it's members
-    private TestForm? editForm;
+    private Forms? editForm;
 
     //for the modal
     private string caption = string.Empty;
@@ -151,7 +164,7 @@ else
     private ModalTemplate.Category modalType;
 
     //table headers for the course table
-    public List<string> TableHeaderList = new() { "#", "Status", "Title", "Start Time", "End Time", "# Modules", "# Students","" };
+    public List<string> TableHeaderList = new() { "#", "Status", "Title", "Start Time", "End Time", "# Modules", "# Students", "" };
 
 
     protected override async Task OnInitializedAsync()
@@ -198,11 +211,9 @@ else
                 CastItem(parameters.Id, CourseList);
                 break;
             case ModalType.Module:
-                selectedItemParent = SelectedCourse; //this is crap since the selectedCourse isn't always the edited one...
                 CastItem(parameters.Id, ModuleList);
                 break;
             case ModalType.Activity:
-                selectedItemParent = SelectedModule; //same here...
                 CastItem(parameters.Id, ActivityList);
                 break;
         }
@@ -214,34 +225,45 @@ else
     //on modal close - check if cancel is clicked or not, then call save method
     private async Task OnDialogClose(bool isOk)
     {
-        if (isOk)
+        if (editForm is null)
         {
-            if (editForm is null)
-            {
-                throw new ArgumentNullException(nameof(editForm));
-            }
-
-            var type = editForm.Item.GetType().Name;
-
-            @switch (type)
-            {
-                case "CourseDto":
-                    await SaveItem<CourseDto>(editForm.Item.Id, "api/courses", CourseList);
-                    break;
-                case "ModuleDto":
-                    await SaveItem<ModuleDto>(editForm.Item.Id, "api/modules", ModuleList);
-                    break;
-                case "ActivityDto":
-                    await SaveItem<ActivityDto>(editForm.Item.Id, "api/activities", ActivityList);
-                    break;
-            }
-
-            //we can send call to save in form if needed
-            //await editForm.OnSave();
+            throw new ArgumentNullException(nameof(editForm));
         }
 
-        //hide the modal
-        DialogIsOpen = false;
+        if (isOk)
+        {
+            //is form valid?
+            if (editForm.editContext.Validate())
+            {
+                var type = editForm.Item.GetType().Name;
+
+                @switch (type)
+                {
+                    case "CourseDto":
+                        await SaveItem<CourseDto>(editForm.Item.Id, "api/courses", CourseList);
+                        break;
+                    case "ModuleDto":
+                        await SaveItem<ModuleDto>(editForm.Item.Id, "api/modules", ModuleList);
+                        break;
+                    case "ActivityDto":
+                        await SaveItem<ActivityDto>(editForm.Item.Id, "api/activities", ActivityList);
+                        break;
+                }
+
+                //we can send call to save in form if needed
+                //await editForm.OnSave();
+
+                DialogIsOpen = false;
+            }
+
+        }
+        else
+        {
+            //hide the modal
+            DialogIsOpen = false;
+        }
+
+
     }
 
     //cast item to interface to send into the form
