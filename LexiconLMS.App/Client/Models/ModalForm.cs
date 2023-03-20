@@ -1,6 +1,4 @@
-﻿using LexiconLMS.App.Client.DTOs;
-
-namespace LexiconLMS.App.Client.Models
+﻿namespace LexiconLMS.App.Client.Models
 {
     public class ModalForm
     {

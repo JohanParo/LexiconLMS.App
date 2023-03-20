@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using LexiconLMS.App.Client.DTOs;
+using LexiconLMS.App.Shared;
 
 namespace LexiconLMS.App.Client.Services
 {

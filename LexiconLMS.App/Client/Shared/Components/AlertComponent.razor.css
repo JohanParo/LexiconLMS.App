@@ -1,7 +1,8 @@
 ﻿.alert-service {
     position: absolute;
-    top: 4rem;
+/*    top:5rem;*/
     right: 2rem;
+    margin: 0.75rem;
 }
 
 /*    .alert-service span {

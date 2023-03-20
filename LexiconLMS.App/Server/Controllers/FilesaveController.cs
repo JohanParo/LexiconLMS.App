@@ -1,4 +1,4 @@
-﻿namespace BlazorApp1.Server.Controllers
+﻿namespace LexiconLMS.App.Server.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -18,7 +18,7 @@
     [Route("api/Filesave")]
     public class FilesaveController : ControllerBase
     {
-        private String[] allowedExtensions = { ".doc", ".docx", ".jpg", ".gif", ".png", ".bmp", ".txt", ".pdf" };
+        private string[] allowedExtensions = { ".doc", ".docx", ".jpg", ".gif", ".png", ".bmp", ".txt", ".pdf" };
 
         private readonly IWebHostEnvironment env;
         private readonly ILogger<FilesaveController> logger;

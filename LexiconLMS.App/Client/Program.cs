@@ -1,5 +1,3 @@
-using LexiconLMS.App.Client;
-using LexiconLMS.App.Client.DTOs;
 using LexiconLMS.App.Client.Mappings;
 using LexiconLMS.App.Client.Services;
 using Microsoft.AspNetCore.Components.Web;

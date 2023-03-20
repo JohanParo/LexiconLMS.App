@@ -1,4 +1,4 @@
-﻿using LexiconLMS.App.Client.DTOs;
+﻿using LexiconLMS.App.Shared;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 

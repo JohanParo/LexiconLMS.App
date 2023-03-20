@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace LexiconLMS.App.Client.DTOs
+namespace LexiconLMS.App.Shared
 {
-    public class ActivityDto : IEntityDto
+    public class CourseDto : IEntityDto
     {
         public int Id { get; set; }
         [Required]
@@ -18,8 +13,8 @@ namespace LexiconLMS.App.Client.DTOs
         public DateTime StartTime { get; set; }
         [Required]
         public DateTime EndTime { get; set; }
-        [Required]
-        public int ModuleId { get; set; }
-        public int ActivityTypeId { get; set; }
+        public List<ModuleDto>? Modules { get; set; }
+        public List<ApplicationUserDto>? Users { get; set; }
+        public bool Published { get; set; } = true;
     }
 }

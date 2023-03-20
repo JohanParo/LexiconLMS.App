@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace LexiconLMS.App.Client.DTOs
+namespace LexiconLMS.App.Shared
 {
     public class ActivityTypeDto
     {

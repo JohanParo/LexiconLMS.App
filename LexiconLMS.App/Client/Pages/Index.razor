@@ -13,9 +13,9 @@
 @page "/"
 @attribute [Authorize]
 
-<PageTitle>@SelectedCourse.Title</PageTitle>
+<PageTitle>@SelectedCourse?.Title</PageTitle>
 
-<h1 class="text-end text-muted">@($"{SelectedCourse.Title} {SelectedCourse.StartTime.ToString("yy-MM-dd")} - {SelectedCourse.EndTime.ToString("yy-MM-dd")}")</h1>
+<h1 class="text-end text-muted">@($"{SelectedCourse?.Title} {SelectedCourse?.StartTime.ToString("yy-MM-dd")} - {SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</h1>
 
 <AlertComponent />
 <AuthorizeView Roles="Admin">
@@ -27,11 +27,20 @@
         <TableTemplate Context="item">
             <tr>
                 <th scope="row">@item.Id</th>
-                <td><span class="badge bg-success">Published</span></td>
+                @if (item.Published)
+                {
+                    <td><span class="badge bg-success">Active</span></td>
+                }
+                else
+                {
+                    <td><span class="badge bg-secondary">Inactive</span></td>
+                }
+
                 <td><span class="fw-bold">@item.Title</span></td>
                 <td>@item.StartTime</td>
                 <td>@item.EndTime</td>
                 <td>@item.Modules.Count</td>
+                <td>@item.Users.Count</td>
                 <td class="text-end">
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <button class="btn btn-primary btn-sm" @onclick="() => SelectCourse(item.Id)">Select</button>
@@ -46,7 +55,7 @@
 
 @* block for module cards *@
 <BlockGroupTemplate Items="ModuleList" Context="item" Collapsable="false" Cols="4" Id="section-modules">
-    <GroupHeader>Modules for @SelectedCourse.Title</GroupHeader>
+    <GroupHeader>Modules for @SelectedCourse?.Title</GroupHeader>
     <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Type=ModalType.Module})">New Module</button></NewButton>
     <CardTemplate Context="item">
         <CardModule CardClick="OnModuleSelect" EditClick="OpenDialog" item="item" Muted="true"></CardModule>
@@ -56,7 +65,7 @@
 
 @* block for activity cards *@
 <BlockGroupTemplate Items="ActivityList" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
-    <GroupHeader>My Activities for @SelectedModule.Title</GroupHeader>
+    <GroupHeader>My Activities for @SelectedModule?.Title</GroupHeader>
     <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick="() => OpenDialog(new ModalForm(){Type=ModalType.Activity})">New Activity</button></NewButton>
     <LinkTemplate>
         <div><a style="cursor:pointer;text-decoration:underline;" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
@@ -101,7 +110,7 @@
     {
         get
         {
-            if (SelectedModule.Id == 0)
+            if (SelectedModule?.Id == 0)
             {
                 SelectedModule = ModuleList.FirstOrDefault() ?? new();
             }
@@ -129,7 +138,7 @@
     private ModalTemplate.Category modalType;
 
     //table headers for the course table
-    public List<string> TableHeaderList = new() { "#", "Status", "Title", "Start Time", "End Time", "# Modules", "" };
+    public List<string> TableHeaderList = new() { "#", "Status", "Title", "Start Time", "End Time", "# Modules", "# Students","" };
 
 
     protected override async Task OnInitializedAsync()
@@ -233,7 +242,6 @@
         {
             var temp = itemList.FirstOrDefault(m => m.Id == id);
             selectedListItem = mapper.Map<T>(temp);
-            var same = temp.Equals(selectedListItem);
         }
 
         //set as selected item
@@ -260,14 +268,12 @@
         //set the selected to the edited one and update activities
         var editedItem = itemList.FirstOrDefault(m => m.Id == id);
 
-        //--- make not found insert new thing...
         if (editedItem is null)
         {
             editedItem = new T();
             editedItem = mapper.Map<T>(formItem);
             var newItem = await lmsClient.PostAsync(editedItem, endpoint);
 
-            //----------if newItem = null ?? ----------
             if (newItem is null)
             {
                 messageString = $"The post failed";
@@ -296,24 +302,17 @@
 
                 var index = itemList.IndexOf(itemList.First(a => a.Id == formItem.Id));
 
-                //get list again for courses, not sure why it doesn't update
                 if (formItem is CourseDto cdto)
                 {
                     CourseList[index] = cdto;
-                    //await UpdateCourseList();
-                    //CourseList = (await lmsClient.GetAsync<CourseDto>(endpoint)).ToList(); // To directly see the updated item in list
                 }
                 else if (formItem is ModuleDto mdto)
                 {
-                    //await UpdateModuleList();
-                    //ModuleList = (await lmsClient.GetAsync<ModuleDto>(endpoint)).Where(m => m.CourseId.Equals(SelectedCourse.Id)).ToList(); // To directly see the updated item in list
                     ModuleList[index] = mdto;
                 }
                 else if (formItem is ActivityDto dto)
                 {
                     ActivityList[index] = dto;
-                    //UpdateActivitiesList();
-                    //ActivityItems = (await lmsClient.GetAsync<ActivityDto>(endpoint)).Where(m => m.ModuleId.Equals(SelectedModule.Id)).OrderBy(a => a.StartTime).ToList(); // To directly see the updated item in list
                 }
             }
             else
@@ -351,32 +350,18 @@
             await SelectCourse(1);
         }
 
-        // ModuleList = SelectedCourse!.Modules;
-
         if (ModuleList.Count == 0)
         {
             SelectedModule = new();
-            //ActivityList = new();
         }
         else
         {
             SelectedModule = ModuleList.FirstOrDefault();
-            //UpdateActivitiesList();
         }
         StateHasChanged();
 
     }
 
-    private void UpdateActivitiesList()
-    {
-        //if (SelectedModule != null && SelectedModule.Activities != null)
-        if (SelectedModule != null)
-        {
-            //ActivityList = ModuleList.FirstOrDefault(m => m.Id == SelectedModule?.Id, new()).Activities ?? new();
-            //ActivityList = SelectedModule.Activities.OrderBy(a => a.StartTime).OrderBy(a => a.StartTime).ToList();
-        }
-        StateHasChanged();
-    }
 
     private async Task SelectCourse(int id)
     {
@@ -388,11 +373,9 @@
         if (string.IsNullOrEmpty(SelectedCourse.Title))
         {
             await SelectCourse(1);
-            //SelectedCourse = (await lmsClient.GetByIdAsync<CourseDto>(1, "api/courses"));
         }
 
         await UpdateModuleList();
-        //UpdateActivitiesList();
         StateHasChanged();
     }
 
@@ -400,8 +383,6 @@
     private async Task OnModuleSelect(int id)
     {
         SelectedModule = ModuleList.FirstOrDefault(m => m.Id == id);
-
-        //UpdateActivitiesList();
 
         await JsRuntime.InvokeVoidAsync("setSelected", $"card-{SelectedModule.Title}");
         await JsRuntime.InvokeVoidAsync("scrollIntoView", "section-activities");
