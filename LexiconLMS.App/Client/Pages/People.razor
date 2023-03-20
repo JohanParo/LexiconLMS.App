@@ -20,6 +20,16 @@
     <p>You have an 'Admin' role claim.</p>
 </AuthorizeView>*@
 
+@if (Course.Id == 0)
+{
+    <p><em>Loading...</em></p>
+
+    <div class="spinner-border" role="status">
+        <span class="sr-only"></span>
+    </div>
+}
+else
+{
 <h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
 
 <BlockGroupTemplate Items="UserItems" Context="item" Collapsable="true" Cols="6">
@@ -28,7 +38,7 @@
         <CardContact user="item"></CardContact>
     </CardTemplate>
 </BlockGroupTemplate>
-
+}
 
 @*<h1 class="text-end text-muted">.Net Core 2022-2023</h1>
 <CardGroupPeople title="Teachers" cols="4"></CardGroupPeople>

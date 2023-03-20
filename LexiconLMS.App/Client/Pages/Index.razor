@@ -13,6 +13,17 @@
 @page "/"
 @attribute [Authorize]
 
+
+@if (SelectedCourse.Id == 0)
+{
+    <p><em>Loading...</em></p>
+
+    <div class="spinner-border" role="status">
+        <span class="sr-only"></span>      
+    </div>
+}
+else
+{
 <PageTitle>@SelectedCourse?.Title</PageTitle>
 
 <h1 class="text-end text-muted">@($"{SelectedCourse?.Title} {SelectedCourse?.StartTime.ToString("yy-MM-dd")} - {SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</h1>
@@ -88,7 +99,7 @@
         </FormTemplate>
     </ModalTemplate>
 }
-
+}
 
 @code {
     //the lists of items
