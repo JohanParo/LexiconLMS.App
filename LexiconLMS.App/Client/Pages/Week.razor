@@ -17,13 +17,23 @@
 }
 else
 {
-    <h1 class="text-end text-muted">@($"{SelectedCourse?.Title} {SelectedCourse?.StartTime.ToString("yyyy-MM-dd")} - {SelectedCourse?.EndTime.ToString("yyyy-MM-dd")}")</h1>
 
+    <div class="container">
+        <div class="align-middle d-flex  flex-row  justify-content-end align-items-center">
+            <h1 class="text-muted pe-2 ">
+                @SelectedCourse.Title
+            </h1>
+            <span class="badge text-muted py-auto align-middle ps-2">
+                <span class="d-block">@($"{SelectedCourse?.StartTime.ToString("yy-MM-dd")}")</span>
+                <span class="d-block">@($"{SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</span>
+            </span>
+        </div>
+    </div>
     <h3>Upcoming activities</h3>
 
-    <div class="container py-7">        
-        <div class="row mt-5 mb-5">           
-            <div class="text-start">             
+    <div class="container py-7">
+        <div class="row mt-5 mb-5">
+            <div class="text-start">
                 <button class="btn btn-primary btn-sm @(daysToSkip == 0 ? " disabled" : "")" @onclick="() => GetDailyActivities(-5)"><span aria-hidden="true">&laquo;</span></button>
                 <button class="btn btn-primary btn-sm @(DailyActivitites.Count < 5 ? "disabled" : "")" @onclick="() => GetDailyActivities(5)"><span aria-hidden="true">&raquo;</span></button>
             </div>
@@ -33,7 +43,7 @@ else
                 @if (day is not null)
                 {
                     <div class="col-lg-@(12 / DailyActivitites?.Count ?? 1) mb-3" id="@day?.FirstOrDefault()?.StartTime.ToString("dddd d/M")">
-                        <h4 class="mt-0 mb-3 text-dark op-8 font-weight-bold">@($"{day?.FirstOrDefault()?.StartTime.ToString("dddd d'/'M")}")</h4>          
+                        <h4 class="mt-0 mb-3 text-dark op-8 font-weight-bold">@($"{day?.FirstOrDefault()?.StartTime.ToString("dddd d'/'M")}")</h4>
                         <ul class="list-timeline list-timeline-primary">
                             @foreach (var item in day!)
                             {
@@ -72,8 +82,8 @@ else
     private List<ActivityDto> ActivityItems { get; set; } = new();
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
     private List<List<ActivityDto>> DailyActivitites { get; set; } = new List<List<ActivityDto>>();
-    private DateTime FirstDate { get; set; } = DateTime.Now.AddHours(0);   
-    int daysToSkip { get; set; }    
+    private DateTime FirstDate { get; set; } = DateTime.Now.AddHours(0);
+    int daysToSkip { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -85,10 +95,10 @@ else
         {
             ActivityItems = SelectedCourse.Modules
                 .SelectMany(m => m.Activities)
-                .ToList();               
-        }       
+                .ToList();
+        }
 
-        
+
         GetDailyActivities(0);
 
     }
@@ -142,11 +152,11 @@ else
         }
         if (string.IsNullOrEmpty(SelectedCourse.Title))
         {
-            await SelectCourse(1);            
+            await SelectCourse(1);
         }
-       
+
         StateHasChanged();
-    }  
+    }
 }
 
 

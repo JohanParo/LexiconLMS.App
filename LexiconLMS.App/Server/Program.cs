@@ -1,5 +1,6 @@
 using Duende.IdentityServer.Services;
 using LexiconLMS.App.Server.Data;
+using LexiconLMS.App.Server.Extensions;
 using LexiconLMS.App.Server.Mappings;
 using LexiconLMS.App.Server.Models;
 using LexiconLMS.App.Server.Services;

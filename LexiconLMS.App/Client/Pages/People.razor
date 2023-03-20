@@ -30,14 +30,25 @@
 }
 else
 {
-<h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
 
-<BlockGroupTemplate Items="UserItems" Context="item" Collapsable="true" Cols="6">
-    <GroupHeader>Students</GroupHeader>
-    <CardTemplate Context="item">
-        <CardContact user="item"></CardContact>
-    </CardTemplate>
-</BlockGroupTemplate>
+    <div class="container">
+        <div class="align-middle d-flex  flex-row  justify-content-end align-items-center">
+            <h1 class="text-muted pe-2 ">
+                @Course.Title
+            </h1>
+            <span class="badge text-muted py-auto align-middle ps-2">
+                <span class="d-block">@($"{Course?.StartTime.ToString("yy-MM-dd")}")</span>
+                <span class="d-block">@($"{Course?.EndTime.ToString("yy-MM-dd")}")</span>
+            </span>
+        </div>
+    </div>
+
+    <BlockGroupTemplate Items="UserItems" Context="item" Collapsable="true" Cols="6">
+        <GroupHeader>Students</GroupHeader>
+        <CardTemplate Context="item">
+            <CardContact user="item"></CardContact>
+        </CardTemplate>
+    </BlockGroupTemplate>
 }
 
 @*<h1 class="text-end text-muted">.Net Core 2022-2023</h1>

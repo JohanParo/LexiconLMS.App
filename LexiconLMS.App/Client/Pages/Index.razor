@@ -19,100 +19,96 @@
     <p><em>Loading...</em></p>
 
     <div class="spinner-border" role="status">
-        <span class="sr-only"></span>      
+        <span class="sr-only"></span>
     </div>
 }
 else
 {
-<PageTitle>@SelectedCourse?.Title</PageTitle>
+    <PageTitle>@SelectedCourse?.Title</PageTitle>
 
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <h1 class="text-end text-muted">
+    <div class="container">
+        <div class="align-middle d-flex  flex-row  justify-content-end align-items-center">
+            <h1 class="text-muted pe-2 ">
                 @SelectedCourse?.Title
             </h1>
-            <span class="badge bg-primary text-wrap">
-                <span class="d-block">start: @($"{SelectedCourse?.StartTime.ToString("yy-MM-dd")}")</span>
-                <span class="d-block">end: @($"{SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</span>
+            <span class="badge text-muted py-auto align-middle ps-2">
+                <span class="d-block">@($"{SelectedCourse?.StartTime.ToString("yy-MM-dd")}")</span>
+                <span class="d-block">@($"{SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</span>
             </span>
         </div>
-
     </div>
-</div>
 
+    <AlertComponent />
+    <AuthorizeView Roles="Admin">
 
-<AlertComponent />
-<AuthorizeView Roles="Admin">
+        @* block for courses table *@
+        <BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
+            <GroupHeader>Courses</GroupHeader>
+            <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course, Title="New Course"})'>New Course</button></NewButton>
+            <TableTemplate Context="item">
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    @if (item.Published)
+                    {
+                        <td><span class="badge bg-success">Active</span></td>
+                    }
+                    else
+                    {
+                        <td><span class="badge bg-secondary">Inactive</span></td>
+                    }
 
-    @* block for courses table *@
-    <BlockGroupTemplate Items="CourseList" Context="item" Collapsable="false" Cols="1" Id="section-courses" TableHeaders="TableHeaderList">
-        <GroupHeader>Courses</GroupHeader>
-        <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Id=0,Type=ModalType.Course, Title="New Course"})'>New Course</button></NewButton>
-        <TableTemplate Context="item">
-            <tr>
-                <th scope="row">@item.Id</th>
-                @if (item.Published)
-                {
-                    <td><span class="badge bg-success">Active</span></td>
-                }
-                else
-                {
-                    <td><span class="badge bg-secondary">Inactive</span></td>
-                }
+                    <td><span class="fw-bold">@item.Title</span></td>
+                    <td>@item.StartTime.ToString("yyyy-MM-dd")</td>
+                    <td>@item.EndTime.ToString("yyyy-MM-dd")</td>
+                    <td>@item.Modules.Count</td>
+                    <td>@item.Users.Count</td>
+                    <td class="text-end">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-primary btn-sm" @onclick="() => SelectCourse(item.Id)">Select</button>
+                            <button class="btn btn-primary btn-sm" @onclick='() => OpenDialog(new ModalForm(){Id=item.Id,Type=ModalType.Course,Title="Edit Course"})'>Edit</button>
+                            @*<button class="btn btn-danger btn-sm" @onclick="() => ModalShow(item.Id)">Delete</button>*@
+                        </div>
+                    </td>
+                </tr>
+            </TableTemplate>
+        </BlockGroupTemplate>
+    </AuthorizeView>
 
-                <td><span class="fw-bold">@item.Title</span></td>
-                <td>@item.StartTime</td>
-                <td>@item.EndTime</td>
-                <td>@item.Modules.Count</td>
-                <td>@item.Users.Count</td>
-                <td class="text-end">
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button class="btn btn-primary btn-sm" @onclick="() => SelectCourse(item.Id)">Select</button>
-                        <button class="btn btn-primary btn-sm" @onclick='() => OpenDialog(new ModalForm(){Id=item.Id,Type=ModalType.Course,Title="Edit Course"})'>Edit</button>
-                        @*<button class="btn btn-danger btn-sm" @onclick="() => ModalShow(item.Id)">Delete</button>*@
-                    </div>
-                </td>
-            </tr>
-        </TableTemplate>
+    @* block for module cards *@
+    <BlockGroupTemplate Items="ModuleList" Context="item" Collapsable="false" Cols="4" Id="section-modules">
+        <GroupHeader>Modules for @SelectedCourse?.Title</GroupHeader>
+        <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Type=ModalType.Module,Title="New Module"})'>New Module</button></NewButton>
+        <CardTemplate Context="item">
+            <CardModule CardClick="OnModuleSelect" EditClick="OpenDialog" item="item" Muted="true"></CardModule>
+        </CardTemplate>
     </BlockGroupTemplate>
-</AuthorizeView>
-
-@* block for module cards *@
-<BlockGroupTemplate Items="ModuleList" Context="item" Collapsable="false" Cols="4" Id="section-modules">
-    <GroupHeader>Modules for @SelectedCourse?.Title</GroupHeader>
-    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Type=ModalType.Module,Title="New Module"})'>New Module</button></NewButton>
-    <CardTemplate Context="item">
-        <CardModule CardClick="OnModuleSelect" EditClick="OpenDialog" item="item" Muted="true"></CardModule>
-    </CardTemplate>
-</BlockGroupTemplate>
 
 
-@* block for activity cards *@
-<BlockGroupTemplate Items="ActivityList" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
-    <GroupHeader>My Activities for @SelectedModule?.Title</GroupHeader>
-    <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Type=ModalType.Activity,Title="New Activity"})'>New Activity</button></NewButton>
-    <LinkTemplate>
-        <div><a style="cursor:pointer;text-decoration:underline;" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
-    </LinkTemplate>
-    <CardTemplate Context="item">
-        <CardModule EditClick="OpenDialog" item="item" Shadow="true" Muted="false" Time="true"></CardModule>
-    </CardTemplate>
-</BlockGroupTemplate>
+    @* block for activity cards *@
+    <BlockGroupTemplate Items="ActivityList" Context="item" Collapsable="false" Cols="1" Id="section-activities" Links="true">
+        <GroupHeader>My Activities for @SelectedModule?.Title</GroupHeader>
+        <NewButton><button class="btn btn-primary btn-sm ms-4" @onclick='() => OpenDialog(new ModalForm(){Type=ModalType.Activity,Title="New Activity"})'>New Activity</button></NewButton>
+        <LinkTemplate>
+            <div><a style="cursor:pointer;text-decoration:underline;" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></div>
+        </LinkTemplate>
+        <CardTemplate Context="item">
+            <CardModule EditClick="OpenDialog" item="item" Shadow="true" Muted="false" Time="true"></CardModule>
+        </CardTemplate>
+    </BlockGroupTemplate>
 
 
 
-@if (DialogIsOpen)
-{
-    <ModalTemplate Caption="@caption"
+    @if (DialogIsOpen)
+    {
+        <ModalTemplate Caption="@caption"
                OnClose="@OnDialogClose"
                Type="@modalType">
-        <FormTemplate>
-            <Forms @ref="editForm" Item="@selectedItem">
-            </Forms>
-        </FormTemplate>
-    </ModalTemplate>
-}
+            <FormTemplate>
+                <Forms @ref="editForm" Item="@selectedItem">
+                </Forms>
+            </FormTemplate>
+        </ModalTemplate>
+    }
 }
 
 @code {
