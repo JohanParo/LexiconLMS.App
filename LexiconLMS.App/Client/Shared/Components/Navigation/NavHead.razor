@@ -15,8 +15,10 @@
                     <li class="nav-item"><NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink></li>
                     <AuthorizeView>
                         <li class="nav-item"><NavLink class="nav-link" href="people">People</NavLink></li>
-                        <li class="nav-item"><NavLink class="nav-link" href="week">Week</NavLink></li>
                          <li class="nav-item"><NavLink class="nav-link" href="file-upload-2">Files</NavLink></li>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Student">
+                        <li class="nav-item"><NavLink class="nav-link" href="week">Week</NavLink></li>
                     </AuthorizeView>
 @*                    <AuthorizeView Roles="Admin">*@
 @*                        <li class="nav-item"><NavLink class="nav-link" href="courses">Courses</NavLink></li>*@
