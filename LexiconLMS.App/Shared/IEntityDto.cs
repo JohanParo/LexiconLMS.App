@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using RequiredAttribute = System.ComponentModel.DataAnnotations.RequiredAttribute;
 
 namespace LexiconLMS.App.Shared
 {
@@ -6,7 +7,7 @@ namespace LexiconLMS.App.Shared
     {
         int Id { get; set; }
         [Required]
-        [StringLength(100, MinimumLength = 2)]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "{0} must be between {2} and {1} characters")]
         string Title { get; set; } 
         string Description { get; set; }
         [Required]

@@ -44,7 +44,7 @@
                                         <p class="my-0 flex-fw text-xs text-primary op-8" id="day-1-item-1">@item.Title </p>
 
                                         <h class="my-0 text-dark flex-fw text-sm ">
-                                            <span class="text-inverse op-8"><i>@GetActivityType(item.ActivityTypeId)</i></span>
+                                            <span class="text-inverse op-8"><i>@item.ActivityTypeType</i></span>
                                         </h>
 
                                         <p class="my-0 flex-fw text-xs text-dark op-8" id="day-1-item-1">
@@ -92,7 +92,6 @@ else
         ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
 
         GetDailyActivities(daysToSkip);
-
     }
 
     public void GetDailyActivities(int takeValue)

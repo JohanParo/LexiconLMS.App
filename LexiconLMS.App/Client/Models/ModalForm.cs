@@ -3,7 +3,7 @@
     public class ModalForm
     {
         public int Id { get; set; }
-        public string Title { get; set; } = "Update this one...";
+        public string Title { get; set; } = "Edit";
         public ModalType Type { get; set; }
 
 
