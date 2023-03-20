@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LexiconLMS.App.Server.Data;
 using LexiconLMS.App.Server.Models;
+using LexiconLMS.App.Shared;
+using AutoMapper;
 
 namespace LexiconLMS.App.Server.Controllers
 {
@@ -15,10 +17,12 @@ namespace LexiconLMS.App.Server.Controllers
     public class ModulesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ModulesController(ApplicationDbContext context)
+        public ModulesController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Modules
@@ -34,20 +38,22 @@ namespace LexiconLMS.App.Server.Controllers
 
         // GET: api/Modules/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Module>> GetModule(int id)
+        public async Task<ActionResult<ModuleDto>> GetModule(int id)
         {
           if (_context.Module == null)
           {
               return NotFound();
           }
-            var @module = await _context.Module.FindAsync(id);
+            var module = await _context.Module.Include(m=>m.Activities).ThenInclude(a=>a.ActivityType).FirstOrDefaultAsync(m=>m.Id==id);
 
-            if (@module == null)
+            if (module == null)
             {
                 return NotFound();
             }
 
-            return @module;
+            var result = _mapper.Map<ModuleDto>(module);
+
+            return result;
         }
 
         // PUT: api/Modules/5

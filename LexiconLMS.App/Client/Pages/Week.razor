@@ -31,7 +31,7 @@
                                         <a href="@item.Id" class="stretched-link">@item.Title</a>
                                     </p>
                                     <p class="my-0 text-dark flex-fw text-sm ">
-                                        <span class="text-inverse op-8">@item.ActivityTypeId</span>
+                                        <span class="text-inverse op-8 fst-italic">@item.ActivityTypeType</span>
                                     </p>                                   
                                     <p class="my-0 flex-fw text-xs text-dark op-8" id="day-1-item-1">
                                         @ExtensionsUtils.TrimString(item.Description,100)
@@ -58,7 +58,7 @@
     private List<ModuleDto> ModuleItems { get; set; } = new();
     private List<ActivityDto> ActivityItems { get; set; } = new();
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
-   
+
 
 
     private List<List<ActivityDto>> DailyActivitites { get; set; } = new List<List<ActivityDto>>();
@@ -68,10 +68,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var test = (await lmsClient.GetByIdAsync<ModuleDto>(1, "api/modules"));
+        var test2 = test.Activities;
         Course = (await lmsClient.GetByIdAsync<CourseDto>(1, "api/courses"));
+
         ModuleItems = Course.Modules;
-        SelectedModule = ModuleItems.FirstOrDefault();
+        SelectedModule = Course.Modules.FirstOrDefault();
         ActivityItems = SelectedModule.Activities;
+
         ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
 
     

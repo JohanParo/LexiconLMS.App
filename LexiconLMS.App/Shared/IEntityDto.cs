@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LexiconLMS.App.Client.DTOs
+namespace LexiconLMS.App.Shared
 {
     public interface IEntityDto
     {
@@ -13,5 +13,6 @@ namespace LexiconLMS.App.Client.DTOs
         DateTime StartTime { get; set; }
         [Required]
         DateTime EndTime { get; set; }
+        bool Published { get; set; }
     }
 }

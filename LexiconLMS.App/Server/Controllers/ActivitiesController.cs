@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LexiconLMS.App.Server.Data;
 using LexiconLMS.App.Server.Models;
+using AutoMapper;
+using LexiconLMS.App.Shared;
 
 namespace LexiconLMS.App.Server.Controllers
 {
@@ -15,39 +17,43 @@ namespace LexiconLMS.App.Server.Controllers
     public class ActivitiesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ActivitiesController(ApplicationDbContext context)
+        public ActivitiesController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Activities
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Activity>>> GetActivity()
+        public async Task<ActionResult<IEnumerable<ActivityDto>>> GetActivity()
         {
           if (_context.Activity == null)
           {
               return NotFound();
           }
-            return await _context.Activity.ToListAsync();
+            IEnumerable<Activity> result = await _context.Activity.ToListAsync();
+            return Ok(_mapper.Map<IEnumerable<Activity>>(result));
         }
 
         // GET: api/Activities/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Activity>> GetActivity(int id)
+        public async Task<ActionResult<ActivityDto>> GetActivity(int id)
         {
           if (_context.Activity == null)
           {
               return NotFound();
           }
-            var activity = await _context.Activity.FindAsync(id);
+            var activity = await _context.Activity.Include(a => a.ActivityType).FirstOrDefaultAsync(a=>a.Id==id);
 
             if (activity == null)
             {
                 return NotFound();
             }
+            ActivityDto model = _mapper.Map<ActivityDto>(activity);
 
-            return activity;
+            return Ok(model);
         }
 
         // PUT: api/Activities/5

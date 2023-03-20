@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace LexiconLMS.App.Server.Models
+namespace LexiconLMS.App.Shared
 {
-#nullable disable
-    public class Activity
+    public class ActivityDto : IEntityDto
     {
         public int Id { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 2)]
         public string Title { get; set; } = string.Empty;
-
         public string Description { get; set; } = string.Empty;
 
         [Required]
@@ -29,8 +22,7 @@ namespace LexiconLMS.App.Server.Models
 
         [Required]
         public int ActivityTypeId { get; set; }
-        public ActivityType ActivityType { get; set; }
-
+        public string ActivityTypeType { get; set; } = string.Empty;
         public bool Published { get; set; } = true;
     }
 

@@ -1,57 +1,102 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
 using LexiconLMS.App.Server.Data;
 using LexiconLMS.App.Server.Models;
+using LexiconLMS.App.Shared;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace LexiconLMS.App.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CoursesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
-        public CoursesController(ApplicationDbContext context)
+        private readonly IMapper _mapper;
+        public CoursesController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Courses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourse()
         {
-          if (_context.Course == null)
-          {
-              return NotFound();
-          }
-            return await _context.Course.Include(c => c.Modules).ThenInclude(m => m.Activities).ToListAsync();
+
+
+            if (_context.Course == null)
+            {
+                return NotFound();
+            }
+            var result = await _context.Course.Include(c=>c.Users).Include(c => c.Modules)
+                .ThenInclude(m => m.Activities).ThenInclude(a => a.ActivityType)
+                .ToListAsync();
+
+            var mappedResult = _mapper.Map<IEnumerable<CourseDto>>(result);
+            var userRole = HttpContext.User.Claims.FirstOrDefault(u => u.Type.Contains("role"))?.Value;
+            if (userRole != "Admin")
+            {
+                // mappedResult = mappedResult.Where(r => r.Published && r.Modules.Any(m => m.Published) && r.Modules.SelectMany(m => m.Activities).Any(a => a.Published))
+                //.Select(r => new CourseDto
+                //{
+                //    Id = r.Id,
+                //    Title = r.Title,
+                //    Description = r.Description,
+                //    StartTime = r.StartTime,
+                //    EndTime = r.EndTime,
+                //    Published = r.Published,
+                //    Modules = r.Modules.Where(m => m.Published)
+                //                       .Select(m => new ModuleDto
+                //                       {
+                //                           Id = m.Id,
+                //                           Title = m.Title,
+                //                           Description = m.Description,
+                //                           StartTime = m.StartTime,
+                //                           EndTime = m.EndTime,
+                //                           CourseId = m.CourseId,
+                //                           Published = m.Published,
+                //                           Activities = m.Activities.Where(a => a.Published).ToList()
+                //                       }).ToList()
+                //}).ToList();
+
+                var amappedResult = mappedResult.Where(r => r.Published && r.Modules.Any(m => m.Published) && r.Modules.SelectMany(m => m.Activities).Any(a => a.Published))
+               .Select(r => _mapper.Map<StudentCourseDto>(r))
+               .ToList();
+
+                mappedResult = _mapper.Map<IEnumerable<CourseDto>>(amappedResult);
+            } 
+            
+
+            return Ok(mappedResult);
         }
 
         // GET: api/Courses/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetCourse(int id)
+        public async Task<ActionResult<CourseDto>> GetCourse(int id)
         {
-          if (_context.Course == null)
-          {
-              return NotFound();
-          }
+            if (_context.Course == null)
+            {
+                return NotFound();
+            }
             //var course = await _context.Course.FindAsync(id);
             var course = await _context.Course
-                .Include(c=>c.Users)
-                .Include(c => c.Modules).ThenInclude(m=>m.Activities)
-                .FirstOrDefaultAsync(i=>i.Id==id);
+                .Include(c => c.Users)
+                .Include(c => c.Modules).ThenInclude(m => m.Activities).ThenInclude(a => a.ActivityType)
+                .FirstOrDefaultAsync(i => i.Id == id);
 
             if (course == null)
             {
                 return NotFound();
             }
+            var temp = _mapper.Map<CourseDto>(course);
 
-            return course;
+            return Ok(temp);
+            //return course;
         }
 
         // PUT: api/Courses/5
@@ -90,10 +135,10 @@ namespace LexiconLMS.App.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Course>> PostCourse(Course course)
         {
-          if (_context.Course == null)
-          {
-              return Problem("Entity set 'ApplicationDbContext.Course'  is null.");
-          }
+            if (_context.Course == null)
+            {
+                return Problem("Entity set 'ApplicationDbContext.Course'  is null.");
+            }
             _context.Course.Add(course);
             await _context.SaveChangesAsync();
 

@@ -4,14 +4,21 @@
 <div class="card h-100 @(Shadow?"shadow":"") @(Muted?"opacity-75":"")" id="card-@item.Title">
     <svg class="bd-placeholder-img card-img-top opacity-75" width="100%" height="6" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="@color"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em"></text></svg>
     <div class="card-body" style="position:relative;">
-        <h5 class="card-title"><a @onclick="() => OnClick(item.Id)" class="stretched-link text-decoration-none text-reset" style="cursor:pointer;">@item.Title</a></h5>
+        <h5 class="card-title">
+            <a @onclick="() => OnClick(item.Id)" class="stretched-link text-decoration-none text-reset" style="cursor:pointer;">@item.Title</a>
+                <AuthorizeView Roles="Admin">
+            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-@(item.Published?"success":"secondary") border border-light rounded-circle">
+                <span class="visually-hidden">Published</span>
+            </span>
+            </AuthorizeView>
+        </h5>
         <small class="text-muted">@item.StartTime.ToString(dateString) - @item.EndTime.ToString(dateString)</small>
         <p>
             @ExtensionsUtils.TrimString(@item.Description,200)
         </p>
     </div>
     <AuthorizeView Roles="Admin">
-            <button class="btn btn-primary btn-sm" @onclick="() => OnEditClick(item.Id)">Edit</button>
+        <button class="btn btn-primary btn-sm" @onclick="() => OnEditClick(item.Id)">Edit</button>
     </AuthorizeView>
 
 </div>
@@ -68,9 +75,9 @@
     string color { get; set; } = "#868e96";
     protected override void OnInitialized()
     {
-        if (Time==true)
+        if (Time == true)
         {
-            dateString="yy-MM-dd HH:dd";
+            dateString = "yy-MM-dd HH:dd";
         }
         color = String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
     }

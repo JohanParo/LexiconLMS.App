@@ -1,0 +1,4 @@
+﻿.inactive-card {
+    filter: grayscale(100%);
+    pointer-events: none;
+}

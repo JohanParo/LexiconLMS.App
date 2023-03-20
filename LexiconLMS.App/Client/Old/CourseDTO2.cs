@@ -1,4 +1,4 @@
-﻿namespace LexiconLMS.App.Client
+﻿namespace LexiconLMS.App.Client.Old
 {
     public class CourseDTO2
     {

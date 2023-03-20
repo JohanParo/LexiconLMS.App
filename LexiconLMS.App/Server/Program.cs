@@ -1,6 +1,6 @@
 using Duende.IdentityServer.Services;
 using LexiconLMS.App.Server.Data;
-using LexiconLMS.App.Server.Extensions;
+using LexiconLMS.App.Server.Mappings;
 using LexiconLMS.App.Server.Models;
 using LexiconLMS.App.Server.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -50,6 +50,8 @@ namespace LexiconLMS.App.Server
 
             builder.Services.AddAuthentication()
                 .AddIdentityServerJwt();
+
+            builder.Services.AddAutoMapper(typeof(LmsMappings));
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
