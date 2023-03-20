@@ -10,9 +10,7 @@
 
 @if (SelectedCourse.Id != 0)
 {
-    <h1 class="text-end text-muted">@(
-    $"{SelectedCourse?.Title} {SelectedCourse?.StartTime.ToString("yy-MM-dd")} - {SelectedCourse?.EndTime.ToString("yy-MM-dd")}"
-    )</h1>
+    <h1 class="text-end text-muted">@($"{SelectedCourse?.Title} {SelectedCourse?.StartTime.ToString("yy-MM-dd")} - {SelectedCourse?.EndTime.ToString("yy-MM-dd")}")</h1>
 
     <h3>Upcoming activities</h3>
 
@@ -97,16 +95,16 @@ else
 
     }
 
-    public void GetDailyActivities(int change)
+    public void GetDailyActivities(int takeValue)
     {
-        daysToSkip = daysToSkip + change;
+        daysToSkip = daysToSkip + takeValue;
         DailyActivitites = ActivityItems
         .Where(a => (a.StartTime.Date >= FirstDate.Date))
         .OrderBy(a => a.StartTime)
         .GroupBy(p => p.StartTime.Date)
         .Select(g => g.ToList())
         .Skip(daysToSkip)
-        .Take(5).ToList();
+        .Take(takeValue).ToList();
 
         StateHasChanged();
     }
