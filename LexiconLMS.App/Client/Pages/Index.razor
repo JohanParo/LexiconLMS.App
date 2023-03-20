@@ -83,8 +83,8 @@
                OnClose="@OnDialogClose"
                Type="@modalType">
         <FormTemplate>
-            <TestForm @ref="editForm" Item="@selectedItem" Parent="@selectedItemParent">
-            </TestForm>
+            <Forms @ref="editForm" Item="@selectedItem" Parent="@selectedItemParent">
+            </Forms>
         </FormTemplate>
     </ModalTemplate>
 }
@@ -130,7 +130,7 @@
     private IEntityDto? selectedItemParent;
 
     //reference to the editform and it's members
-    private TestForm? editForm;
+    private Forms? editForm;
 
     //for the modal
     private string caption = string.Empty;
