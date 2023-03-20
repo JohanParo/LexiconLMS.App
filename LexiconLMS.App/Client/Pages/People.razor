@@ -20,7 +20,7 @@
     <p>You have an 'Admin' role claim.</p>
 </AuthorizeView>*@
 
-<h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yy-MM-dd")} - {Course.EndTime.ToString("yy-MM-dd")}")</h1>
+<h1 class="text-end text-muted">@($"{Course.Title} {Course.StartTime.ToString("yyyy-MM-dd")} - {Course.EndTime.ToString("yyyy-MM-dd")}")</h1>
 
 <BlockGroupTemplate Items="UserItems" Context="item" Collapsable="true" Cols="6">
     <GroupHeader>Students</GroupHeader>

@@ -70,14 +70,14 @@
 
     }
 
-    string dateString = "yy-MM-dd";
+    string dateString = "yyyy-MM-dd";
     Random random = new Random();
     string color { get; set; } = "#868e96";
     protected override void OnInitialized()
     {
         if (Time == true)
         {
-            dateString = "yy-MM-dd HH:dd";
+            dateString = "yyyy-MM-dd HH:dd";
         }
         color = String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
     }
