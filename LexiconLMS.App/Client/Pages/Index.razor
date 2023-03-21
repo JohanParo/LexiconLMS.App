@@ -4,10 +4,10 @@
 @using LexiconLMS.App.Client.Services;
 @using System.Diagnostics;
 
-@inject AuthenticationStateProvider authStateProvider;
+@inject AuthenticationStateProvider authStateProvider
 @inject IJSRuntime JsRuntime
-@inject LMSClient lmsClient;
-@inject IMapper mapper;
+@inject LMSClient lmsClient
+@inject IMapper mapper
 @inject AlertService AlertService
 
 @page "/"
@@ -75,7 +75,7 @@ else
             </TableTemplate>
         </BlockGroupTemplate>
     </AuthorizeView>
-
+ <AuthorizeView Roles="Student">
     <div class="accordion mb-4" id="week">
         <div class="accordion-item">
             <h4 class="accordion-header" id=@($"accordionHeading-week")>
@@ -98,7 +98,7 @@ else
                                 {
                                     <div class="col mb-3" id="@day?.FirstOrDefault()?.StartTime.ToString("dddd d/M")">
                                         <h4 class="mt-0 mb-3 text-dark op-8 font-weight-bold">@($"{day?.FirstOrDefault()?.StartTime.ToString("dddd d'/'M")}")</h4>
-                                        <ul class="list-timeline list-timeline-primary">
+                                        <ul class="list-timeline list-timeline-dark">
                                             @foreach (var item in day!)
                                             {
                                                 @if (item is not null)
@@ -108,7 +108,7 @@ else
                                                             <span class="text-inverse op-8">@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</span>
                                                         </p>
 
-                                                        <p class="my-0 flex-fw text-xs text-primary op-8" id="day-1-item-1">@item.Title </p>
+                                                        <p class="my-0 flex-fw text-xs text-primary op-8" id="day-1-item-1"><a class="stretched-link" style="cursor:pointer;" @onclick="()=>OnActivitySelect(item.Title)">@item.Title</a></p>
 
                                                         <h class="my-0 text-dark flex-fw text-sm ">
                                                             <span class="text-inverse op-8"><i>@item.ActivityTypeType</i></span>
@@ -130,7 +130,7 @@ else
             </div>
         </div>
     </div>
-
+    </AuthorizeView>
 
     @* block for module cards *@
     <BlockGroupTemplate Items="ModuleList" Context="item" Collapsable="false" Cols="4" Id="section-modules">
@@ -162,7 +162,7 @@ else
                OnClose="@OnDialogClose"
                Type="@modalType">
             <FormTemplate>
-                <Forms @ref="editForm" Item="@selectedItem">
+                <Forms @ref="editForm" Item="@selectedItem" Parent="selectedItemParent">
                 </Forms>
             </FormTemplate>
         </ModalTemplate>
@@ -235,6 +235,7 @@ else
     //to use with the form
     //Copy of dto
     private IEntityDto? selectedItem;
+        private IEntityDto? selectedItemParent;
 
     //reference to the editform and it's members
     private Forms? editForm;
@@ -294,9 +295,11 @@ else
                 break;
             case ModalType.Module:
                 CastItem(parameters.Id, ModuleList);
+                selectedItemParent = SelectedCourse;
                 break;
             case ModalType.Activity:
                 CastItem(parameters.Id, ActivityList);
+                selectedItemParent = SelectedModule;
                 break;
         }
 

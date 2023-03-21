@@ -7,7 +7,7 @@
     {
         var Activity = new ActivityDto();
         Activity = (ActivityDto)Item;
-        Activity.ModuleId = Parent.Id;
+
         @*        <div class="form-group mb-3">
             <label>Select module</label>
             <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
@@ -19,8 +19,8 @@
             <InputNumber class="form-control" @bind-Value="Activity.ActivityTypeId">
             </InputNumber>
         </div>*@
-        <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
-        </InputNumber>
+@*        <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
+        </InputNumber>*@
         <div class="form-group mb-3">
             <label>Activity type</label>
             <InputSelect class="form-select" @bind-Value="Activity.ActivityTypeId">
@@ -34,18 +34,16 @@
 
     }
 
-    @if (Item.GetType().Name == "ModuleDto")
+    @*@if (Item.GetType().Name == "ModuleDto")
     {
         var castedItem = new ModuleDto();
         castedItem = (ModuleDto)Item;
         castedItem.CourseId = Parent.Id;
-     @*   <div class="form-group mb-3">
+       <div class="form-group mb-3">
             <label>Select course</label>
             <InputNumber class="form-control" @bind-Value="castedItem.CourseId">
             </InputNumber>
         </div>*@
-        <InputNumber typeof="hidden" class="form-control" @bind-Value="castedItem.CourseId">
-        </InputNumber>
     }
 
     <div class="form-group mb-3">
@@ -102,6 +100,19 @@
         {       
             editContext = new EditContext(Item);
             editContext.OnFieldChanged += EditContext_OnFieldChanged;
+
+            @if (Item.GetType().Name == "ActivityDto")
+            {
+                var Activity = new ActivityDto();
+                Activity = (ActivityDto)Item;
+                Activity.ModuleId = Parent.Id;
+            }
+            @if (Item.GetType().Name == "ModuleDto")
+            {
+                var Module = new ModuleDto();
+                Module = (ModuleDto)Item;
+                Module.CourseId = Parent.Id;
+            }
         }
     }
 
