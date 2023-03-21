@@ -101,7 +101,7 @@ namespace LexiconLMS.App.Server.Data
 
             .RuleFor(a => a.Title, f => f.Company.CompanyName())
             .RuleFor(a => a.Description, f => f.Lorem.Paragraphs(5))
-            .RuleFor(a => a.StartTime, f => moduleStart.Date.AddHours(9 + (4 * (i++ % 2))).AddDays((i + (j++ % 2)) / 2))
+            .RuleFor(a => a.StartTime, f => moduleStart.Date.AddHours(9 + (4 * (i++ % 2))).AddDays((i + (j++ % 2)) / 2)) // 2 activities/day 9-12 and 13-17
             .RuleFor(a => a.EndTime, (f, a) => a.StartTime.AddHours(3 + ((i - 1) % 2)))
             .RuleFor(a => a.ActivityType, f => f.PickRandom(activityTypes));
 
