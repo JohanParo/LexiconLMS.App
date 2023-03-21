@@ -18,7 +18,8 @@
             <InputNumber class="form-control" @bind-Value="Activity.ActivityTypeId">
             </InputNumber>
         </div>*@
-
+        <InputNumber type="hidden" class="form-control" @bind-Value="Activity.ModuleId">
+        </InputNumber>
         <div class="form-group mb-3">
             <label>Activity type</label>
             <InputSelect class="form-select" @bind-Value="Activity.ActivityTypeId">
@@ -78,6 +79,7 @@
 @code {
     [Parameter]
     public IEntityDto Item { get; set; }
+
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
 
     [Inject]
@@ -108,8 +110,6 @@
     private void EditContext_OnFieldChanged(object sender, FieldChangedEventArgs e)
     {
         var test = editContext.Validate();
-        var t = "";
-
     }
  
     public async Task OnSave()
