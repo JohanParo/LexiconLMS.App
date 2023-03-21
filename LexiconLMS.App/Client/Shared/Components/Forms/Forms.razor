@@ -7,7 +7,8 @@
     {
         var Activity = new ActivityDto();
         Activity = (ActivityDto)Item;
-@*        <div class="form-group mb-3">
+        Activity.ModuleId = Parent.Id;
+        @*        <div class="form-group mb-3">
             <label>Select module</label>
             <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
             </InputNumber>
@@ -18,7 +19,7 @@
             <InputNumber class="form-control" @bind-Value="Activity.ActivityTypeId">
             </InputNumber>
         </div>*@
-        <InputNumber type="hidden" class="form-control" @bind-Value="Activity.ModuleId">
+        <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
         </InputNumber>
         <div class="form-group mb-3">
             <label>Activity type</label>
@@ -37,12 +38,14 @@
     {
         var castedItem = new ModuleDto();
         castedItem = (ModuleDto)Item;
-
+        castedItem.CourseId = Parent.Id;
      @*   <div class="form-group mb-3">
             <label>Select course</label>
             <InputNumber class="form-control" @bind-Value="castedItem.CourseId">
             </InputNumber>
         </div>*@
+        <InputNumber typeof="hidden" class="form-control" @bind-Value="castedItem.CourseId">
+        </InputNumber>
     }
 
     <div class="form-group mb-3">
@@ -79,6 +82,9 @@
 @code {
     [Parameter]
     public IEntityDto Item { get; set; }
+    [Parameter]
+    public IEntityDto Parent { get; set; }
+
 
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
 
