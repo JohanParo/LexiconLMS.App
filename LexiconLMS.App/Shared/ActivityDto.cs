@@ -25,6 +25,7 @@ namespace LexiconLMS.App.Shared
         public int ModuleId { get; set; }
 
         [Required]
+        [Range(typeof(int), "1", "5", ErrorMessage = "Please select a type")]
         public int ActivityTypeId { get; set; }
         public string ActivityTypeType { get; set; } = string.Empty;
         public bool Published { get; set; } = true;
