@@ -115,7 +115,7 @@ namespace LexiconLMS.App.Server.Data
 
             for (int i = 0; i < types.Length; i++)
             {
-                ActivityType activityType = new ActivityType { Type = types[i] };    
+                ActivityType activityType = new() { Type = types[i] };    
                 activityTypes.Add(activityType);
             }
 

@@ -1,26 +1,26 @@
 ﻿@using LexiconLMS.App.Client.Services;
 
 <EditForm EditContext="editContext">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
+    <DataAnnotationsValidator />
+    <ValidationSummary />
     @if (Item.GetType().Name == "ActivityDto")
     {
         var Activity = new ActivityDto();
         Activity = (ActivityDto)Item;
 
         @*        <div class="form-group mb-3">
-            <label>Select module</label>
-            <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
-            </InputNumber>
-        </div>*@
+    <label>Select module</label>
+    <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
+    </InputNumber>
+    </div>*@
 
-      @*  <div class="form-group mb-3">
-            <label>Select type</label>
-            <InputNumber class="form-control" @bind-Value="Activity.ActivityTypeId">
-            </InputNumber>
-        </div>*@
-@*        <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
-        </InputNumber>*@
+        @*  <div class="form-group mb-3">
+    <label>Select type</label>
+    <InputNumber class="form-control" @bind-Value="Activity.ActivityTypeId">
+    </InputNumber>
+    </div>*@
+        @*        <InputNumber class="form-control" @bind-Value="Activity.ModuleId">
+    </InputNumber>*@
         <div class="form-group mb-3">
             <label>Activity type</label>
             <InputSelect class="form-select" @bind-Value="Activity.ActivityTypeId">
@@ -36,15 +36,15 @@
 
     @*@if (Item.GetType().Name == "ModuleDto")
     {
-        var castedItem = new ModuleDto();
-        castedItem = (ModuleDto)Item;
-        castedItem.CourseId = Parent.Id;
-       <div class="form-group mb-3">
-            <label>Select course</label>
-            <InputNumber class="form-control" @bind-Value="castedItem.CourseId">
-            </InputNumber>
-        </div>*@
-    }
+    var castedItem = new ModuleDto();
+    castedItem = (ModuleDto)Item;
+    castedItem.CourseId = Parent.Id;
+    <div class="form-group mb-3">
+    <label>Select course</label>
+    <InputNumber class="form-control" @bind-Value="castedItem.CourseId">
+    </InputNumber>
+    </div>
+    }*@
 
     <div class="form-group mb-3">
         <label>Title</label>
@@ -63,7 +63,7 @@
     </div>
 
     <div class="form-group mb-3">
-        <label>Start date</label> 
+        <label>Start date</label>
         <InputDate id="startTime" class="form-control" Type="InputDateType.DateTimeLocal" @bind-Value="Item.StartTime" placeholder="Enter start date"></InputDate>
         <ValidationMessage For="@(()=>Item.StartTime)" />
     </div>
@@ -83,23 +83,25 @@
     [Parameter]
     public IEntityDto Parent { get; set; }
 
-
+    ValidationMessageStore messages;
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
 
     [Inject]
     public LMSClient lmsClient { get; set; } = default!;
 
     public EditContext editContext = default!;
-    public bool isValid=false;
+    public bool isValid = false;
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
-        if(Item is not null)
-        {       
+        if (Item is not null)
+        {
             editContext = new EditContext(Item);
             editContext.OnFieldChanged += EditContext_OnFieldChanged;
+
+            messages = new ValidationMessageStore(editContext);
 
             @if (Item.GetType().Name == "ActivityDto")
             {
@@ -117,7 +119,7 @@
     }
 
     protected async override Task OnInitializedAsync()
-    {       
+    {
         await base.OnInitializedAsync();
 
         ActivityTypes = (await lmsClient.GetAsync<ActivityTypeDto>("api/activitytypes")).ToList();
@@ -126,9 +128,25 @@
 
     private void EditContext_OnFieldChanged(object sender, FieldChangedEventArgs e)
     {
+        var rangetest = DateTime.Compare(Item.StartTime, Parent.StartTime);
+        // <0 = earlier, 0 same, >0 later
+        if (rangetest<0 || Item.EndTime < Parent.EndTime)
+        {
+            messages.Add(e.FieldIdentifier, "Dates should be within range of the parent object dates");
+            editContext.NotifyValidationStateChanged();
+        }
+        if (Item.StartTime > Item.EndTime)
+        {
+            messages.Add(e.FieldIdentifier, "End date should be later than start date");
+            editContext.NotifyValidationStateChanged();
+        }
+        else
+        {
+            messages.Clear(e.FieldIdentifier);
+        }
         var test = editContext.Validate();
     }
- 
+
     public async Task OnSave()
     {
         if (Item is null)

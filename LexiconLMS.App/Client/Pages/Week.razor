@@ -84,7 +84,7 @@ else
     private List<ActivityDto> ActivityItems { get; set; } = new();
     private List<ActivityTypeDto> ActivityTypes { get; set; } = new();
     private List<List<ActivityDto>> DailyActivitites { get; set; } = new List<List<ActivityDto>>();
-    private DateTime FirstDate { get; set; } = DateTime.Now.AddHours(0);
+    private DateTime FirstDate { get; set; } = DateTime.Now.AddDays(-360);
     int daysToSkip { get; set; }
 
 
