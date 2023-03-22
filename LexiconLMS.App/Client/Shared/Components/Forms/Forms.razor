@@ -36,14 +36,14 @@
 
     @*@if (Item.GetType().Name == "ModuleDto")
     {
-    var castedItem = new ModuleDto();
-    castedItem = (ModuleDto)Item;
-    castedItem.CourseId = Parent.Id;
-    <div class="form-group mb-3">
-    <label>Select course</label>
-    <InputNumber class="form-control" @bind-Value="castedItem.CourseId">
-    </InputNumber>
-    </div>
+        var castedItem = new ModuleDto();
+        castedItem = (ModuleDto)Item;
+        castedItem.CourseId = Parent.Id;
+       <div class="form-group mb-3">
+            <label>Select course</label>
+            <InputNumber class="form-control" @bind-Value="castedItem.CourseId">
+            </InputNumber>
+        </div>
     }*@
 
     <div class="form-group mb-3">
